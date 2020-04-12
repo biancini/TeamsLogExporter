@@ -1,0 +1,78 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>TeamsLogExporterWeb</title>
+
+    <link rel="stylesheet" href="{% static 'exporter/css/bootstrap-italia.min.css' %}" />
+</head>
+<body ng-app="teamsLogExporter" ng-controller="mainController">
+    <div>
+        <div class="it-header-slim-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="it-header-slim-wrapper-content">
+                            <a class="d-lg-block navbar-brand" style="font-size: 1rem; font-weight: bold" href="/exporter">
+                                <svg class="icon icon-white icon-sm align-middle"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-exchange-circle"></use></svg>
+                                Teams Log Exporter Web
+                            </a>
+                            <div class="it-header-slim-left-zone">
+                                {% if user.is_authenticated %}
+                                    <a href="{% url 'signout' %}" class="btn btn-primary btn-icon btn-full">
+                                        <span class="rounded-icon">
+                                            <svg class="icon icon-primary">
+                                                <use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-user"></use>
+                                            </svg>
+                                        </span>
+                                        <span class="d-none d-lg-block">{{ user.name }}</span>
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'signin' %}" class="btn btn-primary btn-icon btn-full">
+                                        <span class="rounded-icon">
+                                            <svg class="icon icon-primary">
+                                                <use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-user"></use>
+                                            </svg>
+                                        </span>
+                                        <span class="d-none d-lg-block">Accedi a O365</span>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if errors %}
+        {% for error in errors %}
+        <div class="alert alert-danger" role="alert">
+            <p class="mb-3">{{ error.message }}</p>
+            {% if error.debug %}
+            <pre class="alert-pre border bg-light p-2"><code>{{ error.debug }}</code></pre>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="alert alert-danger hidden alert-dismissible fade show" role="alert" id="error-message">
+        <p class="mb-3">{a errorMessage a}</p>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>window.__PUBLIC_PATH__ = '{% static "exporter/fonts" %}'</script>
+    <script src="{% static 'exporter/js/bootstrap-italia.bundle.min.js' %}"></script>
+    <script src="{% static 'exporter/js/angular.min.js' %}"></script>
+    <script src="{% static 'exporter/js/teamslogexporter.js' %}"></script>
+</body>
+</html>

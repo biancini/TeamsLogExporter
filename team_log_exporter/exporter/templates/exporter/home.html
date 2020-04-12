@@ -1,0 +1,88 @@
+{% extends "exporter/layout.html" %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+      {% if user.is_authenticated %}
+        <h3>Benvenuto {{ user.name }}.</h3>
+        <p class="d-none d-lg-block">L'application Id utilizzato è {{ appdata.appid }} | Gli scope richiesti sono {{ appdata.scopes }}</p>
+      {% else %}
+        <h3>Bengenuto.</h3></h4>
+        <p class="d-none d-lg-block">Per proseguire devi fare login: <a href="{% url 'signin' %}" class="btn btn-primary btn-large">qui</a></p>
+      {% endif %}
+      <br/>
+  </div>
+</div>
+
+<div class="row">
+  <div class="form-group col-12">
+      <label for="formGroupExampleInput2">Inserisci un bearer token recuperato da Chrome</label>
+      <input type="text" class="form-control" ng-model="bearerToken" placeholder="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IllNRUxIVDBndmIwbXhvU0RvWWZvbWpxZmpZVSIsImtpZCI6IllNRUxIVDBndmIwbXhvU0RvWWZvbWpxZmpZVSJ9.eyJhdWQiOiIyZGRmYmU3MS1lZDEyLTQxMjMtYjk5Yi1kNWZjOGEwNjJhNzkiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC81NTJiZWQwMi00NTEyLTQ1MGMtODU4ZC04NGNmZTJiNDE4NmQvIiwiaWF0IjoxNTg2NjE0NDYwLCJuYmYiOjE1ODY2MTQ0NjAsImV4cCI6MTU4NjYxODM2MCwiYW1yIjpbInB3ZCJdLCJpcGFkZHIiOiI5My40NS43MC4yMDUiLCJuYW1lIjoiQW5kcmVhIEJpYW5jaW5pIiwibm9uY2UiOiI2ZDZlOTMxYi02NDgwLTQ4MGQtODQwZC1kMjdiYTQyNTFkN2QiLCJvaWQiOiJlYTQ2ZGU3NC1lYjA3LTRjMzgtODZlZC1mN2UyYjllOTU4NWEiLCJwdWlkIjoiMTAwMzNGRkZBRTMyMzExMSIsInN1YiI6IjZNeUpFeEtteU1kTTJ0dXVLOU1wa0tTb1JueTA2eEpqOERwV3hDTzNHczgiLCJ0aWQiOiI1NTJiZWQwMi00NTEyLTQ1MGMtODU4ZC04NGNmZTJiNDE4NmQiLCJ1bmlxdWVfbmFtZSI6ImFuZHJlYS5iaWFuY2luaUBzdHVkZW50aS5pdHNpbmNvbS5pdCIsInVwbiI6ImFuZHJlYS5iaWFuY2luaUBzdHVkZW50aS5pdHNpbmNvbS5pdCIsInV0aSI6InJjRDdXNVlPdDBXLXBNSXU1OHNIQUEiLCJ2ZXIiOiIxLjAifQ.ODjG2YIJ1nFJ_QObmawO-NTCu3P0JrkNAhktTK8zTo4cqtIempIGrjaLhvde6rDQpS92fUY5CwSnCoG-kZOIEGIe2D55R1kT0AVh6MEUuk_VtS8glIUghvIjumrOYaLiSuDcyUKrsudoK7FoXw2gH97ky54n9tL94aJszEldgBQFVQ8AdKsgDfgYbDQH1iPV9g8RpjVTINIh-CUufIwpuR35-V-ZtQOR6MVz2J97vzwCEr209lzmuGqc5Ul90VGxj-E38PLsQTU_6nk3qejsMumSztUwnBp_-2A5FeSWcB6-36_MWbWgKBaUDFl-N6gvZuSeDsWEz7cZvaLRJtyzjQ">
+
+      <button type="button" ng-click="startFlow()" class="btn btn-primary btn-sm steppers-btn-next">Inizia</button>
+  </div>
+</div>
+
+<div class="row" ng-show="setupOk">
+  <div class="steppers col-12">
+      <ul class="steppers-header">
+          <li ng-class="step1"><svg class="icon"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-presentation"></use></svg>Scegli gruppi <svg class="icon steppers-success" ng-if="step1 == 'completed'"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-check"></use></svg></li>
+          <li ng-class="step2"><svg class="icon"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-user"></use></svg>Scegli utenti <svg class="icon steppers-success" ng-if="step2 == 'completed'"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-check"></use></svg></li>
+          <li ng-class="step3"><svg class="icon"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-calendar"></use></svg>Scegli meeting <svg class="icon steppers-success" ng-if="step3 == 'completed'"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-check"></use></svg></li>
+          <li ng-class="step4"><svg class="icon"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-inbox"></use></svg>Stampa registri <svg class="icon steppers-success" ng-if="step4 == 'completed'"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-check"></use></svg></li>
+      </ul>
+      <div class="steppers-content" aria-live="polite" ng-show="step1 == 'active'">
+          <p>Selezionare uno o più gruppi di interesse <i>(laciare vuoto per selezionare tutti gli utenti)</i>:
+            <input ng-model="groupSearch" />
+          </p>
+          <div id="group-selection" class="form-check" ng-repeat="item in grouplist | search:'name':groupSearch">
+            <input id="checkbox-group-{a $index a}" type="checkbox" value="{a item.id a}">
+            <label for="checkbox-group-{a $index a}">{a item.name a}</label>
+          </div>
+      </div>
+      <div class="steppers-content" aria-live="polite" ng-show="step2 == 'active'">
+        <p>Selezionare uno o più utenti:
+          <input ng-model="userSearch" />
+        </p>
+        <div id="user-selection" class="form-check" ng-repeat="item in userlist | search:'name':userSearch">
+          <input id="checkbox-user-{a $index a}" type="checkbox" value="{a item.id a}">
+          <label for="checkbox-user-{a $index a}">{a item.name a}</label>
+        </div>
+      </div>
+      <div class="steppers-content" aria-live="polite" ng-show="step3 == 'active'">
+        <p>Selezionare gli eventi per cui generare il registro:</p>
+        <div id="event-selection" class="form-check" ng-repeat="item in eventlist">
+          <input id="checkbox-event-{a $index a}" type="checkbox" value="{a item.id a}">
+          <label for="checkbox-event-{a $index a}">Lezione di <b>{a item.start a}</b>, durata {a item.durata a} minuti <i>({a item.partecipant a} partecipanti)</i>.</label>
+        </div>
+      </div>
+      <div class="steppers-content" aria-live="polite" ng-show="step4 == 'active'">
+        <div ng-repeat="(meeting, participants) in meetingRecords">
+          <h3>{a meeting a}</h3>
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Partecipante</th>
+                <th scope="col">Inizio presenza</th>
+                <th scope="col">Fine Presenza</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="p in participants">
+                <th scope="row">{a p.name a}</th>
+                <td>{a p.start a}</td>
+                <td>{a p.end a}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <nav class="steppers-nav">
+          <button type="button" class="btn btn-outline-primary btn-sm steppers-btn-prev" ng-click="prevFlow()">Indietro</button>
+          <button type="button" class="btn btn-primary btn-sm steppers-btn-next" ng-click="nextFlow()">Avanti</button>
+      </nav>
+  </div>
+</div>
+{% endblock %}
