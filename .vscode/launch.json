@@ -11,8 +11,7 @@
             "program": "${workspaceFolder}/team_log_exporter/manage.py",
             "cwd": "${workspaceFolder}/team_log_exporter",
             "args": [
-                "runserver",
-                "--noreload"
+                "runserver"
             ],
             "django": true
         }

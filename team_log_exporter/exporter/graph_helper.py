@@ -53,6 +53,7 @@ def get_user_meetings(token, userid):
     r = requests.get(uri, headers=headers)
     result = r.json()
     
+    print("----> %s"%result)
     return result['value'] if 'value' in result else []
 
 def get_meeting_records(token, userid, meetingid):

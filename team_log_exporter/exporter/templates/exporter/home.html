@@ -8,13 +8,14 @@
         <h3>Benvenuto {{ user.name }}.</h3>
         <p class="d-none d-lg-block">L'application Id utilizzato è {{ appdata.appid }} | Gli scope richiesti sono {{ appdata.scopes }}</p>
       {% else %}
-        <h3>Bengenuto.</h3></h4>
+        <h3>Benvenuto.</h3></h4>
         <p class="d-none d-lg-block">Per proseguire devi fare login: <a href="{% url 'signin' %}" class="btn btn-primary btn-large">qui</a></p>
       {% endif %}
       <br/>
   </div>
 </div>
 
+{% if user.is_authenticated %}
 <div class="row">
   <div class="form-group col-12">
       <label for="formGroupExampleInput2">Inserisci un bearer token recuperato da Chrome</label>
@@ -54,12 +55,12 @@
         <p>Selezionare gli eventi per cui generare il registro:</p>
         <div id="event-selection" class="form-check" ng-repeat="item in eventlist">
           <input id="checkbox-event-{a $index a}" type="checkbox" value="{a item.id a}">
-          <label for="checkbox-event-{a $index a}">Lezione di <b>{a item.start a}</b>, durata {a item.durata a} minuti <i>({a item.partecipant a} partecipanti)</i>.</label>
+          <label for="checkbox-event-{a $index a}">Lezione di <b>{a item.start a}</b>, durata {a item.durata a} <i>({a item.partecipant a} partecipanti)</i>.</label>
         </div>
       </div>
       <div class="steppers-content" aria-live="polite" ng-show="step4 == 'active'">
-        <div ng-repeat="(meeting, participants) in meetingRecords">
-          <h3>{a meeting a}</h3>
+        <div ng-repeat="meeting in meetingRecords">
+          <h3>{a meeting.descr a}</h3>
 
           <table class="table">
             <thead>
@@ -67,13 +68,15 @@
                 <th scope="col">Partecipante</th>
                 <th scope="col">Inizio presenza</th>
                 <th scope="col">Fine Presenza</th>
+                <th scope="col">Tempo di partecipazione</th>
               </tr>
             </thead>
             <tbody>
-              <tr ng-repeat="p in participants">
+              <tr ng-repeat="p in meeting.participants">
                 <th scope="row">{a p.name a}</th>
-                <td>{a p.start a}</td>
-                <td>{a p.end a}</td>
+                <td>{a p.start | date:'dd/MM/yyyy HH:mm' a}</td>
+                <td>{a p.end | date:'dd/MM/yyyy HH:mm' a}</td>
+                <td>{a p.duration a}</td>
               </tr>
             </tbody>
           </table>
@@ -85,4 +88,6 @@
       </nav>
   </div>
 </div>
+{% endif %}
+
 {% endblock %}

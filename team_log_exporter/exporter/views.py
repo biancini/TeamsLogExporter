@@ -1,9 +1,11 @@
 import json
+import math
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime
 from exporter.auth_helper import appid, scopes, get_sign_in_url, get_token_from_code, store_token, store_bearertoken, store_user, remove_user_and_token, get_user, get_token, get_bearertoken
 from exporter.graph_helper import get_meuser, get_otheruser, get_all_users, get_all_groups, get_group_users, get_user_meetings, get_meeting_records
 
@@ -115,8 +117,8 @@ def getuser_meetings(request):
 
         token = get_bearertoken(request)
 
+        events = []
         if len(user_ids) > 0:
-            events = []
             for uid in user_ids:
                 newevents = get_user_meetings(token, uid)
                 events.extend(newevents)
@@ -141,9 +143,10 @@ def getmeeting_records(request):
         token = get_bearertoken(request)
         graph_token = get_token(request)
         uid = get_user(request)['id']
-
+        
+        meeting_records = []
+        
         if len(event_ids) > 0:
-            meeting_records = {}
             for eid in event_ids:
                 result = get_meeting_records(token, uid, eid)
                 participants = []
@@ -153,10 +156,30 @@ def getmeeting_records(request):
                     user = get_otheruser(graph_token, uid)
                     name = user['displayName'] if 'displayName' in user else 'Sconosciuto'
 
-                    for c in p['communicationFragments']:
-                        participants.append({ 'uid': uid, 'name': name, 'start': c['startDateTime'], 'end': c['endDateTime']})
+                    min_start = None
+                    max_end = None
+                    duration = 0
 
-                meeting_records[eid] = participants
+                    for c in p['communicationFragments']:
+                        start = datetime.strptime(c['startDateTime'][:26], '%Y-%m-%dT%H:%M:%S.%f')
+                        if min_start is None or start < min_start:
+                            min_start = start
+
+                        end = datetime.strptime(c['endDateTime'][:26], '%Y-%m-%dT%H:%M:%S.%f')
+                        if max_end is None or end > max_end:
+                            max_end = end
+                        
+                        duration += c['callDuration']
+
+                    duration /= 1000
+                    duration /= 60
+                    hours = math.floor(duration / 60)
+                    minutes = math.floor(duration % 60)
+                    duration = "{0} ore e {1} minuti".format(hours, minutes)
+
+                    participants.append({ 'uid': uid, 'name': name, 'start': min_start.strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'end': max_end.strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'duration': duration})
+
+                meeting_records.append({ 'id': eid, 'participants': participants })
 
         return JsonResponse({
             "esito": True,

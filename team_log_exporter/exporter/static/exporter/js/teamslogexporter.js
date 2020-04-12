@@ -91,7 +91,11 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
                 
                 $scope.eventlist = response.data.data;
                 $scope.eventlist.forEach(function (item) {
-                    item['durata'] = Math.floor((new Date(item['end']) - new Date(item['start'])) / (1000*60));
+                    var durata = Math.floor((new Date(item['end'])) - (new Date(item['start']))) / (1000*60);
+                    var hours = Math.floor(durata / 60);  
+                    var minutes = Math.floor(durata % 60);
+                    
+                    item['durata'] = hours + " ore e " + minutes + "minuti";
                     item['start'] = new Date(item['start']).toLocaleTimeString('it-IT', options);
                     item['end'] = new Date(item['end']).toLocaleTimeString('it-IT', options);                    
                 });
@@ -123,6 +127,15 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
                 $scope.step4 = 'active';
 
                 $scope.meetingRecords = response.data.data;
+                $scope.meetingRecords.forEach(function (item) {
+                    var description = item['id'];
+                    $scope.eventlist.forEach(function (ev) {
+                        if (ev['id'] == description) {
+                            description = "Lezione di " + ev.start + ", durata " + ev.durata + " (" + ev.partecipant +" partecipanti)";
+                        }
+                    });
+                    item['descr'] = description;
+                });
             }, function errorCallback(response) {
                 console.log("Errore: " + JSON.stringify({data: response}));
             });
