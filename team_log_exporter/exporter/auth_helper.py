@@ -1,7 +1,7 @@
 import yaml
-from requests_oauthlib import OAuth2Session
 import os
 import time
+from requests_oauthlib import OAuth2Session
 
 # This is necessary for testing with non-HTTPS localhost
 # Remove this if deploying to production
@@ -18,13 +18,13 @@ settings = yaml.load(stream, yaml.SafeLoader)
 authorize_url = '{0}{1}'.format(settings['authority'], settings['authorize_endpoint'])
 token_url = '{0}{1}'.format(settings['authority'], settings['token_endpoint'])
 
-appid = settings['app_id']
+appid = os.environ['APPID']
 scopes = settings['scopes']
 
 # Method to generate a sign-in url
 def get_sign_in_url():
     # Initialize the OAuth client
-    aad_auth = OAuth2Session(settings['app_id'],
+    aad_auth = OAuth2Session(os.environ['APPID'],
         scope=settings['scopes'],
         redirect_uri=settings['redirect'])
 
@@ -35,13 +35,13 @@ def get_sign_in_url():
 # Method to exchange auth code for access token
 def get_token_from_code(callback_url, expected_state):
     # Initialize the OAuth client
-    aad_auth = OAuth2Session(settings['app_id'],
+    aad_auth = OAuth2Session(os.environ['APPID'],
         state=expected_state,
         scope=settings['scopes'],
         redirect_uri=settings['redirect'])
 
     token = aad_auth.fetch_token(token_url,
-        client_secret = settings['app_secret'],
+        client_secret = os.environ['APPSECRET'],
         authorization_response=callback_url)
 
     return token
@@ -73,14 +73,14 @@ def get_token(request):
         expire_time = token['expires_at'] - 300
         if now >= expire_time:
             # Refresh the token
-            aad_auth = OAuth2Session(settings['app_id'],
+            aad_auth = OAuth2Session(os.environ['APPID'],
                 token = token,
                 scope=settings['scopes'],
                 redirect_uri=settings['redirect'])
 
             refresh_params = {
-                'client_id': settings['app_id'],
-                'client_secret': settings['app_secret'],
+                'client_id': os.environ['APPID'],
+                'client_secret': os.environ['APPSECRET'],
             }
             new_token = aad_auth.refresh_token(token_url, **refresh_params)
 

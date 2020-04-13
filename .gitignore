@@ -3,6 +3,8 @@
 **/*.py[cod]
 *$py.class
 
+static/
+
 # C extensions
 *.so
 
@@ -128,4 +130,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-team_log_exporter/oauth_settings.yml
+.vscode/
