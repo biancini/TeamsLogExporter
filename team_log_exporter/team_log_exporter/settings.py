@@ -25,7 +25,7 @@ SECRET_KEY = '7mzy-xnhvyeedq7h%u7oqj4k)@*d!g9n==2e$z6p+^y1$3t#=t'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', 'teams-log-exporter.herokuapp.com']
 
 
 # Application definition
