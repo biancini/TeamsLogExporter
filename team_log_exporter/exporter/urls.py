@@ -11,5 +11,6 @@ urlpatterns = [
     path('getusers_bygroup', views.getusers_bygroup, name='getusers_bygroup'),
     path('getuser_meetings', views.getuser_meetings, name='getuser_meetings'),
     path('getmeeting_records', views.getmeeting_records, name='getmeeting_records'),
+    path('export_xls', views.export_xls, name='export_xls'),
     path('', views.home, name='home'),
 ]

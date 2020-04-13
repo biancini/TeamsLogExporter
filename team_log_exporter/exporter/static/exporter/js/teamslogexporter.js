@@ -35,11 +35,15 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
 
     $scope.startFlow = function() {
         var token = $scope.bearerToken;
+        var user = $scope.user;
         
         $scope.grouplist = []
-        $http.post("/exporter/bearer", { token: token }).then(function successCallback(response) {
+        $http.post("/exporter/bearer", { user: user, token: token }).then(function successCallback(response) {
             $scope.setupOk = true;
             $scope.step1 = 'active';
+            $scope.step2 = '';
+            $scope.step3 = '';
+            $scope.step4 = '';
             
             $scope.grouplist = response.data.data;
         }, function errorCallback(response) {
@@ -58,6 +62,8 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
             $http.post("/exporter/getusers_bygroup", { groups: selectedGroups }).then(function successCallback(response) {
                 $scope.step1 = 'completed'
                 $scope.step2 = 'active';
+                $scope.step3 = '';
+                $scope.step4 = '';
                 
                 $scope.userlist = response.data.data;
             }, function errorCallback(response) {
@@ -84,8 +90,10 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
             
             $scope.userlist = []
             $http.post("/exporter/getuser_meetings", { users: selectedUsers }).then(function successCallback(response) {
+                $scope.step1 = 'completed';
                 $scope.step2 = 'completed'
                 $scope.step3 = 'active';
+                $scope.step4 = '';
 
                 var options = {'weekday': 'long', 'year': 'numeric', 'month': 'long', 'day': '2-digit'};
                 
@@ -123,6 +131,8 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
             
             $scope.userlist = []
             $http.post("/exporter/getmeeting_records", { meetings: selectedEvents }).then(function successCallback(response) {
+                $scope.step1 = 'completed'
+                $scope.step2 = 'completed'
                 $scope.step3 = 'completed';
                 $scope.step4 = 'active';
 
@@ -146,18 +156,35 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
 
     $scope.prevFlow = function() {
         if ($scope.step2 = 'active') {
-            $scope.step1 = 'active'
-            $scope.step2 = 'suspended'
+            $scope.step1 = 'active';
+            $scope.step2 = 'suspended';
+            $scope.step4 = '';
+            $scope.step4 = '';
         }
 
         if ($scope.step3 = 'active') {
+            $scope.step1 = 'completed'
             $scope.step2 = 'active'
             $scope.step3 = 'suspended'
+            $scope.step4 = '';
         }
 
         if ($scope.step4 = 'active') {
+            $scope.step1 = 'completed'
+            $scope.step2 = 'completed'
             $scope.step3 = 'active'
             $scope.step4 = 'suspended'
         }
+    };
+
+    $scope.downloadExcel = function(mid) {
+        $scope.meetingRecords.forEach(function (item) {
+            if (item['id'] == mid) {
+                console.log(item);
+                $("#table").val(encodeURIComponent(JSON.stringify(item)));
+                var form = angular.element('#excel-form');
+                form.submit();
+            }
+        });
     };
 }]);

@@ -6,7 +6,7 @@
   <div class="col-12">
       {% if user.is_authenticated %}
         <h3>Benvenuto {{ user.name }}.</h3>
-        <p class="d-none d-lg-block">L'application Id utilizzato è {{ appdata.appid }} | Gli scope richiesti sono {{ appdata.scopes }}</p>
+        <p class="d-none d-lg-block">L'application Id utilizzato è {{ appdata.appid }}<br/>Gli scope richiesti sono {{ appdata.scopes }}</p>
       {% else %}
         <h3>Benvenuto.</h3></h4>
         <p class="d-none d-lg-block">Per proseguire devi fare login: <a href="{% url 'signin' %}" class="btn btn-primary btn-large">qui</a></p>
@@ -19,8 +19,8 @@
 <div class="row">
   <div class="form-group col-12">
       <label for="formGroupExampleInput2">Inserisci un bearer token recuperato da Chrome</label>
-      <input type="text" class="form-control" ng-model="bearerToken" placeholder="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IllNRUxIVDBndmIwbXhvU0RvWWZvbWpxZmpZVSIsImtpZCI6IllNRUxIVDBndmIwbXhvU0RvWWZvbWpxZmpZVSJ9.eyJhdWQiOiIyZGRmYmU3MS1lZDEyLTQxMjMtYjk5Yi1kNWZjOGEwNjJhNzkiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC81NTJiZWQwMi00NTEyLTQ1MGMtODU4ZC04NGNmZTJiNDE4NmQvIiwiaWF0IjoxNTg2NjE0NDYwLCJuYmYiOjE1ODY2MTQ0NjAsImV4cCI6MTU4NjYxODM2MCwiYW1yIjpbInB3ZCJdLCJpcGFkZHIiOiI5My40NS43MC4yMDUiLCJuYW1lIjoiQW5kcmVhIEJpYW5jaW5pIiwibm9uY2UiOiI2ZDZlOTMxYi02NDgwLTQ4MGQtODQwZC1kMjdiYTQyNTFkN2QiLCJvaWQiOiJlYTQ2ZGU3NC1lYjA3LTRjMzgtODZlZC1mN2UyYjllOTU4NWEiLCJwdWlkIjoiMTAwMzNGRkZBRTMyMzExMSIsInN1YiI6IjZNeUpFeEtteU1kTTJ0dXVLOU1wa0tTb1JueTA2eEpqOERwV3hDTzNHczgiLCJ0aWQiOiI1NTJiZWQwMi00NTEyLTQ1MGMtODU4ZC04NGNmZTJiNDE4NmQiLCJ1bmlxdWVfbmFtZSI6ImFuZHJlYS5iaWFuY2luaUBzdHVkZW50aS5pdHNpbmNvbS5pdCIsInVwbiI6ImFuZHJlYS5iaWFuY2luaUBzdHVkZW50aS5pdHNpbmNvbS5pdCIsInV0aSI6InJjRDdXNVlPdDBXLXBNSXU1OHNIQUEiLCJ2ZXIiOiIxLjAifQ.ODjG2YIJ1nFJ_QObmawO-NTCu3P0JrkNAhktTK8zTo4cqtIempIGrjaLhvde6rDQpS92fUY5CwSnCoG-kZOIEGIe2D55R1kT0AVh6MEUuk_VtS8glIUghvIjumrOYaLiSuDcyUKrsudoK7FoXw2gH97ky54n9tL94aJszEldgBQFVQ8AdKsgDfgYbDQH1iPV9g8RpjVTINIh-CUufIwpuR35-V-ZtQOR6MVz2J97vzwCEr209lzmuGqc5Ul90VGxj-E38PLsQTU_6nk3qejsMumSztUwnBp_-2A5FeSWcB6-36_MWbWgKBaUDFl-N6gvZuSeDsWEz7cZvaLRJtyzjQ">
-
+      <input type="text" class="form-control" ng-model="bearerToken" placeholder="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IllNRUxIVDBndmIwbXhvU0RvWWZvbWpxZmpZVSIsImtpZCI6IllNRUxIVDBndmIwbXhvU0RvWWZvbWpxZmpZVSJ9.eyJhdWQiOiIyZGRmYmU3MS1lZDEyLTQxMjMtYjk5Yi1kNWZjOGEwNjJhNzkiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC81NTJiZWQwMi00NTEyLTQ1MGMtODU4ZC04NGNmZTJiNDE4NmQvIiwiaWF0IjoxNTg2NjE0NDYwLCJuYmYiOjE1ODY2MTQ0NjAsImV4cCI6MTU4NjYxODM2MCwiYW1yIjpbInB3ZCJdLCJpcGFkZHIiOiI5My40NS43MC4yMDUiLCJuYW1lIjoiQW5kcmVhIEJpYW5jaW5pIiwibm9uY2UiOiI2ZDZlOTMxYi02NDgwLTQ4MGQtODQwZC1kMjdiYTQyNTFkN2QiLCJvaWQiOiJlYTQ2ZGU3NC1lYjA3LTRjMzgtODZlZC1mN2UyYjllOTU4NWEiLCJwdWlkIjoiMTAwMzNGRkZBRTMyMzExMSIsInN1YiI6IjZNeUpFeEtteU1kTTJ0dXVLOU1wa0tTb1JueTA2eEpqOERwV3hDTzNHczgiLCJ0aWQiOiI1NTJiZWQwMi00NTEyLTQ1MGMtODU4ZC04NGNmZTJiNDE4NmQiLCJ1bmlxdWVfbmFtZSI6ImFuZHJlYS5iaWFuY2luaUBzdHVkZW50aS5pdHNpbmNvbS5pdCIsInVwbiI6ImFuZHJlYS5iaWFuY2luaUBzdHVkZW50aS5pdHNpbmNvbS5pdCIsInV0aSI6InJjRDdXNVlPdDBXLXBNSXU1OHNIQUEiLCJ2ZXIiOiIxLjAifQ.ODjG2YIJ1nFJ_QObmawO-NTCu3P0JrkNAhktTK8zTo4cqtIempIGrjaLhvde6rDQpS92fUY5CwSnCoG-kZOIEGIe2D55R1kT0AVh6MEUuk_VtS8glIUghvIjumrOYaLiSuDcyUKrsudoK7FoXw2gH97ky54n9tL94aJszEldgBQFVQ8AdKsgDfgYbDQH1iPV9g8RpjVTINIh-CUufIwpuR35-V-ZtQOR6MVz2J97vzwCEr209lzmuGqc5Ul90VGxj-E38PLsQTU_6nk3qejsMumSztUwnBp_-2A5FeSWcB6-36_MWbWgKBaUDFl-N6gvZuSeDsWEz7cZvaLRJtyzjQ" />
+      <input type="hidden" ng-model="user" value="{{ user.name }}" />
       <button type="button" ng-click="startFlow()" class="btn btn-primary btn-sm steppers-btn-next">Inizia</button>
   </div>
 </div>
@@ -61,6 +61,7 @@
       <div class="steppers-content" aria-live="polite" ng-show="step4 == 'active'">
         <div ng-repeat="meeting in meetingRecords">
           <h3>{a meeting.descr a}</h3>
+          <button type="button" ng-click="downloadExcel(meeting.id)" class="btn btn-outline-primary float-right">Scarica in Excel <svg class="icon"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-arrow-down-circle"></use></svg></button>
 
           <table class="table">
             <thead>
@@ -88,6 +89,10 @@
       </nav>
   </div>
 </div>
+
+<form method="post" action="/exporter/export_xls" id="excel-form" target="_blank">
+  <input type="hidden" name="table" id="table" value="" />
+</form>
 {% endif %}
 
 {% endblock %}

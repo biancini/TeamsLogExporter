@@ -1,5 +1,8 @@
 import json
 import math
+import xlwt
+import urllib.parse
+from io import StringIO
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
@@ -66,7 +69,8 @@ def home(request):
 def bearer(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        store_bearertoken(request, data['token'])
+        if 'token' in data and data['token']:
+            store_bearertoken(request, data['token'])
 
         token = get_token(request)
         groups = get_all_groups(token)
@@ -187,6 +191,43 @@ def getmeeting_records(request):
             "data": meeting_records
         })
         
+    return JsonResponse({
+        "esito": False,
+        "message": "Effettuata la chiamata in modo errato."
+    })
+
+@csrf_exempt
+def export_xls(request):
+    if request.method == 'POST':
+        data = urllib.parse.unquote(request.POST.get("table", "{}"))
+        table = json.loads(data)
+
+        wb = xlwt.Workbook(encoding='utf-8')
+        ws = wb.add_sheet('Users')
+
+        # Sheet header, first row
+        row_num = 0
+
+        font_style = xlwt.XFStyle()
+        font_style.font.bold = True
+
+        columns = ['Partecipante', 'Inizio presenza', 'Fine presenza', 'Tempo di partecipazione', ]
+        for col_num in range(len(columns)):
+            ws.write(row_num, col_num, columns[col_num], font_style)
+
+        font_style = xlwt.XFStyle()
+
+        for t in table['participants']:
+            row = [t['name'], t['start'], t['end'], t['duration']]
+            row_num += 1
+            for col_num in range(len(row)):
+                ws.write(row_num, col_num, row[col_num], font_style)
+
+        response = HttpResponse(content_type='application/ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="Registro.xls"'
+        wb.save(response)
+        return response
+    
     return JsonResponse({
         "esito": False,
         "message": "Effettuata la chiamata in modo errato."
