@@ -1,1 +1,1 @@
-web: cd team_log_exporter && gunicorn team_log_exporter --preload
+web: cd team_log_exporter && gunicorn team_log_exporter.wsgi --preload
