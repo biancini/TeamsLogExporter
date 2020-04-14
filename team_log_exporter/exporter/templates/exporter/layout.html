@@ -22,23 +22,46 @@
                             </a>
                             <div class="it-header-slim-left-zone">
                                 {% if user.is_authenticated %}
-                                    <a href="{% url 'signout' %}" class="btn btn-primary btn-icon btn-full">
-                                        <span class="rounded-icon">
-                                            <svg class="icon icon-primary">
-                                                <use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-user"></use>
-                                            </svg>
-                                        </span>
-                                        <span class="d-none d-lg-block">{{ user.name }}</span>
-                                    </a>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="rounded-icon">
+                                                <svg class="icon icon-primary">
+                                                    <use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-user"></use>
+                                                </svg>
+                                            </span>
+                                            <span class="d-none d-lg-block">{{ user.name }}</span>
+                                            <svg class="icon-expand icon icon-sm icon-light"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-expand"></use></svg>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                          <div class="link-list-wrapper">
+                                            <ul class="link-list">
+                                              <li><a class="list-item" href="#">{{ user.email }}</li>
+                                              <li><a class="list-item" href="{% url 'signout' %}"><span>Signout</span></a></li>
+                                            </ul>
+                                          </div>
+                                        </div>
+                                    </div>
                                 {% else %}
-                                    <a href="{% url 'signin' %}" class="btn btn-primary btn-icon btn-full">
-                                        <span class="rounded-icon">
-                                            <svg class="icon icon-primary">
-                                                <use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-user"></use>
-                                            </svg>
-                                        </span>
-                                        <span class="d-none d-lg-block">Accedi a O365</span>
-                                    </a>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="rounded-icon">
+                                                <svg class="icon icon-primary">
+                                                    <use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-user"></use>
+                                                </svg>
+                                            </span>
+                                            <span class="d-none d-lg-block">Accedi a O365</span>
+                                            <svg class="icon-expand icon icon-sm icon-light"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-expand"></use></svg>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                          <div class="link-list-wrapper">
+                                            <ul class="link-list">
+                                                <li><a class="list-item" href="{% url 'signin' %}?id=ENAIP"><span>Enaip</span></a></li>
+                                                <li><a class="list-item" href="{% url 'signin' %}?id=ITSINCOM"><span>ITS Incom</span></a></li>
+                                                <li><a class="list-item" href="{% url 'signin' %}?id=ITSTTF"><span>ITS TTF</span></a></li>
+                                            </ul>
+                                          </div>
+                                        </div>
+                                    </div>
                                 {% endif %}
                             </div>
                         </div>

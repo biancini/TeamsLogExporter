@@ -1,6 +1,7 @@
 import json
 import math
 import xlwt
+import os
 import urllib.parse
 from io import StringIO
 from django.shortcuts import render
@@ -9,7 +10,7 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
-from exporter.auth_helper import appid, scopes, get_sign_in_url, get_token_from_code, store_token, store_bearertoken, store_user, remove_user_and_token, get_user, get_token, get_bearertoken
+from exporter.auth_helper import scopes, get_sign_in_url, get_token_from_code, store_token, store_bearertoken, store_user, remove_user_and_token, get_user, get_token, get_bearertoken
 from exporter.graph_helper import get_meuser, get_otheruser, get_all_users, get_all_groups, get_group_users, get_user_meetings, get_meeting_records
 
 
@@ -28,8 +29,15 @@ def initialize_context(request):
     return context
 
 def sign_in(request):
+    id = request.GET.get('id', None)
+    request.session['appid'] = os.environ['APPID_%s' % id]
+    request.session['appsecret'] = os.environ['APPSECRET_%s' % id]
+
+    print ("appid = %s" % request.session.get('appid', None))
+    print ("appsecret = %s" % request.session.get('appsecret', None))
+
     # Get the sign-in URL
-    sign_in_url, state = get_sign_in_url()
+    sign_in_url, state = get_sign_in_url(request)
     # Save the expected state so we can validate in the callback
     request.session['auth_state'] = state
     # Redirect to the Azure sign-in page
@@ -39,7 +47,7 @@ def callback(request):
     # Get the state saved in session
     expected_state = request.session.pop('auth_state', '')
     # Make the token request
-    token = get_token_from_code(request.get_full_path(), expected_state)
+    token = get_token_from_code(request, request.get_full_path(), expected_state)
 
     # Get the user's profile
     user = get_meuser(token)
@@ -59,7 +67,7 @@ def sign_out(request):
 def home(request):
     context = initialize_context(request)
     context['appdata'] = {
-        'appid': appid,
+        'appid': request.session.get('appid', None),
         'scopes': scopes
     }
 

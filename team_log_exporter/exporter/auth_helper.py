@@ -1,6 +1,6 @@
 import yaml
-import os
 import time
+import os
 from requests_oauthlib import OAuth2Session
 
 # This is necessary for testing with non-HTTPS localhost
@@ -18,30 +18,29 @@ settings = yaml.load(stream, yaml.SafeLoader)
 authorize_url = '{0}{1}'.format(settings['authority'], settings['authorize_endpoint'])
 token_url = '{0}{1}'.format(settings['authority'], settings['token_endpoint'])
 
-appid = os.environ['APPID']
 scopes = settings['scopes']
 
 # Method to generate a sign-in url
-def get_sign_in_url():
+def get_sign_in_url(request):
     # Initialize the OAuth client
-    aad_auth = OAuth2Session(os.environ['APPID'],
+    aad_auth = OAuth2Session(request.session.get('appid', None),
         scope=settings['scopes'],
-        redirect_uri=settings['redirect'])
+        redirect_uri=os.environ['REDIRECT_URI'])
 
     sign_in_url, state = aad_auth.authorization_url(authorize_url, prompt='login')
 
     return sign_in_url, state
 
 # Method to exchange auth code for access token
-def get_token_from_code(callback_url, expected_state):
+def get_token_from_code(request, callback_url, expected_state):
     # Initialize the OAuth client
-    aad_auth = OAuth2Session(os.environ['APPID'],
+    aad_auth = OAuth2Session(request.session.get('appid', None),
         state=expected_state,
         scope=settings['scopes'],
-        redirect_uri=settings['redirect'])
+        redirect_uri=os.environ['REDIRECT_URI'])
 
     token = aad_auth.fetch_token(token_url,
-        client_secret = os.environ['APPSECRET'],
+        client_secret = request.session.get('appsecret', None),
         authorization_response=callback_url)
 
     return token
@@ -73,14 +72,14 @@ def get_token(request):
         expire_time = token['expires_at'] - 300
         if now >= expire_time:
             # Refresh the token
-            aad_auth = OAuth2Session(os.environ['APPID'],
+            aad_auth = OAuth2Session(request.session.get('appid', None),
                 token = token,
                 scope=settings['scopes'],
-                redirect_uri=settings['redirect'])
+                redirect_uri=os.environ['REDIRECT_URI'])
 
             refresh_params = {
-                'client_id': os.environ['APPID'],
-                'client_secret': os.environ['APPSECRET'],
+                'client_id': request.session.get('appid', None),
+                'client_secret': request.session.get('appsecret', None),
             }
             new_token = aad_auth.refresh_token(token_url, **refresh_params)
 
