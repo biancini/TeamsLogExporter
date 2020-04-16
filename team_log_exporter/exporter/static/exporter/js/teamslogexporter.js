@@ -22,7 +22,6 @@ app.filter('search', function() {
 
         return results;
     }
-
 });
 
 app.controller('mainController', ['$scope', '$http', function($scope, $http) {
@@ -47,7 +46,7 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
             
             $scope.grouplist = response.data.data;
         }, function errorCallback(response) {
-            console.log("Errore: " + JSON.stringify({data: response}));
+            console.log("Errore: " + JSON.stringify({ 'data': response }));
         });
     };
 
@@ -67,7 +66,7 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
                 
                 $scope.userlist = response.data.data;
             }, function errorCallback(response) {
-                console.log("Errore: " + JSON.stringify({data: response}));
+                console.log("Errore: " + JSON.stringify({ 'data': response }));
             });
         }
         else if ($scope.step2 == 'active') {
@@ -92,7 +91,7 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
                 $scope.step3 = 'active';
                 $scope.step4 = '';
 
-                var options = {'weekday': 'long', 'year': 'numeric', 'month': 'long', 'day': '2-digit'};
+                var options = {'weekday': 'long', 'year': 'numeric', 'month': 'long', 'day': '2-digit', 'hour': '2-digit', 'minute': '2-digit', 'second': '2-digit'};
                 
                 $scope.eventlist = response.data.data;
                 $scope.eventlist.forEach(function (item) {
@@ -102,10 +101,14 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
                     
                     item['durata'] = hours + " ore e " + minutes + "minuti";
                     item['start'] = new Date(item['start']).toLocaleTimeString('it-IT', options);
-                    item['end'] = new Date(item['end']).toLocaleTimeString('it-IT', options);                    
+                    item['start'] = item['start'].slice(0, -3);
+                    item['end'] = new Date(item['end']).toLocaleTimeString('it-IT', options);
+                    item['end'] = item['end'].slice(0, -3);
+
+                    console.log(item['end']);
                 });
             }, function errorCallback(response) {
-                console.log("Errore: " + JSON.stringify({data: response}));
+                console.log("Errore: " + JSON.stringify({ 'data': response }));
             });
         }
         else if ($scope.step3 == 'active') {
@@ -135,31 +138,31 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
                     var description = item['id'];
                     $scope.eventlist.forEach(function (ev) {
                         if (ev['id'] == description) {
-                            description = "Lezione di " + ev.start + ", durata " + ev.durata + " (" + ev.partecipant +" partecipanti)";
+                            description = "Lezione di " + ev.start + ", durata " + ev.durata + " (" + ev.partecipant + " partecipanti)";
                         }
                     });
                     item['descr'] = description;
                 });
             }, function errorCallback(response) {
-                console.log("Errore: " + JSON.stringify({data: response}));
+                console.log("Errore: " + JSON.stringify({ 'data': response }));
             });
         }
     };
 
     $scope.prevFlow = function() {
-        if ($scope.step2 = 'active') {
+        if ($scope.step2 == 'active') {
             $scope.step1 = 'active';
             $scope.step2 = 'suspended';
             $scope.step4 = '';
             $scope.step4 = '';
         }
-        else if ($scope.step3 = 'active') {
+        else if ($scope.step3 == 'active') {
             $scope.step1 = 'completed'
             $scope.step2 = 'active'
             $scope.step3 = 'suspended'
             $scope.step4 = '';
         }
-        else if ($scope.step4 = 'active') {
+        else if ($scope.step4 == 'active') {
             $scope.step1 = 'completed'
             $scope.step2 = 'completed'
             $scope.step3 = 'active'

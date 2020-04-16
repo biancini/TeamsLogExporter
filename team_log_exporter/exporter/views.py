@@ -179,7 +179,7 @@ def getmeeting_records(request):
             uid = get_user(request)['id']
             
             meeting_records = []
-            print("%s"%event_ids)
+            
             if len(event_ids) > 0:
                 for eid in event_ids:
                     result = get_meeting_records(token, uid, eid)
@@ -237,7 +237,7 @@ def export_xls(request):
 
     try:
         if request.method == 'POST':
-            data = urllib.parse.unquote(request.POST.get("table", "{}"))
+            data = urllib.parse.unquote(request.POST.get("table", '\{\}'))
             table = json.loads(data)
 
             wb = xlwt.Workbook(encoding='utf-8')
@@ -262,7 +262,7 @@ def export_xls(request):
                     ws.write(row_num, col_num, row[col_num], font_style)
 
             response = HttpResponse(content_type='application/ms-excel')
-            response['Content-Disposition'] = 'attachment; filename="Registro.xls"'
+            response['Content-Disposition'] = 'attachment; filename="{0}.xls"'.format(table['descr'].replace(':', 'h'))
             wb.save(response)
             return response
 
