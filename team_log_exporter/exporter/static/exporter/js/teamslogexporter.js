@@ -38,7 +38,7 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
         var user = $scope.user;
         
         $scope.grouplist = []
-        $http.post("/exporter/bearer", { user: user, token: token }).then(function successCallback(response) {
+        $http.post("/exporter/bearer", { 'user': user, 'token': token }).then(function successCallback(response) {
             $scope.setupOk = true;
             $scope.step1 = 'active';
             $scope.step2 = '';
@@ -59,7 +59,7 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
             });
             
             $scope.userlist = []
-            $http.post("/exporter/getusers_bygroup", { groups: selectedGroups }).then(function successCallback(response) {
+            $http.post("/exporter/getusers_bygroup", { 'groups': selectedGroups }).then(function successCallback(response) {
                 $scope.step1 = 'completed'
                 $scope.step2 = 'active';
                 $scope.step3 = '';
@@ -69,11 +69,8 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
             }, function errorCallback(response) {
                 console.log("Errore: " + JSON.stringify({data: response}));
             });
-
-            return;
         }
-
-        if ($scope.step2 == 'active') {
+        else if ($scope.step2 == 'active') {
             var selectedUsers = [];
             $('#user-selection :checked').each(function() {
                 selectedUsers.push($(this).val());
@@ -89,7 +86,7 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
             }
             
             $scope.userlist = []
-            $http.post("/exporter/getuser_meetings", { users: selectedUsers }).then(function successCallback(response) {
+            $http.post("/exporter/getuser_meetings", { 'users': selectedUsers }).then(function successCallback(response) {
                 $scope.step1 = 'completed';
                 $scope.step2 = 'completed'
                 $scope.step3 = 'active';
@@ -110,11 +107,8 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
             }, function errorCallback(response) {
                 console.log("Errore: " + JSON.stringify({data: response}));
             });
-
-            return;
         }
-
-        if ($scope.step3 == 'active') {
+        else if ($scope.step3 == 'active') {
             var selectedEvents = [];
             $('#event-selection :checked').each(function() {
                 selectedEvents.push($(this).val());
@@ -149,8 +143,6 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
             }, function errorCallback(response) {
                 console.log("Errore: " + JSON.stringify({data: response}));
             });
-
-            return;
         }
     };
 
@@ -161,15 +153,13 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
             $scope.step4 = '';
             $scope.step4 = '';
         }
-
-        if ($scope.step3 = 'active') {
+        else if ($scope.step3 = 'active') {
             $scope.step1 = 'completed'
             $scope.step2 = 'active'
             $scope.step3 = 'suspended'
             $scope.step4 = '';
         }
-
-        if ($scope.step4 = 'active') {
+        else if ($scope.step4 = 'active') {
             $scope.step1 = 'completed'
             $scope.step2 = 'completed'
             $scope.step3 = 'active'
@@ -180,7 +170,6 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
     $scope.downloadExcel = function(mid) {
         $scope.meetingRecords.forEach(function (item) {
             if (item['id'] == mid) {
-                console.log(item);
                 $("#table").val(encodeURIComponent(JSON.stringify(item)));
                 var form = angular.element('#excel-form');
                 form.submit();

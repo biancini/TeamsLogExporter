@@ -3,6 +3,7 @@ import math
 import xlwt
 import os
 import urllib.parse
+import traceback
 from io import StringIO
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
@@ -75,168 +76,201 @@ def home(request):
 
 @csrf_exempt
 def bearer(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        if 'token' in data and data['token']:
-            store_bearertoken(request, data['token'])
+    message = "Effettuata la chiamata in modo errato."
 
-        token = get_token(request)
-        groups = get_all_groups(token)
+    try:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            if 'token' in data and data['token']:
+                store_bearertoken(request, data['token'])
 
-        return JsonResponse({
-            "esito": True,
-            "message": "Registrato bearer, ecco la lista dei gruppi.",
-            "data": [{ 'name': g['displayName'], 'id': g['id'] } for g in groups]
-        })
+            token = get_token(request)
+            groups = get_all_groups(token)
+
+            return JsonResponse({
+                "esito": True,
+                "message": "Registrato bearer, ecco la lista dei gruppi.",
+                "data": [{ 'name': g['displayName'], 'id': g['id'] } for g in groups]
+            })
+    except Exception as e:
+        message = "%s" % e
+        print("Error: %s" % message)
         
     return JsonResponse({
         "esito": False,
-        "message": "Effettuata la chiamata in modo errato."
-    })
+        "message": message
+    }, status=500)
 
 @csrf_exempt
 def getusers_bygroup(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        group_ids = data['groups']
+    message = "Effettuata la chiamata in modo errato."
 
-        token = get_token(request)
+    try:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            group_ids = data['groups']
 
-        if len(group_ids) > 0:
-            users = []
-            for gid in group_ids:
-                newusers = get_group_users(token, gid)
-                users.extend(newusers)
-        else:
-            users = get_all_users(token)
+            token = get_token(request)
+            
+            if len(group_ids) > 0:
+                users = []
+                for gid in group_ids:
+                    newusers = get_group_users(token, gid)
+                    users.extend(newusers)
+            else:
+                users = get_all_users(token)
 
-        return JsonResponse({
-            "esito": True,
-            "message": "Ecco la lista degli utenti.",
-            "data": [{ 'name': u['displayName'], 'id': u['id'] } for u in users]
-        })
+            return JsonResponse({
+                "esito": True,
+                "message": "Ecco la lista degli utenti.",
+                "data": [{ 'name': u['displayName'], 'id': u['id'] } for u in users]
+            })
+    except Exception as e:
+        message = "%s" % e
+        print("Error: %s" % message)
         
     return JsonResponse({
         "esito": False,
-        "message": "Effettuata la chiamata in modo errato."
-    })
+        "message": message
+    }, status=500)
 
 @csrf_exempt
 def getuser_meetings(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        user_ids = data['users']
+    message = "Effettuata la chiamata in modo errato."
 
-        token = get_bearertoken(request)
+    try:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            user_ids = data['users']
 
-        events = []
-        if len(user_ids) > 0:
-            for uid in user_ids:
-                newevents = get_user_meetings(token, uid)
-                events.extend(newevents)
+            token = get_bearertoken(request)
 
-        return JsonResponse({
-            "esito": True,
-            "message": "Ecco la lista degli utenti.",
-            "data": [{ 'start': e['startDateTime'], 'end': e['endDateTime'], 'partecipant': e['participantCount'], 'id': e['id'] } for e in events]
-        })
-        
+            events = []
+            if len(user_ids) > 0:
+                for uid in user_ids:
+                    newevents = get_user_meetings(token, uid)
+                    events.extend(newevents)
+
+            return JsonResponse({
+                "esito": True,
+                "message": "Ecco la lista degli utenti.",
+                "data": [{ 'start': e['startDateTime'], 'end': e['endDateTime'], 'partecipant': e['participantCount'], 'id': e['id'] } for e in events]
+            })
+    except Exception as e:
+        message = "%s" % e
+        print("Error: %s" % message)
+
     return JsonResponse({
         "esito": False,
-        "message": "Effettuata la chiamata in modo errato."
-    })
+        "message": message
+    }, status=500)
 
 @csrf_exempt
 def getmeeting_records(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        event_ids = data['meetings']
+    message = "Effettuata la chiamata in modo errato."
 
-        token = get_bearertoken(request)
-        graph_token = get_token(request)
-        uid = get_user(request)['id']
-        
-        meeting_records = []
-        
-        if len(event_ids) > 0:
-            for eid in event_ids:
-                result = get_meeting_records(token, uid, eid)
-                participants = []
+    try:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            event_ids = data['meetings']
 
-                for p in result:
-                    uid = p['userId']
-                    user = get_otheruser(graph_token, uid)
-                    name = user['displayName'] if 'displayName' in user else 'Sconosciuto'
+            token = get_bearertoken(request)
+            graph_token = get_token(request)
+            uid = get_user(request)['id']
+            
+            meeting_records = []
+            print("%s"%event_ids)
+            if len(event_ids) > 0:
+                for eid in event_ids:
+                    result = get_meeting_records(token, uid, eid)
+                    participants = []
 
-                    min_start = None
-                    max_end = None
-                    duration = 0
+                    for p in result:
+                        uid = p['userId']
+                        user = get_otheruser(graph_token, uid)
+                        name = user['displayName'] if 'displayName' in user else 'Sconosciuto'
 
-                    for c in p['communicationFragments']:
-                        start = datetime.strptime(c['startDateTime'][:26], '%Y-%m-%dT%H:%M:%S.%f')
-                        if min_start is None or start < min_start:
-                            min_start = start
+                        min_start = None
+                        max_end = None
+                        duration = 0
 
-                        end = datetime.strptime(c['endDateTime'][:26], '%Y-%m-%dT%H:%M:%S.%f')
-                        if max_end is None or end > max_end:
-                            max_end = end
-                        
-                        duration += c['callDuration']
+                        for c in p['communicationFragments']:
+                            start = datetime.strptime(c['startDateTime'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
+                            if min_start is None or start < min_start:
+                                min_start = start
 
-                    duration /= 1000
-                    duration /= 60
-                    hours = math.floor(duration / 60)
-                    minutes = math.floor(duration % 60)
-                    duration = "{0} ore e {1} minuti".format(hours, minutes)
+                            end = datetime.strptime(c['endDateTime'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
+                            if max_end is None or end > max_end:
+                                max_end = end
+                            
+                            duration += c['callDuration']
 
-                    participants.append({ 'uid': uid, 'name': name, 'start': min_start.strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'end': max_end.strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'duration': duration})
+                        duration /= 1000
+                        duration /= 60
+                        hours = math.floor(duration / 60)
+                        minutes = math.floor(duration % 60)
+                        duration = "{0} ore e {1} minuti".format(hours, minutes)
 
-                meeting_records.append({ 'id': eid, 'participants': participants })
+                        participants.append({ 'uid': uid, 'name': name, 'start': min_start.strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'end': max_end.strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'duration': duration})
 
-        return JsonResponse({
-            "esito": True,
-            "message": "Ecco la lista degli utenti.",
-            "data": meeting_records
-        })
+                    meeting_records.append({ 'id': eid, 'participants': participants })
+
+            return JsonResponse({
+                "esito": True,
+                "message": "Ecco la lista degli utenti.",
+                "data": meeting_records
+            })
+
+    except Exception as e:
+        message = "%s" % e
+        print("Error: %s" % message)
+        traceback.print_exc()
         
     return JsonResponse({
         "esito": False,
-        "message": "Effettuata la chiamata in modo errato."
-    })
+        "message": message
+    }, status=500)
 
 @csrf_exempt
 def export_xls(request):
-    if request.method == 'POST':
-        data = urllib.parse.unquote(request.POST.get("table", "{}"))
-        table = json.loads(data)
+    message = "Effettuata la chiamata in modo errato."
 
-        wb = xlwt.Workbook(encoding='utf-8')
-        ws = wb.add_sheet('Users')
+    try:
+        if request.method == 'POST':
+            data = urllib.parse.unquote(request.POST.get("table", "{}"))
+            table = json.loads(data)
 
-        # Sheet header, first row
-        row_num = 0
+            wb = xlwt.Workbook(encoding='utf-8')
+            ws = wb.add_sheet('Users')
 
-        font_style = xlwt.XFStyle()
-        font_style.font.bold = True
+            # Sheet header, first row
+            row_num = 0
 
-        columns = ['Partecipante', 'Inizio presenza', 'Fine presenza', 'Tempo di partecipazione', ]
-        for col_num in range(len(columns)):
-            ws.write(row_num, col_num, columns[col_num], font_style)
+            font_style = xlwt.XFStyle()
+            font_style.font.bold = True
 
-        font_style = xlwt.XFStyle()
+            columns = ['Partecipante', 'Inizio presenza', 'Fine presenza', 'Tempo di partecipazione']
+            for col_num in range(len(columns)):
+                ws.write(row_num, col_num, columns[col_num], font_style)
 
-        for t in table['participants']:
-            row = [t['name'], t['start'], t['end'], t['duration']]
-            row_num += 1
-            for col_num in range(len(row)):
-                ws.write(row_num, col_num, row[col_num], font_style)
+            font_style = xlwt.XFStyle()
 
-        response = HttpResponse(content_type='application/ms-excel')
-        response['Content-Disposition'] = 'attachment; filename="Registro.xls"'
-        wb.save(response)
-        return response
+            for t in table['participants']:
+                row = [t['name'], t['start'], t['end'], t['duration']]
+                row_num += 1
+                for col_num in range(len(row)):
+                    ws.write(row_num, col_num, row[col_num], font_style)
+
+            response = HttpResponse(content_type='application/ms-excel')
+            response['Content-Disposition'] = 'attachment; filename="Registro.xls"'
+            wb.save(response)
+            return response
+
+    except Exception as e:
+        message = "%s" % e
+        print("Error: %s" % message)
     
     return JsonResponse({
         "esito": False,
-        "message": "Effettuata la chiamata in modo errato."
-    })
+        "message": message
+    }, status=500)
