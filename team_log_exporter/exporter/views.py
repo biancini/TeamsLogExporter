@@ -87,10 +87,13 @@ def bearer(request):
             token = get_token(request)
             groups = get_all_groups(token)
 
+            data = [{ 'name': g['displayName'], 'id': g['id'] } for g in groups]
+            data = sorted(data, key=lambda k: k['name'])
+
             return JsonResponse({
                 "esito": True,
                 "message": "Registrato bearer, ecco la lista dei gruppi.",
-                "data": [{ 'name': g['displayName'], 'id': g['id'] } for g in groups]
+                "data": data
             })
     except Exception as e:
         message = "%s" % e
@@ -120,10 +123,13 @@ def getusers_bygroup(request):
             else:
                 users = get_all_users(token)
 
+            data = [{ 'name': u['displayName'], 'id': u['id'] } for u in users]
+            data = sorted(data, key=lambda k: k['name'])
+
             return JsonResponse({
                 "esito": True,
                 "message": "Ecco la lista degli utenti.",
-                "data": [{ 'name': u['displayName'], 'id': u['id'] } for u in users]
+                "data": data
             })
     except Exception as e:
         message = "%s" % e
@@ -151,10 +157,13 @@ def getuser_meetings(request):
                     newevents = get_user_meetings(token, uid)
                     events.extend(newevents)
 
+            data = [{ 'start': e['startDateTime'], 'end': e['endDateTime'], 'partecipant': e['participantCount'], 'id': e['id'] } for e in events]
+            data = sorted(data, key=lambda k: k['start'])
+
             return JsonResponse({
                 "esito": True,
                 "message": "Ecco la lista degli utenti.",
-                "data": [{ 'start': e['startDateTime'], 'end': e['endDateTime'], 'partecipant': e['participantCount'], 'id': e['id'] } for e in events]
+                "data": data
             })
     except Exception as e:
         message = "%s" % e
@@ -212,6 +221,7 @@ def getmeeting_records(request):
                         duration = "{0} ore e {1} minuti".format(hours, minutes)
 
                         participants.append({ 'uid': uid, 'name': name, 'start': min_start.strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'end': max_end.strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'duration': duration})
+                        participants = sorted(participants, key=lambda k: k['name'])
 
                     meeting_records.append({ 'id': eid, 'participants': participants })
 

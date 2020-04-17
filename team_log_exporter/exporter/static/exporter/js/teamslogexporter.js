@@ -27,46 +27,54 @@ app.filter('search', function() {
 app.controller('mainController', ['$scope', '$http', function($scope, $http) {
     $scope.setupOk = false;
     $scope.errorMessage = '';
-    $scope.step1 = '';
-    $scope.step2 = '';
-    $scope.step3 = '';
-    $scope.step4 = '';
 
     $scope.startFlow = function() {
+        $('#flowDimmer').dimmerShow();
+
         var token = $scope.bearerToken;
         var user = $scope.user;
+
+        $scope.setupOk = true;
+        $scope.step1 = 'active';
+        $scope.step2 = 'disabled';
+        $scope.step3 = 'disabled';
+        $scope.step4 = 'disabled';
         
         $scope.grouplist = []
         $http.post("/exporter/bearer", { 'user': user, 'token': token }).then(function successCallback(response) {
-            $scope.setupOk = true;
-            $scope.step1 = 'active';
-            $scope.step2 = '';
-            $scope.step3 = '';
-            $scope.step4 = '';
-            
             $scope.grouplist = response.data.data;
+            $('#flowDimmer').dimmerHide();
         }, function errorCallback(response) {
-            console.log("Errore: " + JSON.stringify({ 'data': response }));
+            var errorMessage = "Errore: " + JSON.stringify({ 'data': response });
+            console.log(errorMessage);
+            $scope.errorMessage = errorMessage;
+            $('#flowDimmer').dimmerHide();
+            $('#error-message').modal('show');
         });
     };
 
     $scope.nextFlow = function() {
+        $('#flowDimmer').dimmerShow();
+
         if ($scope.step1 == 'active') {
             var selectedGroups = [];
             $('#group-selection :checked').each(function() {
                 selectedGroups.push($(this).val());
             });
-            
+
             $scope.userlist = []
             $http.post("/exporter/getusers_bygroup", { 'groups': selectedGroups }).then(function successCallback(response) {
-                $scope.step1 = 'completed'
+                $scope.step1 = 'completed';
                 $scope.step2 = 'active';
-                $scope.step3 = '';
-                $scope.step4 = '';
                 
                 $scope.userlist = response.data.data;
+                $('#flowDimmer').dimmerHide();
             }, function errorCallback(response) {
-                console.log("Errore: " + JSON.stringify({ 'data': response }));
+                var errorMessage = "Errore: " + JSON.stringify({ 'data': response });
+                console.log(errorMessage);
+                $scope.errorMessage = errorMessage;
+                $('#flowDimmer').dimmerHide();
+                $('#error-message').modal('show');
             });
         }
         else if ($scope.step2 == 'active') {
@@ -77,19 +85,16 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
 
             if (selectedUsers.length == 0) {
                 $scope.errorMessage = "Devi selezionare almeno un utente.";
-                $("#error-message").show();
-                $("#error-message").delay(4000).slideUp(200, function() {
-                    $(this).hide();
-                });
+                $('#flowDimmer').dimmerHide();
+                $('#error-message').modal('show');
                 return;
             }
             
             $scope.userlist = []
             $http.post("/exporter/getuser_meetings", { 'users': selectedUsers }).then(function successCallback(response) {
                 $scope.step1 = 'completed';
-                $scope.step2 = 'completed'
+                $scope.step2 = 'completed';
                 $scope.step3 = 'active';
-                $scope.step4 = '';
 
                 var options = {'weekday': 'long', 'year': 'numeric', 'month': 'long', 'day': '2-digit', 'hour': '2-digit', 'minute': '2-digit', 'second': '2-digit'};
                 
@@ -104,11 +109,15 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
                     item['start'] = item['start'].slice(0, -3);
                     item['end'] = new Date(item['end']).toLocaleTimeString('it-IT', options);
                     item['end'] = item['end'].slice(0, -3);
-
-                    console.log(item['end']);
                 });
+
+                $('#flowDimmer').dimmerHide();
             }, function errorCallback(response) {
-                console.log("Errore: " + JSON.stringify({ 'data': response }));
+                var errorMessage = "Errore: " + JSON.stringify({ 'data': response });
+                console.log(errorMessage);
+                $scope.errorMessage = errorMessage;
+                $('#flowDimmer').dimmerHide();
+                $('#error-message').modal('show');
             });
         }
         else if ($scope.step3 == 'active') {
@@ -119,17 +128,15 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
 
             if (selectedEvents.length == 0) {
                 $scope.errorMessage = "Devi selezionare almeno una riunione.";
-                $("#error-message").show();
-                $("#error-message").delay(4000).slideUp(200, function() {
-                    $(this).hide();
-                });
+                $('#flowDimmer').dimmerHide();
+                $('#error-message').modal('show');
                 return;
             }
             
             $scope.userlist = []
             $http.post("/exporter/getmeeting_records", { meetings: selectedEvents }).then(function successCallback(response) {
-                $scope.step1 = 'completed'
-                $scope.step2 = 'completed'
+                $scope.step1 = 'completed';
+                $scope.step2 = 'completed';
                 $scope.step3 = 'completed';
                 $scope.step4 = 'active';
 
@@ -143,8 +150,14 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
                     });
                     item['descr'] = description;
                 });
+
+                $('#flowDimmer').dimmerHide();
             }, function errorCallback(response) {
-                console.log("Errore: " + JSON.stringify({ 'data': response }));
+                var errorMessage = "Errore: " + JSON.stringify({ 'data': response });
+                console.log(errorMessage);
+                $scope.errorMessage = errorMessage;
+                $('#flowDimmer').dimmerHide();
+                $('#error-message').modal('show');
             });
         }
     };
@@ -153,20 +166,23 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
         if ($scope.step2 == 'active') {
             $scope.step1 = 'active';
             $scope.step2 = 'suspended';
-            $scope.step4 = '';
-            $scope.step4 = '';
         }
         else if ($scope.step3 == 'active') {
-            $scope.step1 = 'completed'
             $scope.step2 = 'active'
             $scope.step3 = 'suspended'
-            $scope.step4 = '';
         }
         else if ($scope.step4 == 'active') {
-            $scope.step1 = 'completed'
-            $scope.step2 = 'completed'
             $scope.step3 = 'active'
             $scope.step4 = 'suspended'
+        }
+    };
+
+    $scope.showElement = function(mid) {
+        if ($scope.showTable == mid) {
+            $scope.showTable = "";
+        }
+        else {
+            $scope.showTable = mid;
         }
     };
 
