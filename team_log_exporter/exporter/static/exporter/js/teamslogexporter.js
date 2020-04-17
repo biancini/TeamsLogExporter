@@ -45,8 +45,8 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
             $scope.grouplist = response.data.data;
             $('#flowDimmer').dimmerHide();
         }, function errorCallback(response) {
-            var errorMessage = "Errore: " + JSON.stringify({ 'data': response });
-            console.log(errorMessage);
+            var errorMessage = "Errore: " + response.data.message;
+            console.log(response);
             $scope.errorMessage = errorMessage;
             $('#flowDimmer').dimmerHide();
             $('#error-message').modal('show');
@@ -70,8 +70,8 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
                 $scope.userlist = response.data.data;
                 $('#flowDimmer').dimmerHide();
             }, function errorCallback(response) {
-                var errorMessage = "Errore: " + JSON.stringify({ 'data': response });
-                console.log(errorMessage);
+                var errorMessage = "Errore: " + response.data.message;
+                console.log(response);
                 $scope.errorMessage = errorMessage;
                 $('#flowDimmer').dimmerHide();
                 $('#error-message').modal('show');
@@ -113,8 +113,8 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
 
                 $('#flowDimmer').dimmerHide();
             }, function errorCallback(response) {
-                var errorMessage = "Errore: " + JSON.stringify({ 'data': response });
-                console.log(errorMessage);
+                var errorMessage = "Errore: " + response.data.message;
+                console.log(response);
                 $scope.errorMessage = errorMessage;
                 $('#flowDimmer').dimmerHide();
                 $('#error-message').modal('show');
@@ -153,8 +153,8 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
 
                 $('#flowDimmer').dimmerHide();
             }, function errorCallback(response) {
-                var errorMessage = "Errore: " + JSON.stringify({ 'data': response });
-                console.log(errorMessage);
+                var errorMessage = "Errore: " + response.data.message;
+                console.log(response);
                 $scope.errorMessage = errorMessage;
                 $('#flowDimmer').dimmerHide();
                 $('#error-message').modal('show');

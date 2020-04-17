@@ -10,6 +10,11 @@
     <link rel="stylesheet" href="{% static 'exporter/css/bootstrap-italia.min.css' %}" />
 </head>
 <body class="h-100 dimmable" ng-app="teamsLogExporter" ng-controller="mainController">
+    <div class="position-fixed h-100 w-100 modal dimmer dimmer-primary" id="flowDimmer">
+        <div class="dimmer-inner">
+            <h4>Azione in corso, prego attendere...</h4>
+        </div>
+    </div>
     <div>
         <div class="it-header-slim-wrapper">
             <div class="container">
@@ -82,7 +87,7 @@
         {% endfor %}
     {% endif %}
 
-    <div class="modal fade" tabindex="-1" role="dialog" id="exampleModal">
+    <div class="modal fade" tabindex="-1" role="dialog" id="error-message">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
             <div class="modal-header">
