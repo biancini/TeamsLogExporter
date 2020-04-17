@@ -36,9 +36,12 @@ def get_all_groups(token):
     uri = '{0}/groups'.format(graph_url)
     
     while uri is not None:
-        groups = graph_client.get(uri).json()
-        lista.extend(groups['value'])
-        uri = groups['@odata.nextLink'] if '@odata.nextLink' in groups else None
+        result = graph_client.get(uri).json()
+        if not 'value' in result:
+            raise Exception(result['error']['message'] if 'error' in result else 'Unknown error')
+        lista.extend(result['value'])
+
+        uri = result['@odata.nextLink'] if '@odata.nextLink' in result else None
 
     return lista
 
@@ -49,9 +52,11 @@ def get_all_users(token):
     uri = '{0}/users'.format(graph_url)
 
     while uri is not None:
-        users = graph_client.get(uri).json()
-        lista.extend(users['value'])
-        uri = users['@odata.nextLink'] if '@odata.nextLink' in users else None
+        result = graph_client.get(uri).json()
+        if not 'value' in result:
+            raise Exception(result['error']['message'] if 'error' in result else 'Unknown error')
+        lista.extend(result['value'])
+        uri = result['@odata.nextLink'] if '@odata.nextLink' in result else None
 
     return lista
 
@@ -62,9 +67,11 @@ def get_group_users(token, groupid):
     uri = '{0}/groups/{1}/members'.format(graph_url, groupid)
 
     while uri is not None:
-        users = graph_client.get(uri).json()
-        lista.extend(users['value'])
-        uri = users['@odata.nextLink'] if '@odata.nextLink' in users else None
+        result = graph_client.get(uri).json()
+        if not 'value' in result:
+            raise Exception(result['error']['message'] if 'error' in result else 'Unknown error')
+        lista.extend(result['value'])
+        uri = result['@odata.nextLink'] if '@odata.nextLink' in result else None
 
     return lista
 
