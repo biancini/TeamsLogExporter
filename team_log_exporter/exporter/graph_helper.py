@@ -64,6 +64,15 @@ def get_group_users(token, groupid):
     graph_client = OAuth2Session(token=token)
     
     lista = []
+    uri = '{0}/groups/{1}/owners'.format(graph_url, groupid)
+
+    while uri is not None:
+        result = graph_client.get(uri).json()
+        if not 'value' in result:
+            raise Exception(result['error']['message'] if 'error' in result else 'Unknown error')
+        lista.extend(result['value'])
+        uri = result['@odata.nextLink'] if '@odata.nextLink' in result else None
+
     uri = '{0}/groups/{1}/members'.format(graph_url, groupid)
 
     while uri is not None:
