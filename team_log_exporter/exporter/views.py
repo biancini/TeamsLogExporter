@@ -1,16 +1,20 @@
 import json
 import math
-import xlwt
 import os
 import urllib.parse
 import traceback
 from io import StringIO
+from openpyxl import Workbook
+from openpyxl.styles import Font
+from openpyxl.writer.excel import save_virtual_workbook
+from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.utils import get_column_letter
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from datetime import datetime
+from datetime import datetime, time
 from exporter.auth_helper import scopes, get_sign_in_url, get_token_from_code, store_token, store_bearertoken, store_user, remove_user_and_token, get_user, get_token, get_bearertoken
 from exporter.graph_helper import get_meuser, get_otheruser, get_all_users, get_all_groups, get_group_users, get_user_meetings, get_meeting_records
 
@@ -250,30 +254,43 @@ def export_xls(request):
             data = urllib.parse.unquote(request.POST.get("table", '\{\}'))
             table = json.loads(data)
 
-            wb = xlwt.Workbook(encoding='utf-8')
-            ws = wb.add_sheet('Users')
+            workbook = Workbook()
+            worksheet = workbook.active
+            worksheet.title = 'Registro'
 
-            # Sheet header, first row
-            row_num = 0
+            worksheet.append(['Partecipante', 'Inizio presenza', 'Fine presenza', 'Tempo di partecipazione'])
+            for cell in worksheet["1:1"]:
+                cell.font = Font(bold=True)
 
-            font_style = xlwt.XFStyle()
-            font_style.font.bold = True
-
-            columns = ['Partecipante', 'Inizio presenza', 'Fine presenza', 'Tempo di partecipazione']
-            for col_num in range(len(columns)):
-                ws.write(row_num, col_num, columns[col_num], font_style)
-
-            font_style = xlwt.XFStyle()
-
+            i = 1
             for t in table['participants']:
-                row = [t['name'], t['start'], t['end'], t['duration']]
-                row_num += 1
-                for col_num in range(len(row)):
-                    ws.write(row_num, col_num, row[col_num], font_style)
+                i = i + 1
 
-            response = HttpResponse(content_type='application/ms-excel')
-            response['Content-Disposition'] = 'attachment; filename="{0}.xls"'.format(table['descr'].replace(':', 'h'))
-            wb.save(response)
+                duration = t['duration'].replace(" ore e ", ":").replace(" minuti", "").split(":")
+                worksheet.append([
+                    t['name'],
+                    datetime.strptime(t['start'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S'),
+                    datetime.strptime(t['end'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S'),
+                    time(int(duration[0]), int(duration[1]), 0)
+                ])
+
+                cell = worksheet.cell(i, 2)
+                cell.number_format = 'dd/mm/yyyy hh:mm'
+                cell = worksheet.cell(i, 3)
+                cell.number_format = 'dd/mm/yyyy hh:mm' 
+                cell = worksheet.cell(i, 4)
+                cell.number_format = 'h "ore e" mm "minuti"' 
+
+            mediumStyle = TableStyleInfo(name='TableStyleMedium2', showRowStripes=True)
+            worksheet.add_table(Table(ref='A1:D%s'%i, displayName='RegistroPresenze', tableStyleInfo=mediumStyle))
+            worksheet.sheet_view.showGridLines = False
+
+            column_widths = [30, 20, 20, 20]
+            for i, column_width in enumerate(column_widths):
+                worksheet.column_dimensions[get_column_letter(i+1)].width = column_width
+
+            response = HttpResponse(content=save_virtual_workbook(workbook), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            response['Content-Disposition'] = 'attachment; filename="{0}.xlsx"'.format(table['descr'].replace(':', 'h'))
             return response
 
     except Exception as e:

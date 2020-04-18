@@ -19,6 +19,17 @@ def _get_request_heads(token):
         'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7'
     }
 
+def _remove_duplicates(lista, key='id'):
+    ritorno = []
+    keys = []
+
+    for item in lista:
+        if item[key] not in keys:
+            keys.append(item[key])
+            ritorno.append(item)
+
+    return ritorno
+
 def get_meuser(token):
     graph_client = OAuth2Session(token=token)
     user = graph_client.get('{0}/me'.format(graph_url)).json()
@@ -58,7 +69,7 @@ def get_all_users(token):
         lista.extend(result['value'])
         uri = result['@odata.nextLink'] if '@odata.nextLink' in result else None
 
-    return lista
+    return _remove_duplicates(lista, 'id')
 
 def get_group_users(token, groupid):
     graph_client = OAuth2Session(token=token)
@@ -82,7 +93,7 @@ def get_group_users(token, groupid):
         lista.extend(result['value'])
         uri = result['@odata.nextLink'] if '@odata.nextLink' in result else None
 
-    return lista
+    return _remove_duplicates(lista, 'id')
 
 def get_user_meetings(token, userid):
     headers = _get_request_heads(token)
@@ -100,7 +111,7 @@ def get_user_meetings(token, userid):
         
         uri = result['@odata.nextLink'] if '@odata.nextLink' in result else None
 
-    return lista
+    return _remove_duplicates(lista, 'id')
 
 def get_meeting_records(token, userid, meetingid):
     headers = _get_request_heads(token)
@@ -116,5 +127,5 @@ def get_meeting_records(token, userid, meetingid):
             raise Exception(result['message'] if 'message' in result else 'Unknown error')
         lista.extend(result['value'])
         uri = result['@odata.nextLink'] if '@odata.nextLink' in result else None
-
+    
     return lista
