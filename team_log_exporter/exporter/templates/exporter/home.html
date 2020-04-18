@@ -46,7 +46,8 @@
                   <input id="checkbox-group-{a $index a}" type="checkbox" value="{a item.id a}">
                   <label for="checkbox-group-{a $index a}"></label>
                 </div>
-                <div class="it-right-zone"><span class="text">{a item.name a}<em>{a item.id a}</em></span>
+                <div class="it-right-zone">
+                  <span class="text" ng-click="selectCheck('checkbox-group-' + $index)">{a item.name a}<em>{a item.id a}</em></span>
                 </div>
               </a>
             </li>
@@ -70,7 +71,8 @@
                   <input id="checkbox-user-{a $index a}" type="checkbox" value="{a item.id a}">
                   <label for="checkbox-user-{a $index a}"></label>
                 </div>
-                <div class="it-right-zone"><span class="text">{a item.name a}<em>{a item.id a}</em></span>
+                <div class="it-right-zone">
+                  <span class="text" ng-click="selectCheck('checkbox-user-' + $index)">{a item.name a}<em>{a item.id a}</em></span>
                 </div>
               </a>
             </li>
@@ -87,7 +89,8 @@
                   <input id="checkbox-event-{a $index a}" type="checkbox" value="{a item.id a}">
                   <label for="checkbox-event-{a $index a}"></label>
                 </div>
-                <div class="it-right-zone"><span class="text">Lezione di <b>{a item.start a}</b>, durata {a item.durata a} <i>({a item.partecipant a} partecipanti)</i>.<em>{a item.id a}</em></span>
+                <div class="it-right-zone">
+                  <span class="text" ng-click="selectCheck('checkbox-event-' + $index)">Lezione di <b>{a item.start a}</b>, durata {a item.durata a} <i>({a item.partecipant a} partecipanti)</i>.<em>{a item.id a}</em></span>
                 </div>
               </a>
             </li>

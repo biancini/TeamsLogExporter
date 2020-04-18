@@ -195,4 +195,15 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
             }
         });
     };
+
+    $scope.selectCheck = function (cid) {
+        if ($("#" + cid).prop('checked')) {
+            $("#" + cid).removeClass('checked');
+            $("#" + cid).prop('checked', false);
+        }
+        else {
+            $("#" + cid).addClass('checked');
+            $("#" + cid).prop('checked', true);
+        }
+    };
 }]);
