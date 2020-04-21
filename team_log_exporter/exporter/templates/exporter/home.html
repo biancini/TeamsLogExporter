@@ -53,11 +53,6 @@
             </li>
           </ul>
         </div>
-
-        <div id="group-selection" class="form-check" ng-repeat="item in grouplist | search:'name':groupSearch">
-          <input id="checkbox-group-{a $index a}" type="checkbox" value="{a item.id a}">
-          <label for="checkbox-group-{a $index a}">{a item.name a}</label>
-        </div>
       </div>
       <div ng-class="(step2 == 'active')?'tab-pane p-4 fade show active':'tab-pane p-4 fade'" id="nav-tab2" role="tabpanel" aria-labelledby="tab2-tab">
         <p>Selezionare uno o più utenti:
@@ -116,7 +111,7 @@
                   </span>
                 </div>
               </a>
-                
+
               <table id="{a meeting.id a}" class="d-block table" ng-show="showTable == meeting.id">
                 <thead>
                   <tr>
