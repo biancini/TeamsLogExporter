@@ -78,7 +78,6 @@ def home(request):
 
     return render(request, 'exporter/home.html', context)
 
-@csrf_exempt
 def bearer(request):
     message = "Effettuata la chiamata in modo errato."
 
@@ -108,7 +107,6 @@ def bearer(request):
         "message": message
     }, status=500)
 
-@csrf_exempt
 def getusers_bygroup(request):
     message = "Effettuata la chiamata in modo errato."
 
@@ -144,7 +142,6 @@ def getusers_bygroup(request):
         "message": message
     }, status=500)
 
-@csrf_exempt
 def getuser_meetings(request):
     message = "Effettuata la chiamata in modo errato."
 
@@ -178,7 +175,6 @@ def getuser_meetings(request):
         "message": message
     }, status=500)
 
-@csrf_exempt
 def getmeeting_records(request):
     message = "Effettuata la chiamata in modo errato."
 
@@ -245,7 +241,6 @@ def getmeeting_records(request):
         "message": message
     }, status=500)
 
-@csrf_exempt
 def export_xls(request):
     message = "Effettuata la chiamata in modo errato."
 

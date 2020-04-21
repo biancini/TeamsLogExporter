@@ -1,10 +1,15 @@
-var app = angular.module('teamsLogExporter', []);
-
 $("#error-message").hide();
 
-app.config(['$interpolateProvider', function($interpolateProvider) {
+var app = angular.module('teamsLogExporter', []);
+
+app.config(['$interpolateProvider', '$httpProvider', function($interpolateProvider, $httpProvider) {
     $interpolateProvider.startSymbol('{a');
     $interpolateProvider.endSymbol('a}');
+
+    $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    
 }]);
 
 app.filter('search', function() {
@@ -24,9 +29,93 @@ app.filter('search', function() {
     }
 });
 
-app.controller('mainController', ['$scope', '$http', function($scope, $http) {
+app.service('MicrosoftAPI', ['$http', '$q', function ($http, $q) {
+    this.setBearer = function (user, token) {
+        var def = $q.defer();
+
+        $http.post("/exporter/bearer", { 'user': user, 'token': token }).then(function successCallback(response) {
+            var data = response.data.data;
+            def.resolve(data);
+        }, function errorCallback(response) {
+            def.reject(response.data.message);
+        });
+
+        return def.promise;
+    };
+
+    this.getUserByGroup = function (selectedGroups) {
+        var def = $q.defer();
+
+        $http.post("/exporter/getusers_bygroup", { 'groups': selectedGroups }).then(function successCallback(response) {
+            var data = response.data.data;
+            def.resolve(data);
+        }, function errorCallback(response) {
+            def.reject(response.data.message);
+        });
+
+        return def.promise;
+    };
+
+    this.getUserMeetings = function (selectedUsers) {
+        var def = $q.defer();
+
+        $http.post("/exporter/getuser_meetings", { 'users': selectedUsers }).then(function successCallback(response) {
+            var options = {'weekday': 'long', 'year': 'numeric', 'month': 'long', 'day': '2-digit', 'hour': '2-digit', 'minute': '2-digit', 'second': '2-digit'};
+            
+            var data = response.data.data;
+            data.forEach(function (item) {
+                var durata = Math.floor((new Date(item['end'])) - (new Date(item['start']))) / (1000*60);
+                var hours = Math.floor(durata / 60);  
+                var minutes = Math.floor(durata % 60);
+                
+                item['durata'] = hours + " ore e " + minutes + "minuti";
+                item['start'] = new Date(item['start']).toLocaleTimeString('it-IT', options);
+                item['start'] = item['start'].slice(0, -3);
+                item['end'] = new Date(item['end']).toLocaleTimeString('it-IT', options);
+                item['end'] = item['end'].slice(0, -3);
+            });
+            def.resolve(data);
+        }, function errorCallback(response) {
+            def.reject(response.data.message);
+        });
+
+        return def.promise;
+    };
+
+    this.getMeetingRecord = function (selectedEvents) {
+        var def = $q.defer();
+
+        $http.post("/exporter/getmeeting_records", { meetings: selectedEvents }).then(function successCallback(response) {
+            var data = response.data.data;
+            data.forEach(function (item) {
+                var description = item['id'];
+                data.forEach(function (ev) {
+                    if (ev['id'] == description) {
+                        description = "Lezione di " + ev.start + ", durata " + ev.durata + " (" + ev.partecipant + " partecipanti)";
+                    }
+                });
+                item['descr'] = description;
+            });
+            def.resolve(data);
+        }, function errorCallback(response) {
+            def.reject(response.data.message);
+        });
+
+        return def.promise;
+    };
+}]);
+
+app.controller('mainController', ['$rootScope', '$scope', '$http', 'MicrosoftAPI', function($rootScope, $scope, $http, MicrosoftAPI) {
     $scope.setupOk = false;
     $scope.errorMessage = '';
+
+    $scope.showError = function (errorMessage) {
+        console.log(errorMessage);
+        $scope.errorMessage = errorMessage;
+
+        $('#flowDimmer').dimmerHide();
+        $('#error-message').modal('show');
+    };
 
     $scope.startFlow = function() {
         $('#flowDimmer').dimmerShow();
@@ -41,15 +130,13 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
         $scope.step4 = 'disabled';
         
         $scope.grouplist = []
-        $http.post("/exporter/bearer", { 'user': user, 'token': token }).then(function successCallback(response) {
-            $scope.grouplist = response.data.data;
+        MicrosoftAPI.setBearer(user, token).then(function (data) {
+            $scope.grouplist = data;
             $('#flowDimmer').dimmerHide();
-        }, function errorCallback(response) {
-            var errorMessage = "Errore: " + response.data.message;
-            console.log(response);
-            $scope.errorMessage = errorMessage;
+        },
+        function (data) {
+            $scope.showError(data);
             $('#flowDimmer').dimmerHide();
-            $('#error-message').modal('show');
         });
     };
 
@@ -62,19 +149,16 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
                 selectedGroups.push($(this).val());
             });
 
-            $scope.userlist = []
-            $http.post("/exporter/getusers_bygroup", { 'groups': selectedGroups }).then(function successCallback(response) {
+            MicrosoftAPI.getUserByGroup(selectedGroups).then(function (data) {
                 $scope.step1 = 'completed';
                 $scope.step2 = 'active';
-                
-                $scope.userlist = response.data.data;
+
+                $scope.userlist = data;
                 $('#flowDimmer').dimmerHide();
-            }, function errorCallback(response) {
-                var errorMessage = "Errore: " + response.data.message;
-                console.log(response);
-                $scope.errorMessage = errorMessage;
+            },
+            function (data) {
+                $scope.showError(data);
                 $('#flowDimmer').dimmerHide();
-                $('#error-message').modal('show');
             });
         }
         else if ($scope.step2 == 'active') {
@@ -91,33 +175,17 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
             }
             
             $scope.userlist = []
-            $http.post("/exporter/getuser_meetings", { 'users': selectedUsers }).then(function successCallback(response) {
+            MicrosoftAPI.getUserMeetings(selectedUsers).then(function (data) {
                 $scope.step1 = 'completed';
                 $scope.step2 = 'completed';
                 $scope.step3 = 'active';
 
-                var options = {'weekday': 'long', 'year': 'numeric', 'month': 'long', 'day': '2-digit', 'hour': '2-digit', 'minute': '2-digit', 'second': '2-digit'};
-                
-                $scope.eventlist = response.data.data;
-                $scope.eventlist.forEach(function (item) {
-                    var durata = Math.floor((new Date(item['end'])) - (new Date(item['start']))) / (1000*60);
-                    var hours = Math.floor(durata / 60);  
-                    var minutes = Math.floor(durata % 60);
-                    
-                    item['durata'] = hours + " ore e " + minutes + "minuti";
-                    item['start'] = new Date(item['start']).toLocaleTimeString('it-IT', options);
-                    item['start'] = item['start'].slice(0, -3);
-                    item['end'] = new Date(item['end']).toLocaleTimeString('it-IT', options);
-                    item['end'] = item['end'].slice(0, -3);
-                });
-
+                $scope.eventlist = data;
                 $('#flowDimmer').dimmerHide();
-            }, function errorCallback(response) {
-                var errorMessage = "Errore: " + response.data.message;
-                console.log(response);
-                $scope.errorMessage = errorMessage;
+            },
+            function (data) {
+                $scope.showError(data);
                 $('#flowDimmer').dimmerHide();
-                $('#error-message').modal('show');
             });
         }
         else if ($scope.step3 == 'active') {
@@ -133,31 +201,19 @@ app.controller('mainController', ['$scope', '$http', function($scope, $http) {
                 return;
             }
             
-            $scope.userlist = []
-            $http.post("/exporter/getmeeting_records", { meetings: selectedEvents }).then(function successCallback(response) {
+            $scope.meetingRecords = []
+            MicrosoftAPI.getMeetingRecord(selectedEvents).then(function (data) {
                 $scope.step1 = 'completed';
                 $scope.step2 = 'completed';
                 $scope.step3 = 'completed';
                 $scope.step4 = 'active';
 
-                $scope.meetingRecords = response.data.data;
-                $scope.meetingRecords.forEach(function (item) {
-                    var description = item['id'];
-                    $scope.eventlist.forEach(function (ev) {
-                        if (ev['id'] == description) {
-                            description = "Lezione di " + ev.start + ", durata " + ev.durata + " (" + ev.partecipant + " partecipanti)";
-                        }
-                    });
-                    item['descr'] = description;
-                });
-
+                $scope.meetingRecords = data;
                 $('#flowDimmer').dimmerHide();
-            }, function errorCallback(response) {
-                var errorMessage = "Errore: " + response.data.message;
-                console.log(response);
-                $scope.errorMessage = errorMessage;
+            },
+            function (data) {
+                $scope.showError(data);
                 $('#flowDimmer').dimmerHide();
-                $('#error-message').modal('show');
             });
         }
     };
