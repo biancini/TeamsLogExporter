@@ -82,14 +82,14 @@ app.service('MicrosoftAPI', ['$http', '$q', function ($http, $q) {
         return def.promise;
     };
 
-    this.getMeetingRecord = function (selectedEvents) {
+    this.getMeetingRecord = function (selectedEvents, eventlist) {
         var def = $q.defer();
 
         $http.post("/exporter/getmeeting_records", { meetings: selectedEvents }).then(function successCallback(response) {
             var data = response.data.data;
             data.forEach(function (item) {
                 var description = item['id'];
-                data.forEach(function (ev) {
+                eventlist.forEach(function (ev) {
                     if (ev['id'] == description) {
                         description = "Lezione di " + ev.start + ", durata " + ev.durata + " (" + ev.partecipant + " partecipanti)";
                     }
@@ -202,7 +202,7 @@ app.controller('mainController', ['$rootScope', '$scope', '$http', 'MicrosoftAPI
             }
             
             $scope.meetingRecords = []
-            MicrosoftAPI.getMeetingRecord(selectedEvents).then(function (data) {
+            MicrosoftAPI.getMeetingRecord(selectedEvents, $scope.eventlist).then(function (data) {
                 $scope.step1 = 'completed';
                 $scope.step2 = 'completed';
                 $scope.step3 = 'completed';

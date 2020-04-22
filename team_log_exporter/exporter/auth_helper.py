@@ -24,8 +24,8 @@ scopes = settings['scopes']
 def get_sign_in_url(request):
     # Initialize the OAuth client
     aad_auth = OAuth2Session(request.session.get('appid', None),
-        scope=settings['scopes'],
-        redirect_uri=os.environ['REDIRECT_URI'])
+        scope = settings['scopes'],
+        redirect_uri = os.environ['REDIRECT_URI'])
 
     sign_in_url, state = aad_auth.authorization_url(authorize_url, prompt='login')
 
@@ -35,13 +35,13 @@ def get_sign_in_url(request):
 def get_token_from_code(request, callback_url, expected_state):
     # Initialize the OAuth client
     aad_auth = OAuth2Session(request.session.get('appid', None),
-        state=expected_state,
-        scope=settings['scopes'],
-        redirect_uri=os.environ['REDIRECT_URI'])
+        state = expected_state,
+        scope = settings['scopes'],
+        redirect_uri = os.environ['REDIRECT_URI'])
 
     token = aad_auth.fetch_token(token_url,
         client_secret = request.session.get('appsecret', None),
-        authorization_response=callback_url)
+        authorization_response = callback_url)
 
     return token
 
@@ -74,8 +74,8 @@ def get_token(request):
             # Refresh the token
             aad_auth = OAuth2Session(request.session.get('appid', None),
                 token = token,
-                scope=settings['scopes'],
-                redirect_uri=os.environ['REDIRECT_URI'])
+                scope = settings['scopes'],
+                redirect_uri = os.environ['REDIRECT_URI'])
 
             refresh_params = {
                 'client_id': request.session.get('appid', None),
