@@ -145,6 +145,7 @@
 <form method="post" action="/exporter/export_xls" id="excel-form" target="_blank">
   <input type="hidden" name="filename" id="filename" value="" />
   <input type="hidden" name="table" id="table" value="" />
+  {% csrf_token %}
 </form>
 {% endif %}
 
