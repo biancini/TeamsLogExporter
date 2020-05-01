@@ -16,36 +16,61 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.utils import get_column_letter
 
 
+usernames = {}
+
+
 def split(a, n):
     k, m = divmod(len(a), n)
     return (a[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n))
 
 
-def generate_excel(list_files):
+def get_usernamefromid(t, userid):
+    if userid == 'Sconosciuto': return 'Sconosciuto'
+
+    if userid not in usernames:
+        uri = 'https://graph.microsoft.com/beta/users/{0}'.format(userid)
+        head = { 'Authorization': 'Bearer {0}'.format(t) }
+        r = requests.get(uri, headers=head)
+        user = r.json()
+        usernames[userid] = user['displayName'] if 'displayName' in user else 'Sconosciuto'
+
+    return usernames[userid]
+
+
+def generate_excel(t, list_files):
     for filename in list_files:
         with open(filename) as json_file:
             p = json.load(json_file)
 
             name = None
             try:
-                if 'organizer' in p and 'user' in p['organizer'] and 'displayName' in p['organizer']['user']:
-                    name = p['organizer']['user']['displayName']
+                if 'organizer' in p and 'user' in p['organizer'] and 'id' in p['organizer']['user']:
+                    name = get_usernamefromid(t, p['organizer']['user']['id'])
             except Exception:
                 name = None
 
             if name is None:
                 name = 'Sconosciuto'
 
-            dest_filename = "excel/%s - %s.xlsx" % (p['startDateTime'], name)
+            start_time = datetime.strptime(p['startDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
+            start_time = start_time.strftime('%Y-%d-%m %H:%M')
+            dest_filename = "excel/%s - %s.xlsx" % (start_time, name)
 
             users = {}
             for c in p['sessions']:
-                if 'caller' not in c or c['caller'] is None or 'identity' not in c['caller'] or 'user' not in c['caller']['identity'] or not 'id' in c['caller']['identity']['user']:
+                if 'caller' not in c or c['caller'] is None:
+                    continue
+                if 'identity' not in c['caller'] or c['caller']['identity'] is None:
+                    continue
+                if 'user' not in c['caller']['identity'] or c['caller']['identity']['user'] is None:
+                    continue
+                if 'id' not in c['caller']['identity']['user'] or c['caller']['identity']['user']['id'] is None:
                     continue
 
                 curuid = c['caller']['identity']['user']['id']
                 if curuid not in users:
-                    displayname = c['caller']['identity']['displayName'] if 'displayName' in c['caller']['identity'] else 'Sconosciuto'
+                    displayname = c['caller']['identity']['id'] if 'id' in c['caller']['identity'] else 'Sconosciuto'
+                    displayname = get_usernamefromid(t, displayname)
                     users[curuid] = { 'name': displayname, 'min_start': None, 'max_end': None, 'duration': 0 }
 
                 start = datetime.strptime(c['startDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
@@ -62,7 +87,6 @@ def generate_excel(list_files):
 
             participants = []
             for _uid, data in users.items():
-                data['duration'] /= 1000
                 data['duration'] /= 60
                 hours = math.floor(data['duration'] / 60)
                 minutes = math.floor(data['duration'] % 60)
@@ -112,13 +136,29 @@ def generate_excel(list_files):
         #os.remove(filename)
 
 
+tenant_id = os.getenv('TENANTID_ENAIP', None)
+client_id = os.getenv('APPID_ENAIP', None)
+client_secret =  os.getenv('APPSECRET_ENAIP', None)
+num_threads = 10
+
+data = parse.urlencode({
+    'client_id': client_id,
+    'client_secret': client_secret,
+    'scope': 'https://graph.microsoft.com/.default',
+    'grant_type': 'client_credentials'
+})
+
+uri = 'https://login.microsoftonline.com/{0}/oauth2/v2.0/token'.format(tenant_id)
+r = requests.post(uri, data = data)
+t = r.json()['access_token']
+
 num_threads = 10
 json_files = glob.glob("json/*.json")
 json_files = list(split(json_files, num_threads))
 
 threads = []
 for thid in range(num_threads):
-    th = threading.Thread(name='non-blocking', target=generate_excel, args=(json_files[thid],))
+    th = threading.Thread(name='non-blocking', target=generate_excel, args=(t, json_files[thid]))
     threads.append(th)
     th.start()
 
