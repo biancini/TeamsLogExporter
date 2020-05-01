@@ -52,7 +52,7 @@ def generate_excel(t, list_files):
                         name = get_usernamefromid(t, p['organizer']['user']['id'])
 
             start_time = datetime.strptime(p['startDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
-            start_time = start_time.strftime('%Y-%m-%d %H:%M')
+            start_time = start_time.strftime('%Y-%m-%d %H-%M')
             dest_filename = "excel/%s - %s.xlsx" % (start_time, name)
 
             if os.path.isfile(dest_filename):
