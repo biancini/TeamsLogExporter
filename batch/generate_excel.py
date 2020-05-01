@@ -32,7 +32,10 @@ def get_usernamefromid(t, userid):
         head = { 'Authorization': 'Bearer {0}'.format(t) }
         r = requests.get(uri, headers=head)
         user = r.json()
-        usernames[userid] = user['displayName'] if 'displayName' in user else 'Sconosciuto'
+        if 'displayName' in user:
+            usernames[userid] = user['displayName']
+        else:
+            usernames[userid] = 'Sconosciuto (%s)' % userid
 
     return usernames[userid]
 
@@ -42,35 +45,34 @@ def generate_excel(t, list_files):
         with open(filename) as json_file:
             p = json.load(json_file)
 
-            name = None
-            try:
-                if 'organizer' in p and 'user' in p['organizer'] and 'id' in p['organizer']['user']:
-                    name = get_usernamefromid(t, p['organizer']['user']['id'])
-            except Exception:
-                name = None
-
-            if name is None:
-                name = 'Sconosciuto'
+            name = 'Sconosciuto'
+            if 'organizer' in p and p['organizer'] is not None:
+                if 'user' in p['organizer'] and p['organizer']['user'] is not None:
+                    if 'id' in p['organizer']['user']:
+                        name = get_usernamefromid(t, p['organizer']['user']['id'])
 
             start_time = datetime.strptime(p['startDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
-            start_time = start_time.strftime('%Y-%d-%m %H:%M')
+            start_time = start_time.strftime('%Y-%m-%d %H:%M')
             dest_filename = "excel/%s - %s.xlsx" % (start_time, name)
 
             users = {}
             for c in p['sessions']:
                 if 'caller' not in c or c['caller'] is None:
+                    print("ignored session for wrong caller 1")
                     continue
                 if 'identity' not in c['caller'] or c['caller']['identity'] is None:
+                    print("ignored session for wrong caller 2")
                     continue
                 if 'user' not in c['caller']['identity'] or c['caller']['identity']['user'] is None:
+                    print("ignored session for wrong caller 3")
                     continue
                 if 'id' not in c['caller']['identity']['user'] or c['caller']['identity']['user']['id'] is None:
+                    print("ignored session for wrong caller 4")
                     continue
 
                 curuid = c['caller']['identity']['user']['id']
                 if curuid not in users:
-                    displayname = c['caller']['identity']['id'] if 'id' in c['caller']['identity'] else 'Sconosciuto'
-                    displayname = get_usernamefromid(t, displayname)
+                    displayname = get_usernamefromid(t, curuid)
                     users[curuid] = { 'name': displayname, 'min_start': None, 'max_end': None, 'duration': 0 }
 
                 start = datetime.strptime(c['startDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
@@ -92,7 +94,7 @@ def generate_excel(t, list_files):
                 minutes = math.floor(data['duration'] % 60)
                 duration = "{0} ore e {1} minuti".format(hours, minutes)
 
-                participants.append({ 'uid': curuid, 'name': name, 'start': data['min_start'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'end': data['min_start'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'duration': duration})
+                participants.append({ 'uid': _uid, 'name': data['name'], 'start': data['min_start'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'end': data['max_end'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'duration': duration})
 
             ###########
 
@@ -105,14 +107,14 @@ def generate_excel(t, list_files):
                 cell.font = Font(bold=True)
 
             i = 1
-            for t in participants:
+            for pp in participants:
                 i = i + 1
 
-                duration = t['duration'].replace(" ore e ", ":").replace(" minuti", "").split(":")
+                duration = pp['duration'].replace(" ore e ", ":").replace(" minuti", "").split(":")
                 worksheet.append([
-                    t['name'],
-                    datetime.strptime(t['start'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S'),
-                    datetime.strptime(t['end'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S'),
+                    pp['name'],
+                    datetime.strptime(pp['start'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S'),
+                    datetime.strptime(pp['end'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S'),
                     time(int(duration[0]), int(duration[1]), 0)
                 ])
 
