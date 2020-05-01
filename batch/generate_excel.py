@@ -55,6 +55,10 @@ def generate_excel(t, list_files):
             start_time = start_time.strftime('%Y-%m-%d %H:%M')
             dest_filename = "excel/%s - %s.xlsx" % (start_time, name)
 
+            if os.path.isfile(dest_filename):
+                os.remove(filename)
+                continue
+
             users = {}
             for c in p['sessions']:
                 if 'caller' not in c or c['caller'] is None:
@@ -131,7 +135,7 @@ def generate_excel(t, list_files):
 
             workbook.save(filename=dest_filename)
     
-        #os.remove(filename)
+        os.remove(filename)
 
 
 tenant_id = os.getenv('TENANTID_ENAIP', None)
