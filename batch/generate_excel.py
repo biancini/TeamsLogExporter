@@ -58,16 +58,12 @@ def generate_excel(t, list_files):
             users = {}
             for c in p['sessions']:
                 if 'caller' not in c or c['caller'] is None:
-                    print("ignored session for wrong caller 1")
                     continue
                 if 'identity' not in c['caller'] or c['caller']['identity'] is None:
-                    print("ignored session for wrong caller 2")
                     continue
                 if 'user' not in c['caller']['identity'] or c['caller']['identity']['user'] is None:
-                    print("ignored session for wrong caller 3")
                     continue
                 if 'id' not in c['caller']['identity']['user'] or c['caller']['identity']['user']['id'] is None:
-                    print("ignored session for wrong caller 4")
                     continue
 
                 curuid = c['caller']['identity']['user']['id']
