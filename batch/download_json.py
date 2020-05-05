@@ -4,7 +4,7 @@ import csv
 import sys
 import os.path
 import threading
-import math
+import tqdm
 from urllib import parse
 from datetime import datetime, time
 from openpyxl import Workbook
@@ -25,9 +25,8 @@ def split(a, n):
 
 
 def download_call_data(t, call_ids):
-    for call_id in call_ids:
-        print("Getting data for call id %s" % call_id)
-
+    for call_id in tqdm.tqdm(call_ids):
+        #print("Getting data for call id %s" % call_id)
         if os.path.isfile('json/{0}.json'.format(call_id)):
             continue
 
@@ -39,7 +38,7 @@ def download_call_data(t, call_ids):
         if 'error' in response:
             print ("%s" % response)
         else:
-            print ("Saved in JSON file.")
+            #print ("Saved in JSON file.")
             with open('json/{0}.json'.format(call_id), 'w') as outfile:
                 json.dump(response, outfile)
 

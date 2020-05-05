@@ -7,6 +7,7 @@ import sys
 import os.path
 import threading
 import math
+import tqdm
 from urllib import parse
 from datetime import datetime, time
 from openpyxl import Workbook
@@ -41,7 +42,7 @@ def get_usernamefromid(t, userid):
 
 
 def generate_excel(t, list_files):
-    for filename in list_files:
+    for filename in tqdm.tqdm(list_files):
         with open(filename) as json_file:
             p = json.load(json_file)
 
