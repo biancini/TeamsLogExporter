@@ -13,6 +13,11 @@ from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.utils import get_column_letter
 
+'''
+Scaricare i dati dal report creato appostivamente qui:
+https://cqd.teams.microsoft.com/spd/#/Dashboard?language=it-IT
+'''
+
 
 def split(a, n):
     k, m = divmod(len(a), n)
