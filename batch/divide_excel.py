@@ -16,7 +16,7 @@ for f in files:
         row_count = worksheet.max_row
         if row_count <= 2:
             if not path.isdir(path.join(path.dirname(f), 'Altre Riunioni')):
-                mkdir(path.dirname(f), 'Altre Riunioni')
+                mkdir(path.join(path.dirname(f), 'Altre Riunioni'))
             to_path = path.join(path.dirname(f), 'Altre Riunioni', path.basename(f))
             rename(f, to_path)
             file_moved += 1
