@@ -57,8 +57,13 @@ data = parse.urlencode({
 })
 
 uri = 'https://login.microsoftonline.com/{0}/oauth2/v2.0/token'.format(tenant_id)
-r = requests.post(uri, data = data)
-t = r.json()['access_token']
+r = requests.post(uri, data=data).json()
+
+if not 'access_token' in r:
+    print(f'{r}')
+    exit(1)
+    
+t = r['access_token']
 
 filename = 'calls.csv'
 if len(sys.argv) > 1:
