@@ -2,7 +2,7 @@ import glob
 from os import path, rename, mkdir
 from openpyxl import load_workbook
 
-files = [f for f in glob.glob("excel/**/*.xlsx", recursive=True)]
+files = [f for f in glob.glob("**/*.xlsx", recursive=True)]
 
 total_files = len(files)
 file_moved = 0
