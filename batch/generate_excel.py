@@ -2,12 +2,11 @@
 import requests
 import json
 import glob
-import csv
-import sys
 import os.path
 import threading
 import math
 import tqdm
+from dateutil import tz
 from urllib import parse
 from datetime import datetime, time
 from openpyxl import Workbook
@@ -18,6 +17,8 @@ from openpyxl.utils import get_column_letter
 
 
 usernames = {}
+from_zone = tz.gettz('UTC')
+to_zone = tz.gettz('Europe/Rome')
 
 
 def split(a, n):
@@ -42,7 +43,7 @@ def get_usernamefromid(t, userid):
 
 
 def generate_excel(t, list_files):
-    for filename in tqdm.tqdm(list_files):
+    for filename in list_files:
         with open(filename) as json_file:
             p = json.load(json_file)
 
@@ -53,11 +54,12 @@ def generate_excel(t, list_files):
                         name = get_usernamefromid(t, p['organizer']['user']['id'])
 
             start_time = datetime.strptime(p['startDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
+            start_time = start_time.replace(tzinfo=from_zone).astimezone(to_zone)
             start_time = start_time.strftime('%Y-%m-%d %H-%M')
             dest_filename = "excel/%s - %s.xlsx" % (start_time, name)
 
             if os.path.isfile(dest_filename):
-                os.remove(filename)
+                #os.remove(filename)
                 continue
 
             users = {}
@@ -77,10 +79,12 @@ def generate_excel(t, list_files):
                     users[curuid] = { 'name': displayname, 'min_start': None, 'max_end': None, 'duration': 0 }
 
                 start = datetime.strptime(c['startDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
+                start = start.replace(tzinfo=from_zone).astimezone(to_zone)
                 if users[curuid]['min_start'] is None or start < users[curuid]['min_start']:
                     users[curuid]['min_start'] = start
 
                 end = datetime.strptime(c['endDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
+                end = end.replace(tzinfo=from_zone).astimezone(to_zone)
                 if users[curuid]['max_end'] is None or end > users[curuid]['max_end']:
                     users[curuid]['max_end'] = end
                 
@@ -136,7 +140,7 @@ def generate_excel(t, list_files):
 
             workbook.save(filename=dest_filename)
     
-        os.remove(filename)
+        #os.remove(filename)
 
 
 tenant_id = os.getenv('TENANTID_ENAIP', None)
