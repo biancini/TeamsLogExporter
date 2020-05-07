@@ -68,6 +68,9 @@ def generate_excel(t, filename):
             if 'id' not in c['caller']['identity']['user'] or c['caller']['identity']['user']['id'] is None:
                 continue
 
+            if 'userAgent' in c['caller'] and 'headerValue' in c['caller']['userAgent'] and c['caller']['userAgent']['headerValue'] == 'SkypeBot Call Recorder Teams':
+                continue
+
             curuid = c['caller']['identity']['user']['id']
             if curuid not in users:
                 displayname = get_usernamefromid(t, curuid)
