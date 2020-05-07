@@ -8,7 +8,7 @@ from tqdm import tqdm
 from dateutil import tz
 from urllib import parse
 from concurrent.futures import ProcessPoolExecutor
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from openpyxl.writer.excel import save_virtual_workbook
@@ -109,12 +109,17 @@ def generate_excel(t, filename):
         for pp in participants:
             i = i + 1
 
-            duration = pp['duration'].replace(" ore e ", ":").replace(" minuti", "").split(":")
+            start = datetime.strptime(pp['start'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
+            end = datetime.strptime(pp['end'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
+
+            delta = (end - start).seconds
+            delta /= 60*60*24
+
             worksheet.append([
                 pp['name'],
-                datetime.strptime(pp['start'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S'),
-                datetime.strptime(pp['end'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S'),
-                time(int(duration[0]), int(duration[1]), 0)
+                start,
+                end,
+                delta
             ])
 
             cell = worksheet.cell(i, 2)
@@ -134,7 +139,7 @@ def generate_excel(t, filename):
 
         workbook.save(filename=dest_filename)
 
-    filename.close()
+    json_file.close()
     #os.remove(filename)
     return 1
 
