@@ -52,9 +52,10 @@ def generate_excel(t, filename):
         start_time = start_time.strftime('%Y-%m-%d %H-%M')
         dest_filename = f'excel/{start_time} - {name}.xlsx'
 
-        if os.path.isfile(dest_filename):
-            #os.remove(filename)
-            return 0
+        i = 2
+        while os.path.isfile(dest_filename):
+            dest_filename = f'excel/{start_time} - {name} - {i}.xlsx'
+            i = i + 1
 
         users = {}
         for c in p['sessions']:
