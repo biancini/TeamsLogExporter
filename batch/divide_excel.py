@@ -4,13 +4,10 @@ from datetime import datetime
 from os import path, remove, makedirs, chdir
 from openpyxl import load_workbook
 
-#base = 'D:\Fondazione Enaip Lombardia\Didattica a Distanza - Report meeting Teams'
-base = 'D:\OneDrive\Documenti\work\enaip\Formazione a Distanza\Strumenti Teams\Report meeting Teams'
+base = 'D:\Fondazione Enaip Lombardia\Didattica a Distanza - Report meeting Teams'
+#base = 'D:\OneDrive\Documenti\work\enaip\Formazione a Distanza\Strumenti Teams\Report meeting Teams'
 chdir(base)
-files = glob('./**/*.xlsx', recursive=True)
-
-print("%s" % files)
-exit(0)
+files = glob('**/*.xlsx', recursive=True)
 
 folders = {
     datetime(2020, 4, 5): '04_Report Teams 30mar_3apr',
@@ -25,37 +22,37 @@ people = {
     'Botticino': [ 'Daniela Melardi' ],
     'Busto Arsizio': [
         'Raffaello Vaghi', 'Chiara Ferrè', 'Donata Molon', 'Paolo Zuffinetti',
-        'Paola Zerbi', 'Michele Della Valle', 'Francesca Milani', 'Raffaella Pigoli',
+        'Paola Zerbi', 'Michele DellaValle', 'Francesca Milani', 'Raffaella Pigoli',
         'Laura Ferioli', 'Franca Guarracino'
     ],
     'Cantu': [ 'Viviana Tucci', 'Matteo Roncoroni', 'Federica Meroni' ],
     'Como': [
-        'Cortellezzi Arianna', 'Bernasconi Sandra', 'Oricchio Mauro',
-        'Clerici Rossella', 'Bianchi Anna Maria', 'Beretta Francesco',
-        'Morselli Roberto', 'Colombo Manuela',  'Garbi Miriam'
+        'Arianna Cortellezzi', 'Sandra Bernasconi', 'Maura Oricchio',
+        'Rossella Clerici', 'Ann Bianchi', 'Francesco Beretta',
+        'Roberto Morselli', 'Manuela Colombo',  'Miriam Garbi'
     ],
     'Cremona': [
-        'Elidoro Claudio', 'Granelli Silvia', 'Bignami Mariarosa',
-        'Fiori Enrico Angelo', 'Bellocchio Matteo', 'Biolchi Federico',
-        'Bonoli Michele', 'Benedetti Stefano', 'Galli Giorgio',
-        'Maccagnola Daniela', 'Mignani Paola', 'Nicolazzo Sabrina',
-        'Oliani Donatella', 'Platè Enrico', 'Portesani Simone',
-        'Riccardi Daniela', 'Somenzini Marzia', 'Valcarenghi Mario Attilio'
+        'Claudio Elidoro', 'Silvia Granelli', 'Mariarosa Bignami',
+        'Enrico Fiori', 'Matteo Bellocchio', 'Federico Biolchi',
+        'Michele Bonoli', 'Stefano Benedetti', 'Giorgio Galli',
+        'Daniela Maccagnola', 'Paola Mignani', 'Sabrina Nicolazzo',
+        'Donatella Oliani', 'Enrico Platè', 'Simone Portesani',
+        'Daniela Riccardi', 'Marzia Somenzini', 'Mario Valcarenghi'
     ],
     'Dalmine': [
         'Chiara Pezzotta', 'Maurizio Gavina', 'Debora Stignani',
-        'Laura Trombini', 'Chiara Nicoli', 'Nadia Dalla Longa'
+        'Laura Trombini', 'Chiara Nicoli', 'Nadia Dallalonga'
     ],
     'Lecco': [ 'Federica Colombo' ],
     'Magenta': [ 'Laura Cuzzocrea' ],
-    'Mantova': [ 'Elvira Morandi Gadioli', 'Fabio Veneri' ],
+    'Mantova': [ 'Elvina Morandigadioli', 'Fabio Veneri' ],
     'Melzo': [ 'Alessandro Arbitrio' ],
     'Monticello': ['Alberta Molinari', 'Stefania Sala' ],
     'Morbegno': [ 'Donatella Caelli', 'Jiji Bezi', 'Claudia Del Barba' ],
     'Pavia': [
-        'Corsico Giovanni', 'Bernorio Viviana', 'Casella Massimo',
-        'Belli Alessandro', 'Susino Giovanni', 'Passarella Chantall',
-        'Ferraris Andrea', 'Saronni Catia', 'Longhi Daniele'
+        'Giovanni Corsico', 'Viviana Bernorio', 'Viviana Casella',
+        'Alessandro Belli', 'Giovanni Susino', 'Chantall Passarella',
+        'Andrea Ferraris', 'Catia Saronni', 'Daniele Longhi'
     ],
     'Romano': [ 'Annamaria Bergamini' ],
     'Varese': [
@@ -63,7 +60,7 @@ people = {
         'Sara Campiglio', 'Domenico Battista', 'Simone Porta',
         'Donatella Gelmi'
     ],
-    'Vigevano': [ 'Margherita Previde Massara', 'Viola Donato' ],
+    'Vigevano': [ 'Margherita Previde', 'Viola Donato' ],
     'Vimercate': [ 'Davide Panzeri', 'Jacopo Tonon' ],
     'Voghera': [ 'Alessandro Belli', 'Fabio Faroldi' ]
 }
@@ -88,7 +85,7 @@ for f in files:
             
             newpath = path.join(newpath, path.basename(f))
             #print (f'mv {f} {newpath}')
-            shutil.copy(f, newpath)
+            shutil.move(f, newpath)
             
             file_moved = file_moved + 1
             break
