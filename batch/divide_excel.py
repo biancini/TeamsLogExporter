@@ -1,12 +1,16 @@
-import glob
 import shutil
+from glob import glob
 from datetime import datetime
-from os import path, remove
+from os import path, remove, makedirs, chdir
 from openpyxl import load_workbook
 
-base = "D:\Fondazione Enaip Lombardia\Didattica a Distanza - Report meeting Teams"
-#base = "D:\OneDrive\Documenti\work\enaip\Formazione a Distanza\Strumenti Teams\Report meeting Teams"
-files = [f for f in glob.glob("excel/**/*.xlsx", recursive=True)]
+#base = 'D:\Fondazione Enaip Lombardia\Didattica a Distanza - Report meeting Teams'
+base = 'D:\OneDrive\Documenti\work\enaip\Formazione a Distanza\Strumenti Teams\Report meeting Teams'
+chdir(base)
+files = glob('./**/*.xlsx', recursive=True)
+
+print("%s" % files)
+exit(0)
 
 folders = {
     datetime(2020, 4, 5): '04_Report Teams 30mar_3apr',
@@ -16,17 +20,76 @@ folders = {
     datetime(2020, 5, 3): '08_Report Teams 27-30 apr-20'
 }
 
+people = {
+    'Bergamo': [],
+    'Botticino': [ 'Daniela Melardi' ],
+    'Busto Arsizio': [
+        'Raffaello Vaghi', 'Chiara Ferrè', 'Donata Molon', 'Paolo Zuffinetti',
+        'Paola Zerbi', 'Michele Della Valle', 'Francesca Milani', 'Raffaella Pigoli',
+        'Laura Ferioli', 'Franca Guarracino'
+    ],
+    'Cantu': [ 'Viviana Tucci', 'Matteo Roncoroni', 'Federica Meroni' ],
+    'Como': [
+        'Cortellezzi Arianna', 'Bernasconi Sandra', 'Oricchio Mauro',
+        'Clerici Rossella', 'Bianchi Anna Maria', 'Beretta Francesco',
+        'Morselli Roberto', 'Colombo Manuela',  'Garbi Miriam'
+    ],
+    'Cremona': [
+        'Elidoro Claudio', 'Granelli Silvia', 'Bignami Mariarosa',
+        'Fiori Enrico Angelo', 'Bellocchio Matteo', 'Biolchi Federico',
+        'Bonoli Michele', 'Benedetti Stefano', 'Galli Giorgio',
+        'Maccagnola Daniela', 'Mignani Paola', 'Nicolazzo Sabrina',
+        'Oliani Donatella', 'Platè Enrico', 'Portesani Simone',
+        'Riccardi Daniela', 'Somenzini Marzia', 'Valcarenghi Mario Attilio'
+    ],
+    'Dalmine': [
+        'Chiara Pezzotta', 'Maurizio Gavina', 'Debora Stignani',
+        'Laura Trombini', 'Chiara Nicoli', 'Nadia Dalla Longa'
+    ],
+    'Lecco': [ 'Federica Colombo' ],
+    'Magenta': [ 'Laura Cuzzocrea' ],
+    'Mantova': [ 'Elvira Morandi Gadioli', 'Fabio Veneri' ],
+    'Melzo': [ 'Alessandro Arbitrio' ],
+    'Monticello': ['Alberta Molinari', 'Stefania Sala' ],
+    'Morbegno': [ 'Donatella Caelli', 'Jiji Bezi', 'Claudia Del Barba' ],
+    'Pavia': [
+        'Corsico Giovanni', 'Bernorio Viviana', 'Casella Massimo',
+        'Belli Alessandro', 'Susino Giovanni', 'Passarella Chantall',
+        'Ferraris Andrea', 'Saronni Catia', 'Longhi Daniele'
+    ],
+    'Romano': [ 'Annamaria Bergamini' ],
+    'Varese': [
+        'Alessandro Bertoni', 'Diana Accili', 'Chiara Roncari', 
+        'Sara Campiglio', 'Domenico Battista', 'Simone Porta',
+        'Donatella Gelmi'
+    ],
+    'Vigevano': [ 'Margherita Previde Massara', 'Viola Donato' ],
+    'Vimercate': [ 'Davide Panzeri', 'Jacopo Tonon' ],
+    'Voghera': [ 'Alessandro Belli', 'Fabio Faroldi' ]
+}
+
 total_files = len(files)
 file_moved = 0
 
 for f in files:
+    centro = 'Altro'
+    for c, o in people.items():
+        for organizer in o:
+            if organizer in path.basename(f):
+                centro = c
+
     file_date = datetime.strptime(path.basename(f)[:10], '%Y-%m-%d')
     
-    for key, value in folders.items():
-        if file_date <= key:
-            newpath = path.join(base, value, path.basename(f))
+    for d, folder in folders.items():
+        if file_date <= d:
+            newpath = path.join(base, centro, folder)
+            if not path.exists(newpath):
+                makedirs(newpath)
+            
+            newpath = path.join(newpath, path.basename(f))
             #print (f'mv {f} {newpath}')
             shutil.copy(f, newpath)
+            
             file_moved = file_moved + 1
             break
 
