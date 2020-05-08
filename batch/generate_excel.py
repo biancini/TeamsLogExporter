@@ -99,6 +99,10 @@ def generate_excel(t, filename):
 
             participants.append({ 'uid': _uid, 'name': data['name'], 'start': data['min_start'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'end': data['max_end'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'duration': duration})
 
+        if len(participants) <= 1:
+            json_file.close()
+            return 0
+
         ###########
 
         workbook = Workbook()
@@ -170,10 +174,11 @@ if __name__ == '__main__':
 
     t = r['access_token']
 
-    num_threads = 10
+    num_threads = 20
     json_files = glob.glob("json/*.json")
 
     out = 0
+
     with ProcessPoolExecutor(max_workers=num_threads) as pool:
         with tqdm(total=len(json_files)) as progress:
             futures = []
