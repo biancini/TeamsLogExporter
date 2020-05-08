@@ -4,7 +4,8 @@ from datetime import datetime
 from os import path, remove, makedirs, chdir
 from openpyxl import load_workbook
 
-base = 'D:\Fondazione Enaip Lombardia\Didattica a Distanza - Report meeting Teams'
+#base = 'D:\Fondazione Enaip Lombardia\Didattica a Distanza - Report meeting Teams'
+base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti'
 #base = 'D:\OneDrive\Documenti\work\enaip\Formazione a Distanza\Strumenti Teams\Report meeting Teams'
 chdir(base)
 files = glob('**/*.xlsx', recursive=True)
@@ -41,12 +42,13 @@ people = {
     ],
     'Dalmine': [
         'Chiara Pezzotta', 'Maurizio Gavina', 'Debora Stignani',
-        'Laura Trombini', 'Chiara Nicoli', 'Nadia Dallalonga'
+        'Laura Trombini', 'Chiara Nicoli'
     ],
     'Lecco': [ 'Federica Colombo' ],
-    'Magenta': [ 'Laura Cuzzocrea' ],
+    'Magenta': [ 'Lara Cuzzocrea' ],
     'Mantova': [ 'Elvina Morandigadioli', 'Fabio Veneri' ],
     'Melzo': [ 'Alessandro Arbitrio' ],
+    'Milano Giacinti': [ 'Nadia Dallalonga' ],
     'Monticello': ['Alberta Molinari', 'Stefania Sala' ],
     'Morbegno': [ 'Donatella Caelli', 'Jiji Bezi', 'Claudia Del Barba' ],
     'Pavia': [
@@ -54,7 +56,7 @@ people = {
         'Alessandro Belli', 'Giovanni Susino', 'Chantall Passarella',
         'Andrea Ferraris', 'Catia Saronni', 'Daniele Longhi'
     ],
-    'Romano': [ 'Annamaria Bergamini' ],
+    'Romano': [ 'Anna Maria Bergamini' ],
     'Varese': [
         'Alessandro Bertoni', 'Diana Accili', 'Chiara Roncari', 
         'Sara Campiglio', 'Domenico Battista', 'Simone Porta',
@@ -79,7 +81,7 @@ for f in files:
     
     for d, folder in folders.items():
         if file_date <= d:
-            newpath = path.join(base, centro, folder)
+            newpath = path.join(base, centro, 'Report FAD', folder)
             if not path.exists(newpath):
                 makedirs(newpath)
             
