@@ -3,6 +3,10 @@
 **/*.py[cod]
 *$py.class
 
+**/calls.csv
+**/excel/
+**/json/
+
 # C extensions
 *.ao
 
