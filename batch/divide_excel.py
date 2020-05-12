@@ -5,10 +5,12 @@ from os import path, remove, makedirs, chdir
 from openpyxl import load_workbook
 
 #base = 'D:\Fondazione Enaip Lombardia\Didattica a Distanza - Report meeting Teams'
-base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti'
-#base = 'D:\OneDrive\Documenti\work\enaip\Formazione a Distanza\Strumenti Teams\Report meeting Teams'
+base = 'D:\OneDrive\Documenti\work\enaip\Formazione a Distanza\Strumenti Teams\Report meeting Teams'
 chdir(base)
-files = glob('**/*.xlsx', recursive=True)
+files = glob('./**/*.xlsx', recursive=True)
+
+print("%s" % files)
+exit(0)
 
 folders = {
     datetime(2020, 4, 5): '04_Report Teams 30mar_3apr',
@@ -19,50 +21,65 @@ folders = {
 }
 
 people = {
-    'Bergamo': [],
+    'Bergamo': [
+        'Adriano Fico', 'Arianna Assandri', 'Lucia Manuela Dondossola',
+        'Arianna Assandri', 'Gianalberto Lubrina', 'Giacomo Suardi',
+        'Nicola Iannone', 'Serena Roveri', 'Matteo Rossi',
+        'Stella Galbiati', 'Enrico Caroppo', 'Daphne Della Vite',
+        'Pippo Grossi', 'Enrico Canali', 'Chiara Tiraboschi',
+        'Giacomo Scandola', 'Elena Rottigni', 'Fabio Mazzoleni',
+        'Diego Pagnoncelli', 'Clara Mangili', 'Enrico Caroppo',
+        'Emiliano Amadei', 'Elena Besola', 'Michela Vezzoli',
+        'Angela Macario', 'Lorenzo Pezzotti', 'Lidia Gherardi',
+        'Chiara Martinelli', 'Cecilia Acerbi', 'Laiza Ratti',
+        'Gabriella Erba'
+    ],
+    'Bergamo ITS': [
+        'Valentina Iavarone', 'Ramona Ubbiali', 'Giacomo Scandola',
+        'Marcello Cenati'
+    ],
     'Botticino': [ 'Daniela Melardi' ],
     'Busto Arsizio': [
         'Raffaello Vaghi', 'Chiara Ferrè', 'Donata Molon', 'Paolo Zuffinetti',
-        'Paola Zerbi', 'Michele DellaValle', 'Francesca Milani', 'Raffaella Pigoli',
+        'Paola Zerbi', 'Michele Della Valle', 'Francesca Milani', 'Raffaella Pigoli',
         'Laura Ferioli', 'Franca Guarracino'
     ],
     'Cantu': [ 'Viviana Tucci', 'Matteo Roncoroni', 'Federica Meroni' ],
     'Como': [
-        'Arianna Cortellezzi', 'Sandra Bernasconi', 'Maura Oricchio',
-        'Rossella Clerici', 'Ann Bianchi', 'Francesco Beretta',
-        'Roberto Morselli', 'Manuela Colombo',  'Miriam Garbi'
+        'Cortellezzi Arianna', 'Bernasconi Sandra', 'Oricchio Mauro',
+        'Clerici Rossella', 'Bianchi Anna Maria', 'Beretta Francesco',
+        'Morselli Roberto', 'Colombo Manuela',  'Garbi Miriam'
     ],
     'Cremona': [
-        'Claudio Elidoro', 'Silvia Granelli', 'Mariarosa Bignami',
-        'Enrico Fiori', 'Matteo Bellocchio', 'Federico Biolchi',
-        'Michele Bonoli', 'Stefano Benedetti', 'Giorgio Galli',
-        'Daniela Maccagnola', 'Paola Mignani', 'Sabrina Nicolazzo',
-        'Donatella Oliani', 'Enrico Platè', 'Simone Portesani',
-        'Daniela Riccardi', 'Marzia Somenzini', 'Mario Valcarenghi'
+        'Elidoro Claudio', 'Granelli Silvia', 'Bignami Mariarosa',
+        'Fiori Enrico Angelo', 'Bellocchio Matteo', 'Biolchi Federico',
+        'Bonoli Michele', 'Benedetti Stefano', 'Galli Giorgio',
+        'Maccagnola Daniela', 'Mignani Paola', 'Nicolazzo Sabrina',
+        'Oliani Donatella', 'Platè Enrico', 'Portesani Simone',
+        'Riccardi Daniela', 'Somenzini Marzia', 'Valcarenghi Mario Attilio'
     ],
     'Dalmine': [
         'Chiara Pezzotta', 'Maurizio Gavina', 'Debora Stignani',
-        'Laura Trombini', 'Chiara Nicoli'
+        'Laura Trombini', 'Chiara Nicoli', 'Nadia Dalla Longa'
     ],
     'Lecco': [ 'Federica Colombo' ],
-    'Magenta': [ 'Lara Cuzzocrea' ],
-    'Mantova': [ 'Elvina Morandigadioli', 'Fabio Veneri' ],
+    'Magenta': [ 'Laura Cuzzocrea' ],
+    'Mantova': [ 'Elvira Morandi Gadioli', 'Fabio Veneri' ],
     'Melzo': [ 'Alessandro Arbitrio' ],
-    'Milano Giacinti': [ 'Nadia Dallalonga' ],
     'Monticello': ['Alberta Molinari', 'Stefania Sala' ],
     'Morbegno': [ 'Donatella Caelli', 'Jiji Bezi', 'Claudia Del Barba' ],
     'Pavia': [
-        'Giovanni Corsico', 'Viviana Bernorio', 'Viviana Casella',
-        'Alessandro Belli', 'Giovanni Susino', 'Chantall Passarella',
-        'Andrea Ferraris', 'Catia Saronni', 'Daniele Longhi'
+        'Corsico Giovanni', 'Bernorio Viviana', 'Casella Massimo',
+        'Belli Alessandro', 'Susino Giovanni', 'Passarella Chantall',
+        'Ferraris Andrea', 'Saronni Catia', 'Longhi Daniele'
     ],
-    'Romano': [ 'Anna Maria Bergamini' ],
+    'Romano': [ 'Annamaria Bergamini' ],
     'Varese': [
         'Alessandro Bertoni', 'Diana Accili', 'Chiara Roncari', 
         'Sara Campiglio', 'Domenico Battista', 'Simone Porta',
         'Donatella Gelmi'
     ],
-    'Vigevano': [ 'Margherita Previde', 'Viola Donato' ],
+    'Vigevano': [ 'Margherita Previde Massara', 'Viola Donato' ],
     'Vimercate': [ 'Davide Panzeri', 'Jacopo Tonon' ],
     'Voghera': [ 'Alessandro Belli', 'Fabio Faroldi' ]
 }
@@ -81,13 +98,13 @@ for f in files:
     
     for d, folder in folders.items():
         if file_date <= d:
-            newpath = path.join(base, centro, 'Report FAD', folder)
+            newpath = path.join(base, centro, folder)
             if not path.exists(newpath):
                 makedirs(newpath)
             
             newpath = path.join(newpath, path.basename(f))
             #print (f'mv {f} {newpath}')
-            shutil.move(f, newpath)
+            shutil.copy(f, newpath)
             
             file_moved = file_moved + 1
             break
