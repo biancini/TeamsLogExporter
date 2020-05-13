@@ -4,20 +4,19 @@ from datetime import datetime
 from os import path, remove, makedirs, chdir
 from openpyxl import load_workbook
 
+reportfad = True
 #base = 'D:\Fondazione Enaip Lombardia\Didattica a Distanza - Report meeting Teams'
-base = 'D:\OneDrive\Documenti\work\enaip\Formazione a Distanza\Strumenti Teams\Report meeting Teams'
+base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti'
 chdir(base)
 files = glob('./**/*.xlsx', recursive=True)
-
-print("%s" % files)
-exit(0)
 
 folders = {
     datetime(2020, 4, 5): '04_Report Teams 30mar_3apr',
     datetime(2020, 4, 12): '05_Report Teams 6-10 apr-20',
     datetime(2020, 4, 19): '06_Report Teams 14-17 apr-20',
     datetime(2020, 4, 26): '07_Report Teams 20-24 apr-20',
-    datetime(2020, 5, 3): '08_Report Teams 27-30 apr-20'
+    datetime(2020, 5, 3): '08_Report Teams 27-30 apr-20',
+    datetime(2020, 5, 10): '09_Impiego personale 4-8 mag-20'
 }
 
 people = {
@@ -88,7 +87,7 @@ total_files = len(files)
 file_moved = 0
 
 for f in files:
-    centro = 'Altro'
+    centro = '00_Generale' if reportfad else 'Altro'
     for c, o in people.items():
         for organizer in o:
             if organizer in path.basename(f):
@@ -98,15 +97,20 @@ for f in files:
     
     for d, folder in folders.items():
         if file_date <= d:
-            newpath = path.join(base, centro, folder)
+            if reportfad:
+                newpath = path.join(base, centro, 'Report FAD', folder)
+            else:
+                newpath = path.join(base, centro, folder)
+
             if not path.exists(newpath):
                 makedirs(newpath)
             
             newpath = path.join(newpath, path.basename(f))
-            #print (f'mv {f} {newpath}')
-            shutil.copy(f, newpath)
-            
-            file_moved = file_moved + 1
+            if not f in newpath:
+                #print (f'mv {f} {newpath}')
+                shutil.copy(f, newpath)
+                file_moved = file_moved + 1
+
             break
 
 print(f'Total files {total_files}')

@@ -174,7 +174,6 @@ if __name__ == '__main__':
 
     t = r['access_token']
 
-    num_threads = 20
     json_files = glob.glob("json/*.json")
 
     out = 0
