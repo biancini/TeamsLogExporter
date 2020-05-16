@@ -7,7 +7,7 @@ from openpyxl import load_workbook
 reportfad = True
 #base = 'D:\Fondazione Enaip Lombardia\Didattica a Distanza - Report meeting Teams'
 base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti'
-chdir(base)
+#chdir(base)
 files = glob('./**/*.xlsx', recursive=True)
 
 folders = {
@@ -16,7 +16,8 @@ folders = {
     datetime(2020, 4, 19): '06_Report Teams 14-17 apr-20',
     datetime(2020, 4, 26): '07_Report Teams 20-24 apr-20',
     datetime(2020, 5, 3): '08_Report Teams 27-30 apr-20',
-    datetime(2020, 5, 10): '09_Report Teams 4-8 mag-20'
+    datetime(2020, 5, 10): '09_Report Teams 4-8 mag-20',
+    datetime(2020, 5, 17): '10_Report Teams 11-15 mag-20'
 }
 
 people = {
@@ -50,7 +51,9 @@ people = {
         'Morselli Roberto', 'Colombo Manuela',  'Garbi Miriam'
     ],
     'Cremona': [
-        'Elidoro Claudio', 'Granelli Silvia', 'Bignami Mariarosa',
+        'Elidoro Claudio', 'Laura Blasutta',
+        #####
+        'Granelli Silvia', 'Bignami Mariarosa',
         'Fiori Enrico Angelo', 'Bellocchio Matteo', 'Biolchi Federico',
         'Bonoli Michele', 'Benedetti Stefano', 'Galli Giorgio',
         'Maccagnola Daniela', 'Mignani Paola', 'Nicolazzo Sabrina',
@@ -106,10 +109,9 @@ for f in files:
                 makedirs(newpath)
             
             newpath = path.join(newpath, path.basename(f))
-            if not f in newpath:
-                #print (f'mv {f} {newpath}')
-                shutil.copy(f, newpath)
-                file_moved = file_moved + 1
+            #print (f'mv {f} {newpath}')
+            shutil.copy(f, newpath)
+            file_moved = file_moved + 1
 
             break
 
