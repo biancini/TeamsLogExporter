@@ -34,10 +34,6 @@ def download_call_data(t, call_id):
         return 1
 
 
-def end_processes(futures):
-    [ proc.cancel() for proc in futures ]
-
-
 if __name__ == '__main__':
     tenant_id = os.getenv('TENANTID_ENAIP', None)
     client_id = os.getenv('APPID_ENAIP', None)

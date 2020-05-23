@@ -17,7 +17,8 @@ folders = {
     datetime(2020, 4, 26): '07_Report Teams 20-24 apr-20',
     datetime(2020, 5, 3): '08_Report Teams 27-30 apr-20',
     datetime(2020, 5, 10): '09_Report Teams 4-8 mag-20',
-    datetime(2020, 5, 17): '10_Report Teams 11-15 mag-20'
+    datetime(2020, 5, 17): '10_Report Teams 11-15 mag-20',
+    datetime(2020, 5, 24): '11_Report Teams 18-22 mag-20'
 }
 
 people = {
@@ -110,7 +111,7 @@ for f in files:
             
             newpath = path.join(newpath, path.basename(f))
             #print (f'mv {f} {newpath}')
-            shutil.copy(f, newpath)
+            shutil.move(f, newpath)
             file_moved = file_moved + 1
 
             break
