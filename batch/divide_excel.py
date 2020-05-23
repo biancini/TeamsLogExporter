@@ -47,36 +47,40 @@ people = {
     ],
     'Cantu': [ 'Viviana Tucci', 'Matteo Roncoroni', 'Federica Meroni' ],
     'Como': [
-        'Cortellezzi Arianna', 'Bernasconi Sandra', 'Oricchio Mauro',
-        'Clerici Rossella', 'Bianchi Anna Maria', 'Beretta Francesco',
-        'Morselli Roberto', 'Colombo Manuela',  'Garbi Miriam'
+        'Arianna Cortellezzi', 'Sandra Bernasconi', 'Mauro Oricchio',
+        'Rossella Clerici', 'Anna Maria Bianchi', 'Francesco Beretta',
+        'Roberto Morselli', 'Manuela Colombo',  'Miriam Garbi'
     ],
     'Cremona': [
         'Elidoro Claudio', 'Laura Blasutta',
         #####
-        'Granelli Silvia', 'Bignami Mariarosa',
-        'Fiori Enrico Angelo', 'Bellocchio Matteo', 'Biolchi Federico',
-        'Bonoli Michele', 'Benedetti Stefano', 'Galli Giorgio',
-        'Maccagnola Daniela', 'Mignani Paola', 'Nicolazzo Sabrina',
-        'Oliani Donatella', 'Platè Enrico', 'Portesani Simone',
-        'Riccardi Daniela', 'Somenzini Marzia', 'Valcarenghi Mario Attilio'
+        'Silvia Granelli', 'Bignami Mariarosa',
+        'Enrico Angelo Fiori ', 'Matteo Bellocchio', 'Federico Biolchi',
+        'Bonoli Michele', 'Benedetti Stefano', 'Giorgio Galli',
+        'Daniela Maccagnola', 'Paola Mignani', 'Sabrina Nicolazzo',
+        'Donatella Oliani', 'Enrico Platè', 'Simone Portesani',
+        'Daniela Riccardi', 'Marzia Somenzini', 'Mario Valcarenghi'
     ],
     'Dalmine': [
-        'Chiara Pezzotta', 'Maurizio Gavina', 'Debora Stignani',
-        'Laura Trombini', 'Chiara Nicoli', 'Nadia Dalla Longa'
+        'Chiara Pezzotta', 'Boschi Stefania', 'Laiza Ratti',
+        'Mangili Clara'
     ],
     'Lecco': [ 'Federica Colombo' ],
-    'Magenta': [ 'Laura Cuzzocrea' ],
+    'Magenta': [ 'Lara Cuzzocrea' ],
     'Mantova': [ 'Elvira Morandi Gadioli', 'Fabio Veneri' ],
     'Melzo': [ 'Alessandro Arbitrio' ],
+    'Milano Giacinti' : [
+        'Maurizio Gavina', 'Debora Stignani', 'Laura Trombini',
+        'Chiara Nicoli', 'Nadia Dalla Longa'
+    ],
     'Monticello': ['Alberta Molinari', 'Stefania Sala' ],
     'Morbegno': [ 'Donatella Caelli', 'Jiji Bezi', 'Claudia Del Barba' ],
     'Pavia': [
-        'Corsico Giovanni', 'Bernorio Viviana', 'Casella Massimo',
-        'Belli Alessandro', 'Susino Giovanni', 'Passarella Chantall',
-        'Ferraris Andrea', 'Saronni Catia', 'Longhi Daniele'
+        'Giovanni Corsico', 'Viviana Bernorio', 'Massimo Casella',
+        'Alessandro Belli', 'Giovanni Susino', 'Chantall Passarella',
+        'Andrea Ferraris', 'Catia Saronni', 'Daniele Longhi'
     ],
-    'Romano': [ 'Annamaria Bergamini' ],
+    'Romano': [ 'Anna Maria Bergamini' ],
     'Varese': [
         'Alessandro Bertoni', 'Diana Accili', 'Chiara Roncari', 
         'Sara Campiglio', 'Domenico Battista', 'Simone Porta',
