@@ -5,10 +5,11 @@ from os import path, remove, makedirs, chdir
 from openpyxl import load_workbook
 
 reportfad = True
-#base = 'D:\Fondazione Enaip Lombardia\Didattica a Distanza - Report meeting Teams'
 base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti'
-#chdir(base)
-files = glob('./**/*.xlsx', recursive=True)
+chdir(base)
+lookdir = '.'
+#lookdir = '00_Generale'
+files = glob(f'{lookdir}/**/*.xlsx', recursive=True)
 
 folders = {
     datetime(2020, 4, 5): '04_Report Teams 30mar_3apr',
@@ -71,10 +72,9 @@ people = {
     'Melzo': [ 'Alessandro Arbitrio' ],
     'Milano Giacinti' : [
         'Maurizio Gavina', 'Debora Stignani', 'Laura Trombini',
-        'Chiara Nicoli', 'Nadia Dallalonga'
+        'Chiara Nicoli', 'Nadia Dallalonga', 'Domenico Scaldaferri'
     ],
     'Monticello': ['Alberta Molinari', 'Stefania Sala' ],
-    'Morbegno': [ 'Donatella Caelli', 'Jiji Bezi', 'Claudia Del Barba' ],
     'Pavia': [
         'Giovanni Corsico', 'Viviana Bernorio', 'Massimo Casella',
         'Alessandro Belli', 'Giovanni Susino', 'Chantall Passarella',
@@ -114,9 +114,10 @@ for f in files:
                 makedirs(newpath)
             
             newpath = path.join(newpath, path.basename(f))
-            #print (f'mv {f} {newpath}')
-            shutil.move(f, newpath)
-            file_moved = file_moved + 1
+            if f not in newpath:
+                #print (f'mv {f} {newpath}')
+                shutil.move(f, newpath)
+                file_moved = file_moved + 1
 
             break
 
