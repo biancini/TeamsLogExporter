@@ -71,7 +71,7 @@ people = {
     'Melzo': [ 'Alessandro Arbitrio' ],
     'Milano Giacinti' : [
         'Maurizio Gavina', 'Debora Stignani', 'Laura Trombini',
-        'Chiara Nicoli', 'Nadia Dalla Longa'
+        'Chiara Nicoli', 'Nadia Dallalonga'
     ],
     'Monticello': ['Alberta Molinari', 'Stefania Sala' ],
     'Morbegno': [ 'Donatella Caelli', 'Jiji Bezi', 'Claudia Del Barba' ],
