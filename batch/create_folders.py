@@ -3,9 +3,9 @@ from os import path, remove, makedirs, chdir
 base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti'
 chdir(base)
 
-folder_impiego = '{0}/Impiego Settimanale/14_Impiego persone 8-12 giu-20'
-folder_timesheet_1 = '{0}/Time sheet/Collaboratori/14_Settimana 8-12 giu-20'
-folder_timesheet_2 = '{0}/Time sheet/Dipendenti/14_Settimana 8-12 giu-20'
+folder_impiego = '{0}/Impiego Settimanale/15_Impiego persone 15-19 giu-20'
+folder_timesheet_1 = '{0}/Time sheet/Collaboratori/15_Settimana 15-19 giu-20'
+folder_timesheet_2 = '{0}/Time sheet/Dipendenti/15_Settimana 15-19 giu-20'
 
 centri = [ 'Bergamo', 'Botticino', 'Busto Arsizio', 'Cantu',
     'Como', 'Cremona', 'Dalmine', 'Lecco', 'Magenta',
