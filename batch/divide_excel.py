@@ -6,9 +6,9 @@ from openpyxl import load_workbook
 
 reportfad = True
 base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti'
-chdir(base)
-lookdir = '.'
+#chdir(base)
 #lookdir = '00_Generale'
+lookdir = '.'
 files = glob(f'{lookdir}/**/*.xlsx', recursive=True)
 
 folders = {
