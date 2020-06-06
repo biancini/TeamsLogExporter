@@ -4,6 +4,7 @@ import os
 import urllib.parse
 import traceback
 from io import StringIO
+from dateutil import tz
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from openpyxl.writer.excel import save_virtual_workbook
@@ -18,6 +19,9 @@ from datetime import datetime, time
 from exporter.auth_helper import scopes, get_sign_in_url, get_token_from_code, store_token, store_bearertoken, store_user, remove_user_and_token, get_user, get_token, get_bearertoken
 from exporter.graph_helper import get_meuser, get_otheruser, get_all_users, get_all_groups, get_group_users, get_user_meetings, get_meeting_records
 
+
+from_zone = tz.gettz('UTC')
+to_zone = tz.gettz('Europe/Rome')
 
 def initialize_context(request):
     context = {}
@@ -204,17 +208,24 @@ def getmeeting_records(request):
                         duration = 0
 
                         for c in p['communicationFragments']:
-                            start = datetime.strptime(c['startDateTime'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
+                            start = datetime.strptime(e['startDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
+                            start = start.replace(tzinfo=from_zone).astimezone(to_zone)
+                            start = start.strftime('%Y-%m-%d %H-%M')
+
                             if min_start is None or start < min_start:
                                 min_start = start
 
-                            end = datetime.strptime(c['endDateTime'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
+                            end = datetime.strptime(e['endDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
+                            end = end.replace(tzinfo=from_zone).astimezone(to_zone)
+                            end = end.strftime('%Y-%m-%d %H-%M')
                             if max_end is None or end > max_end:
                                 max_end = end
                             
-                            duration += c['callDuration']
-
-                        duration /= 1000
+                        
+                            if end is not None and start is not None:
+                                delta = max_end - min_start
+                                duration += delta.seconds
+                            
                         duration /= 60
                         hours = math.floor(duration / 60)
                         minutes = math.floor(duration % 60)
