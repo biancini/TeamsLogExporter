@@ -3,8 +3,7 @@
 **/*.py[cod]
 *$py.class
 
-**/calls.csv
-**/stats.csv
+**/*.csv
 **/excel/
 **/json/
 
