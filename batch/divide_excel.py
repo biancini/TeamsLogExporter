@@ -50,7 +50,7 @@ people = {
         'Paola Zerbi', 'Michele Della Valle', 'Francesca Milani', 'Raffaella Pigoli',
         'Laura Ferioli', 'Franca Guarracino'
     ],
-    'Cantu': [ 'Viviana Tucci', 'Matteo Roncoroni', 'Federica Meroni' ],
+    'Cantù': [ 'Viviana Tucci', 'Matteo Roncoroni', 'Federica Meroni' ],
     'Como': [
         'Arianna Cortellezzi', 'Sandra Bernasconi', 'Mauro Oricchio',
         'Rossella Clerici', 'Anna Maria Bianchi', 'Francesco Beretta',

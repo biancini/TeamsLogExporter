@@ -8,7 +8,7 @@ folder_impiego = '{0}/Impiego Settimanale/16_Impiego persone 22-26 giu-20'
 folder_timesheet_1 = '{0}/Time sheet/Collaboratori/16_Settimana 22-26 giu-20'
 folder_timesheet_2 = '{0}/Time sheet/Dipendenti/16_Settimana 22-26 giu-20'
 
-centri = [ 'Bergamo', 'Botticino', 'Busto Arsizio', 'Cantu',
+centri = [ 'Bergamo', 'Botticino', 'Busto Arsizio', 'Cantù',
     'Como', 'Cremona', 'Dalmine', 'Lecco', 'Magenta',
     'Mantova', 'Melzo', 'Milano Giacinti', 'Monticello', 'Morbegno',
     'Pavia', 'Romano', 'Varese', 'Vigevano', 'Vimercate', 'Voghera' ]
