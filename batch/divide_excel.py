@@ -89,7 +89,7 @@ people = {
     'Varese': [
         'Alessandro Bertoni', 'Diana Accili', 'Chiara Roncari', 
         'Sara Campiglio', 'Domenico Battista', 'Simone Porta',
-        'Donatella Gelmi'
+        'Donatella Gelmi', 'Federica Platini'
     ],
     'Vigevano': [ 'Margherita Previde Massara', 'Viola Donato' ],
     'Vimercate': [ 'Davide Panzeri', 'Jacopo Tonon' ],
