@@ -24,6 +24,7 @@ folders = {
     datetime(2020, 5, 31): '12_Report Teams 25-29 mag-20',
     datetime(2020, 6, 7): '13_Report Teams 1-5 giu-20',
     datetime(2020, 6, 14): '14_Report Teams 8-12 giu-20',
+    datetime(2020, 6, 21): '15_Report Teams 15-19 giu-20',
 }
 
 people = {
