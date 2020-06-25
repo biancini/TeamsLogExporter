@@ -7,9 +7,9 @@ from openpyxl import load_workbook
 reportfad = True
 #base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti'
 base = '/Users/andrea/Fondazione Enaip Lombardia/Pianificazione Attività - Documenti/'
-#chdir(base)
-#lookdir = '00_Generale'
-lookdir = '.'
+chdir(base)
+lookdir = '00_Generale/Report FAD/'
+#lookdir = '.'
 files = glob(f'{lookdir}/**/*.xlsx', recursive=True)
 
 folders = {
@@ -71,7 +71,9 @@ people = {
         'Chiara Pezzotta', 'Boschi Stefania', 'Laiza Ratti',
         'Mangili Clara'
     ],
-    'Lecco': [ 'Federica Colombo' ],
+    'Lecco': [
+        'Federica Colombo', 'Beatrice  Pigolotti'
+    ],
     'Magenta': [ 'Lara Cuzzocrea' ],
     'Mantova': [ 'Elvira Morandi Gadioli', 'Fabio Veneri' ],
     'Melzo': [ 'Alessandro Arbitrio' ],
