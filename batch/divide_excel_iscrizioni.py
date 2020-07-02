@@ -64,8 +64,12 @@ for c, cc in centri.items():
         new_ws.append([r.value for r in row])
         count += 1
 
+    
     mediumStyle = TableStyleInfo(name='TableStyleMedium2', showRowStripes=True)
-    new_ws.add_table(Table(ref=f'A1:DA{count+1}', displayName='RegistroPresenze', tableStyleInfo=mediumStyle))
+    if count == 0:
+        new_ws.add_table(Table(ref=f'A1:DA{count+2}', displayName='RegistroPresenze', tableStyleInfo=mediumStyle))
+    else:
+        new_ws.add_table(Table(ref=f'A1:DA{count+1}', displayName='RegistroPresenze', tableStyleInfo=mediumStyle))
 
     newpath = f'{base}/Schede Iscrizione/{c}/{nome_excel}'
     new_wb.save(filename=newpath)
