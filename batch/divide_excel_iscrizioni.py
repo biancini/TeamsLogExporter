@@ -14,25 +14,25 @@ data_da = datetime(2020, 6, 22)
 data_a = datetime(2020, 6, 28)
 
 centri = {
-    'Bergamo': 'Bergamo',
-    'Busto Arsizio': 'Busto Arsizio',
-    'Cantù': 'Cantù',
-    'Como': 'Como',
-    'Cremona': 'Cremona',
-    'Dalmine': 'Dalmine',
-    'Lecco': 'Lecco',
-    'Magenta': 'Magenta',
-    'Mantova': 'Mantova',
-    'Melzo': 'Melzo',
-    'Milano Giacinti': 'Milano Giacinti',
-    'Monticello': 'Monticello',
-    'Morbegno': 'Morbegno',
-    'Pavia': 'Pavia',
-    'Romano': 'Romano',
-    'Varese': 'Varese',
-    'Vigevano': 'Vigevano',
-    'Vimercate': 'Vimercate',
-    'Voghera': 'Voghera'
+    'Bergamo': b'Bergamo',
+    'Busto Arsizio': b'Busto Arsizio',
+    'Cantù': b'Cant\xc3\xb9',
+    'Como': b'Como',
+    'Cremona': b'Cremona',
+    'Dalmine': b'Dalmine',
+    'Lecco': b'Lecco',
+    'Magenta': b'Magenta',
+    'Mantova': b'Mantova',
+    'Melzo': b'Melzo',
+    'Milano Giacinti': b'Milano Giacinti',
+    'Monticello': b'Monticello',
+    'Morbegno': b'Morbegno',
+    'Pavia': b'Pavia',
+    'Romano': b'Romano',
+    'Varese': b'Varese',
+    'Vigevano': b'Vigevano',
+    'Vimercate': b'Vimercate',
+    'Voghera': b'Voghera'
 }
 
 wb = load_workbook(filename=excel_file)
@@ -46,7 +46,7 @@ for c, cc in centri.items():
     count = 0
     for row in ws.iter_rows():
         data_iscrizione = row[2].value
-        sede = row[26].value
+        sede = row[26].value.encode("utf8")
 
         if data_iscrizione == 'Ora di completamento':
             new_ws.append([r.value for r in row])
