@@ -2,6 +2,9 @@ from datetime import datetime
 from os import chdir
 from openpyxl import Workbook, load_workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
+import locale
+
+locale.setlocale(locale.LC_TIME, "it_IT")
 
 reportfad = True
 #base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti'
