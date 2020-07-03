@@ -6,6 +6,10 @@ folder = '{0}/{1}_{2}-{3}-{4}'
 subfolder_1 = '{0}/Documentazione Commissione'
 subfolder_2 = '{0}/Raccolta tesine e output allievi'
 
+folder_2 = '{0}/00_Verbali Commissioni Esami'
+subfonder2_1 = '{0}/Terzi Anni'
+subfonder2_2 = '{0}/Quarti Anni'
+
 filename = "commissioni.csv"
 
 with open(filename) as csv_file:
@@ -26,8 +30,25 @@ with open(filename) as csv_file:
             print("%s" % basepath)
             makedirs(basepath)
 
-            makedirs(subfolder_1.format(basepath))
-            makedirs(subfolder_2.format(basepath))
+        newpath = subfolder_1.format(basepath)
+        if not path.exists(newpath):
+            makedirs(newpath)
+
+        newpath = subfolder_2.format(basepath)
+        if not path.exists(newpath):
+            makedirs(newpath)
+
+        basepath = folder_2.format(centro)
+        if not path.exists(basepath):
+            makedirs(basepath)
+
+        newpath = subfonder2_1.format(basepath)
+        if not path.exists(newpath):
+            makedirs(newpath)
+
+        newpath = subfonder2_2.format(basepath)
+        if not path.exists(newpath):
+            makedirs(newpath)
 
     csv_file.close()
 
