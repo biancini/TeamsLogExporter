@@ -6,15 +6,14 @@ import locale
 
 locale.setlocale(locale.LC_TIME, "it_IT")
 
-reportfad = True
+excel_file = '/Users/andrea/Downloads/Iscrizioni corsi IeFP - Istruzione e Formazione Professionale_Anno Formativo 2020_2021.xlsx'
 #base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti'
 base = '/Users/andrea/Fondazione Enaip Lombardia/Istruzione e Formazione Professionale - Anno Scolastico 2020 2021/Iscrizioni'
 chdir(base)
 
-excel_file = '/Users/andrea/Downloads/Iscrizioni corsi IeFP - Istruzione e Formazione Professionale_Anno Formativo 2020_2021.xlsx'
-nome_excel = 'Iscritti 22-28giu 20.xlsx'
-data_da = datetime(2020, 6, 22)
-data_a = datetime(2020, 6, 28)
+nome_excel = 'Iscritti 29giu-5lug 20.xlsx'
+data_da = datetime(2020, 6, 29)
+data_a = datetime(2020, 7, 5)
 
 centri = {
     'Bergamo': b'Bergamo',
