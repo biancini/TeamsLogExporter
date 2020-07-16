@@ -48,6 +48,9 @@ for c, cc in centri.items():
     count = 0
     for row in ws.iter_rows():
         data_iscrizione = row[2].value
+        sede = row[26]
+        if sede.value is None:
+            continue
         sede = row[26].value.encode("utf8")
 
         if data_iscrizione == 'Ora di completamento':
@@ -60,7 +63,7 @@ for c, cc in centri.items():
         if not isinstance(data_iscrizione, datetime):
             continue
         
-        if data_iscrizione < data_da or data_iscrizione > data_a:
+        if data_iscrizione < data_da or data_iscrizione >= data_a:
             continue
         
         new_ws.append([r.value for r in row])
