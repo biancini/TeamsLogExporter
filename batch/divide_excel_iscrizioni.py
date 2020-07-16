@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from os import chdir
 from openpyxl import Workbook, load_workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
@@ -11,7 +11,7 @@ excel_file = '/Users/andrea/Downloads/Iscrizioni corsi IeFP - Istruzione e Forma
 base = '/Users/andrea/Fondazione Enaip Lombardia/Istruzione e Formazione Professionale - Anno Scolastico 2020 2021/Iscrizioni'
 chdir(base)
 
-nome_excel = 'Iscritti 6-12 lug 20.xlsx'
+nome_excel = 'Iscritti 6-12 lug20.xlsx'
 data_da = datetime(2020, 7, 6)
 data_a = datetime(2020, 7, 12)
 
@@ -63,7 +63,7 @@ for c, cc in centri.items():
         if not isinstance(data_iscrizione, datetime):
             continue
         
-        if data_iscrizione < data_da or data_iscrizione >= data_a:
+        if data_iscrizione < data_da or data_iscrizione > data_a + timedelta(days=1):
             continue
         
         new_ws.append([r.value for r in row])
