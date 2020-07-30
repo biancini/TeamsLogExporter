@@ -33,6 +33,7 @@ centri = {
     'Voghera': b'Voghera'
 }
 
+
 wb = load_workbook(filename=excel_file)
 ws = wb['studenti']
 
@@ -43,7 +44,7 @@ for c, cc in centri.items():
 
     count = 0
     for row in ws.iter_rows():
-        sede = row[4]
+        sede = row[3]
         if sede.value is None:
             continue
         sede = sede.value.encode("utf8")
@@ -57,12 +58,14 @@ for c, cc in centri.items():
         new_ws.append([r.value for r in row])
         count += 1
 
-    
+    for i in range(count):
+        new_ws.cell(row=i+1, column=9).number_format = 'dd/mm/yyyy'
+
     mediumStyle = TableStyleInfo(name='TableStyleMedium2', showRowStripes=True)
     if count == 0:
-        new_ws.add_table(Table(ref=f'A1:L{count+2}', displayName='Studenti', tableStyleInfo=mediumStyle))
+        new_ws.add_table(Table(ref=f'A1:N{count+2}', displayName='Studenti', tableStyleInfo=mediumStyle))
     else:
-        new_ws.add_table(Table(ref=f'A1:L{count+1}', displayName='Studenti', tableStyleInfo=mediumStyle))
+        new_ws.add_table(Table(ref=f'A1:N{count+1}', displayName='Studenti', tableStyleInfo=mediumStyle))
 
     newpath = f'{nome_excel} - {c}.xlsx'
     new_wb.save(filename=newpath)
