@@ -5,8 +5,8 @@ from os import path, remove, makedirs, chdir
 from openpyxl import load_workbook
 
 reportfad = True
-#base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti'
-base = '/Users/andrea/Fondazione Enaip Lombardia/Pianificazione Attività - Documenti/'
+#base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti\Anno Formativo 2019-2020'
+base = '/Users/andrea/Fondazione Enaip Lombardia/Pianificazione Attività - Documenti/Anno Formativo 2019-2020/'
 #chdir(base)
 #lookdir = '00_Generale/Report FAD/'
 lookdir = '.'
