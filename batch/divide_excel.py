@@ -5,32 +5,15 @@ from os import path, remove, makedirs, chdir
 from openpyxl import load_workbook
 
 reportfad = True
-#base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti\Anno Formativo 2019-2020'
-base = '/Users/andrea/Fondazione Enaip Lombardia/Pianificazione Attività - Documenti/Anno Formativo 2019-2020/'
+#base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti\Anno Formativo 2020-2021'
+base = '/Users/andrea/Fondazione Enaip Lombardia/Pianificazione Attività - Documenti/Anno Formativo 2020-2021/'
 #chdir(base)
 #lookdir = '00_Generale/Report FAD/'
 lookdir = '.'
 files = glob(f'{lookdir}/**/*.xlsx', recursive=True)
 
 folders = {
-    datetime(2020, 4,  5): '04_Report Teams 30mar_3apr',
-    datetime(2020, 4, 12): '05_Report Teams 6-10 apr-20',
-    datetime(2020, 4, 19): '06_Report Teams 14-17 apr-20',
-    datetime(2020, 4, 26): '07_Report Teams 20-24 apr-20',
-    datetime(2020, 5,  3): '08_Report Teams 27-30 apr-20',
-    datetime(2020, 5, 10): '09_Report Teams 4-8 mag-20',
-    datetime(2020, 5, 17): '10_Report Teams 11-15 mag-20',
-    datetime(2020, 5, 24): '11_Report Teams 18-22 mag-20',
-    datetime(2020, 5, 31): '12_Report Teams 25-29 mag-20',
-    datetime(2020, 6,  7): '13_Report Teams 1-5 giu-20',
-    datetime(2020, 6, 14): '14_Report Teams 8-12 giu-20',
-    datetime(2020, 6, 21): '15_Report Teams 15-19 giu-20',
-    datetime(2020, 6, 28): '16_Report Teams 22-26 giu-20',
-    datetime(2020, 7,  5): '17_Report Teams 29giu-03lug-20',
-    datetime(2020, 7,  12): '18_Report Teams 6-10 lug-20',
-    datetime(2020, 7,  19): '19_Report Teams 13-17 lug-20',
-    datetime(2020, 7,  26): '20_Report Teams 20-24 lug-20',
-    datetime(2020, 8,  2): '21_Report Teams 27lug-01ago-20',
+    datetime(2020, 9,  6): '2020-09-06_Report Teams',
 }
 
 people = {

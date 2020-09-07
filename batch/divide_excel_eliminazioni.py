@@ -6,14 +6,14 @@ import locale
 
 locale.setlocale(locale.LC_TIME, "it_IT")
 
-nome_excel = 'Disattivazione Office 365 classi 4'
-excel_file = f'/Users/andrea/Fondazione Enaip Lombardia/Pianificazione Attività - Documenti/Anno Formativo 2020-2021/00_Generale/{nome_excel}.xlsx'
-base = '/Users/andrea/Fondazione Enaip Lombardia/Pianificazione Attività - Documenti/Anno Formativo 2020-2021/00_Generale/Disattivazioni'
-chdir(base)
+nome_excel = 'Attivazioni Office 365 classi 1'
+excel_path = f'/Users/andrea/Fondazione Enaip Lombardia/Istruzione e Formazione Professionale - Anno Scolastico 2020 2021/Attivazioni Office 365/'
+base = '/Users/andrea/Downloads/Nuove utenze.xlsx'
+chdir(excel_path)
 
 centri = {
     'Bergamo': b'Bergamo',
-    'Busto Arsizio': b'Busto Arsizio',
+    'Busto Arsizio': b'Busto',
     'Cantù': b'Cant\xc3\xb9',
     'Como': b'Como',
     'Cremona': b'Cremona',
@@ -22,7 +22,7 @@ centri = {
     'Magenta': b'Magenta',
     'Mantova': b'Mantova',
     'Melzo': b'Melzo',
-    'Milano Giacinti': b'Milano Giacinti',
+    'Milano Giacinti': b'Milano',
     'Monticello': b'Monticello',
     'Morbegno': b'Morbegno',
     'Pavia': b'Pavia',
@@ -34,7 +34,7 @@ centri = {
 }
 
 
-wb = load_workbook(filename=excel_file)
+wb = load_workbook(filename=base)
 ws = wb['studenti']
 
 for c, cc in centri.items():
@@ -44,11 +44,11 @@ for c, cc in centri.items():
 
     count = 0
     for row in ws.iter_rows():
-        sede = row[3]
+        sede = row[0]
         if sede.value is None:
-            continue
+            break
         sede = sede.value.encode("utf8")
-        if sede == b'Sede formativa':
+        if sede == b'Sede ENAIP':
             new_ws.append([r.value for r in row])
             continue
 
@@ -58,14 +58,11 @@ for c, cc in centri.items():
         new_ws.append([r.value for r in row])
         count += 1
 
-    for i in range(count):
-        new_ws.cell(row=i+1, column=9).number_format = 'dd/mm/yyyy'
-
     mediumStyle = TableStyleInfo(name='TableStyleMedium2', showRowStripes=True)
     if count == 0:
-        new_ws.add_table(Table(ref=f'A1:N{count+2}', displayName='Studenti', tableStyleInfo=mediumStyle))
+        new_ws.add_table(Table(ref=f'A1:L{count+2}', displayName='Studenti', tableStyleInfo=mediumStyle))
     else:
-        new_ws.add_table(Table(ref=f'A1:N{count+1}', displayName='Studenti', tableStyleInfo=mediumStyle))
+        new_ws.add_table(Table(ref=f'A1:L{count+1}', displayName='Studenti', tableStyleInfo=mediumStyle))
 
     newpath = f'{nome_excel} - {c}.xlsx'
     new_wb.save(filename=newpath)
