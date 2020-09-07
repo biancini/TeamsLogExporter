@@ -1,8 +1,7 @@
 import shutil
 from glob import glob
 from datetime import datetime
-from os import path, remove, makedirs, chdir
-from openpyxl import load_workbook
+from os import path, makedirs
 
 reportfad = True
 #base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti\Anno Formativo 2020-2021'

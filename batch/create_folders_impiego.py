@@ -1,4 +1,4 @@
-from os import path, remove, makedirs, chdir
+from os import path, makedirs, chdir
 
 #base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti'
 base = '/Users/andrea/Fondazione Enaip Lombardia/Pianificazione Attività - Documenti/'
