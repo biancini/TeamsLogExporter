@@ -11,9 +11,10 @@ base = '/Users/andrea/Fondazione Enaip Lombardia/Pianificazione Attività - Docu
 lookdir = '.'
 files = glob(f'{lookdir}/**/*.xlsx', recursive=True)
 
-folders = {
-    datetime(2020, 9,  6): '2020-09-06_Report Teams',
-}
+folders = [
+    datetime(2020, 9,  6),
+    datetime(2020, 9,  13),
+]
 
 people = {
     'Bergamo': [
@@ -98,7 +99,9 @@ for f in files:
 
     file_date = datetime.strptime(path.basename(f)[:10], '%Y-%m-%d')
     
-    for d, folder in folders.items():
+    for d in folders:
+        folder = '%s_Report Teams' % d.strftime("%Y-%m-%d")
+
         if file_date <= d:
             if reportfad:
                 newpath = path.join(base, centro, 'Report FAD', folder)
