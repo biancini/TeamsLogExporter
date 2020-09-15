@@ -64,7 +64,7 @@ people = {
         'Federica Colombo', 'Beatrice  Pigolotti'
     ],
     'Magenta': [ 'Lara Cuzzocrea' ],
-    'Mantova': [ 'Elvira Morandi Gadioli', 'Fabio Veneri' ],
+    'Mantova': [ 'Giovanna Maretti', 'Paolo Ghilotti', 'Antonella Bellini', 'Fabio Veneri' ],
     'Melzo': [ 'Alessandro Arbitrio' ],
     'Milano Giacinti' : [
         'Maurizio Gavina', 'Debora Stignani', 'Laura Trombini',
