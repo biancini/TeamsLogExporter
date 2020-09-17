@@ -43,22 +43,22 @@ people = {
     'Cantù': [ 'Viviana Tucci', 'Matteo Roncoroni', 'Federica Meroni' ],
     'Como': [
         'Arianna Cortellezzi', 'Sandra Bernasconi', 'Mauro Oricchio',
-        'Rossella Clerici', 'Anna Maria Bianchi', 'Francesco Beretta',
+        'Rossella Clerici', 'Anna Bianchi', 'Francesco Beretta',
         'Roberto Morselli', 'Manuela Colombo',  'Miriam Garbi'
     ],
     'Cremona': [
-        'Elidoro Claudio', 'Laura Blasutta',
+        'Claudio Elidoro', 'Laura Blasutta',
         #####
-        'Silvia Granelli', 'Bignami Mariarosa',
+        'Silvia Granelli', 'Mariarosa Bignami',
         'Enrico Angelo Fiori ', 'Matteo Bellocchio', 'Federico Biolchi',
-        'Bonoli Michele', 'Benedetti Stefano', 'Giorgio Galli',
+        'Michele Bonoli', 'Stefano Benedetti', 'Giorgio Galli',
         'Daniela Maccagnola', 'Paola Mignani', 'Sabrina Nicolazzo',
         'Donatella Oliani', 'Enrico Platè', 'Simone Portesani',
         'Daniela Riccardi', 'Marzia Somenzini', 'Mario Valcarenghi'
     ],
     'Dalmine': [
-        'Chiara Pezzotta', 'Boschi Stefania', 'Laiza Ratti',
-        'Mangili Clara'
+        'Chiara Pezzotta', 'Stefania Boschi', 'Laiza Ratti',
+        'Clara Mangili'
     ],
     'Lecco': [
         'Federica Colombo', 'Beatrice  Pigolotti'
@@ -82,7 +82,7 @@ people = {
         'Sara Campiglio', 'Domenico Battista', 'Simone Porta',
         'Donatella Gelmi', 'Federica Platini'
     ],
-    'Vigevano': [ 'Margherita Previde Massara', 'Viola Donato' ],
+    'Vigevano': [ 'Margherita Previde', 'Viola Donato' ],
     'Vimercate': [ 'Davide Panzeri', 'Jacopo Tonon' ],
     'Voghera': [ 'Alessandro Belli', 'Fabio Faroldi' ]
 }
