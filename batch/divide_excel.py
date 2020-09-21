@@ -85,7 +85,10 @@ people = {
         'Alessandro Belli', 'Giovanni Susino', 'Chantall Passarella',
         'Andrea Ferraris', 'Catia Saronni', 'Daniele Longhi'
     ],
-    'Romano': [ 'Anna Maria Bergamini' ],
+    'Romano': [
+        'Anna Maria Bergamini', 'Roberta Oggionni', 'Paola Vezzoli',
+        'Serena Pezzotta'
+    ],
     'Varese': [
         'Alessandro Bertoni', 'Diana Accili', 'Chiara Roncari', 
         'Sara Campiglio', 'Domenico Battista', 'Donatella Gelmi',
