@@ -14,6 +14,7 @@ files = glob(f'{lookdir}/**/*.xlsx', recursive=True)
 folders = [
     datetime(2020, 9,  6),
     datetime(2020, 9,  13),
+    datetime(2020, 9,  20),
 ]
 
 people = {
@@ -36,15 +37,20 @@ people = {
     ],
     'Botticino': [ 'Daniela Melardi' ],
     'Busto Arsizio': [
-        'Raffaello Vaghi', 'Chiara Ferrè', 'Donata Molon', 'Paolo Zuffinetti',
-        'Paola Zerbi', 'Michele Della Valle', 'Francesca Milani', 'Raffaella Pigoli',
-        'Laura Ferioli', 'Franca Guarracino'
+        'Raffaello Vaghi', 'Chiara Ferrè', 'Donata Molon',
+        'Paolo Zuffinetti', 'Paola Zerbi', 'Michele Della Valle',
+        'Francesca Milani', 'Raffaella Pigoli', 'Laura Ferioli',
+        'Franca Guarracino'
     ],
-    'Cantù': [ 'Viviana Tucci', 'Matteo Roncoroni', 'Federica Meroni' ],
+    'Cantù': [
+        'Andrea Biotti', 'Viviana Tucci', 'Matteo Roncoroni',
+        'Federica Meroni'
+    ],
     'Como': [
         'Arianna Cortellezzi', 'Sandra Bernasconi', 'Mauro Oricchio',
         'Rossella Clerici', 'Anna Bianchi', 'Francesco Beretta',
-        'Roberto Morselli', 'Manuela Colombo',  'Miriam Garbi'
+        'Roberto Morselli', 'Manuela Colombo',  'Miriam Garbi',
+        'Silvia Dellifiori', 'Adriano Drammissino', 'Laura Pellegatta'
     ],
     'Cremona': [
         'Claudio Elidoro', 'Laura Blasutta',
@@ -64,7 +70,10 @@ people = {
         'Federica Colombo', 'Beatrice  Pigolotti'
     ],
     'Magenta': [ 'Lara Cuzzocrea' ],
-    'Mantova': [ 'Giovanna Maretti', 'Paolo Ghilotti', 'Antonella Bellini', 'Fabio Veneri' ],
+    'Mantova': [
+        'Giovanna Maretti', 'Paolo Ghilotti', 'Antonella Bellini',
+        'Fabio Veneri'
+    ],
     'Melzo': [ 'Alessandro Arbitrio' ],
     'Milano Giacinti' : [
         'Maurizio Gavina', 'Debora Stignani', 'Laura Trombini',
@@ -79,8 +88,8 @@ people = {
     'Romano': [ 'Anna Maria Bergamini' ],
     'Varese': [
         'Alessandro Bertoni', 'Diana Accili', 'Chiara Roncari', 
-        'Sara Campiglio', 'Domenico Battista', 'Simone Porta',
-        'Donatella Gelmi', 'Federica Platini'
+        'Sara Campiglio', 'Domenico Battista', 'Donatella Gelmi',
+        'Federica Platini'
     ],
     'Vigevano': [ 'Margherita Previde', 'Viola Donato' ],
     'Vimercate': [ 'Davide Panzeri', 'Jacopo Tonon' ],
