@@ -31,6 +31,7 @@ def get_usernamefromid(t, userid):
         user = r.json()
         if 'displayName' in user:
             usernames[userid] = user['displayName']
+            #usernames[userid] = user['surname'] & " " & user['givenName']
         else:
             usernames[userid] = f'Sconosciuto ({userid})'
 
