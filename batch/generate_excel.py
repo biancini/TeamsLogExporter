@@ -21,7 +21,7 @@ from_zone = tz.gettz('UTC')
 to_zone = tz.gettz('Europe/Rome')
 
 
-def get_usernamefromid(t, userid):
+def get_usernamefromid(t, userid, displayName=False):
     if userid == 'Sconosciuto': return 'Sconosciuto'
 
     if userid not in usernames:
@@ -30,7 +30,10 @@ def get_usernamefromid(t, userid):
         r = requests.get(uri, headers=head)
         user = r.json()
         if 'displayName' in user:
-            usernames[userid] = user['displayName']
+            if displayName:
+                usernames[userid] = user['displayName']
+            else:
+                usernames[userid] = f'{user["surname"]} {user["givenName"]}'
         else:
             usernames[userid] = f'Sconosciuto ({userid})'
 
@@ -45,7 +48,7 @@ def generate_excel(t, filename):
         if 'organizer' in p and p['organizer'] is not None:
             if 'user' in p['organizer'] and p['organizer']['user'] is not None:
                 if 'id' in p['organizer']['user']:
-                    name = get_usernamefromid(t, p['organizer']['user']['id'])
+                    name = get_usernamefromid(t, p['organizer']['user']['id'], True)
 
         start_time = datetime.strptime(p['startDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
         start_time = start_time.replace(tzinfo=from_zone).astimezone(to_zone)
