@@ -24,20 +24,30 @@ to_zone = tz.gettz('Europe/Rome')
 def get_usernamefromid(t, userid, displayName=False):
     if userid == 'Sconosciuto': return 'Sconosciuto'
 
-    if userid not in usernames:
+    keyname = userid
+    username = f'Sconosciuto ({userid})'
+    if displayName:
+        keyname = f'{keyname}_d'
+
+    if keyname not in usernames:
         uri = f'https://graph.microsoft.com/beta/users/{userid}'
         head = { 'Authorization': f'Bearer {t}' }
         r = requests.get(uri, headers=head)
         user = r.json()
-        if 'displayName' in user:
-            if displayName:
-                usernames[userid] = user['displayName']
-            else:
-                usernames[userid] = f'{user["surname"]} {user["givenName"]}'
-        else:
-            usernames[userid] = f'Sconosciuto ({userid})'
 
-    return usernames[userid]
+
+        if displayName:
+            if 'displayName' in user:
+                usernames[keyname] = user['displayName']
+            else:
+                usernames[keyname] = username
+        else:   
+            if 'surname' in user and 'givenName' in user:            
+                usernames[keyname] = f'{user["surname"]} {user["givenName"]}'
+            else:
+                usernames[keyname] = username
+
+    return usernames[keyname]
 
 
 def generate_excel(t, filename):
