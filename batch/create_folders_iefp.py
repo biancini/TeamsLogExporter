@@ -19,7 +19,7 @@ corsi = [
     'Bergamo/2. II ANNO/Q318-Operatore ai servizi di vendita ex duale dispersione',
     'Bergamo/2. II ANNO/Q415-10340-15098-Tecnico dei servizi di animazione turistico-sportiva e del tempo libero',
     'Bergamo/2. II ANNO/Q319-10305-14508-Operatore dei sistemi e dei servizi logistici',
-    'Bergamo/3. III ANNO/"Q318-5810-14544-Operatore ai servizi di vendita',
+    'Bergamo/3. III ANNO/Q318-5810-14544-Operatore ai servizi di vendita',
     'Operatore dei sistemi e dei servizi logistici',
     'Bergamo/3. III ANNO/Q415-6215-14545-Tecnico dei servizi di animazione turistico-sportiva e del tempo libero',
     'Bergamo/4. IV ANNO/SD009-17070-16446-Tecnico dei servizi logistici - Logistica interna e magazzino',
