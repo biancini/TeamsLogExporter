@@ -74,7 +74,7 @@ people = {
     'Magenta': [ 'Lara Cuzzocrea' ],
     'Mantova': [
         'Giovanna Maretti', 'Paolo Ghilotti', 'Antonella Bellini',
-        'Fabio Veneri'
+        'Fabio Veneri', 'Elda Borghi'
     ],
     'Melzo': [ 'Alessandro Arbitrio' ],
     'Milano Giacinti' : [
