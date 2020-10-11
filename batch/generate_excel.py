@@ -1,5 +1,3 @@
-
-import requests
 import json
 import glob
 import os.path
@@ -21,21 +19,32 @@ from_zone = tz.gettz('UTC')
 to_zone = tz.gettz('Europe/Rome')
 
 
-def get_usernamefromid(t, userid):
+def get_usernamefromid(t, userid, displayName=False):
     if userid == 'Sconosciuto': return 'Sconosciuto'
 
-    if userid not in usernames:
+    keyname = userid
+    username = f'Sconosciuto ({userid})'
+    if displayName:
+        keyname = f'{keyname}_d'
+
+    if keyname not in usernames:
         uri = f'https://graph.microsoft.com/beta/users/{userid}'
         head = { 'Authorization': f'Bearer {t}' }
         r = requests.get(uri, headers=head)
         user = r.json()
-        if 'displayName' in user:
-            usernames[userid] = user['displayName']
-            #usernames[userid] = user['surname'] & " " & user['givenName']
-        else:
-            usernames[userid] = f'Sconosciuto ({userid})'
 
-    return usernames[userid]
+        if displayName:
+            if 'displayName' in user:
+                usernames[keyname] = user['displayName']
+            else:
+                usernames[keyname] = username
+        else:   
+            if 'surname' in user and 'givenName' in user:            
+                usernames[keyname] = f'{user["surname"]} {user["givenName"]}'
+            else:
+                usernames[keyname] = username
+
+    return usernames[keyname]
 
 
 def generate_excel(t, filename):
@@ -46,7 +55,7 @@ def generate_excel(t, filename):
         if 'organizer' in p and p['organizer'] is not None:
             if 'user' in p['organizer'] and p['organizer']['user'] is not None:
                 if 'id' in p['organizer']['user']:
-                    name = get_usernamefromid(t, p['organizer']['user']['id'])
+                    name = get_usernamefromid(t, p['organizer']['user']['id'], True)
 
         start_time = datetime.strptime(p['startDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
         start_time = start_time.replace(tzinfo=from_zone).astimezone(to_zone)
