@@ -84,8 +84,7 @@ people = {
     ],
     'Monticello': ['Alberta Molinari', 'Stefania Sala' ],
     'Morbegno': [
-        'Gian Maria Tam', 'Giovanni Colombo', 'Massimo Gelmi',
-        'Anna De Salvo', 'Claudia Del Barba'
+        'Giovanni Colombo', 'Anna De Salvo', 'Claudia Del Barba'
     ],
     'Pavia': [
         'Giovanni Corsico', 'Viviana Bernorio', 'Massimo Casella',
