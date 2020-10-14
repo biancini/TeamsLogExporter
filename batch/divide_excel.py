@@ -1,7 +1,7 @@
 import shutil
 from glob import glob
 from datetime import datetime
-from os import path, makedirs
+from os import path, makedirs, chdir
 
 reportfad = True
 #base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti\Anno Formativo 2020-2021'
@@ -83,6 +83,10 @@ people = {
         'Chiara Nicoli', 'Nadia Dallalonga', 'Domenico Scaldaferri'
     ],
     'Monticello': ['Alberta Molinari', 'Stefania Sala' ],
+    'Morbegno': [
+        'Gian Maria Tam', 'Giovanni Colombo', 'Massimo Gelmi',
+        'Anna De Salvo', 'Claudia Del Barba'
+    ],
     'Pavia': [
         'Giovanni Corsico', 'Viviana Bernorio', 'Massimo Casella',
         'Alessandro Belli', 'Giovanni Susino', 'Chantall Passarella',
