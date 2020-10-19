@@ -18,6 +18,7 @@ folders = [
     datetime(2020, 9,  27),
     datetime(2020, 10,  4),
     datetime(2020, 10,  11),
+    datetime(2020, 10,  18),
 ]
 
 people = {
@@ -43,7 +44,8 @@ people = {
         'Raffaello Vaghi', 'Chiara Ferrè', 'Donata Molon',
         'Paolo Zuffinetti', 'Paola Zerbi', 'Michele Della Valle',
         'Francesca Milani', 'Raffaella Pigoli', 'Laura Ferioli',
-        'Franca Guarracino'
+        'Franca Guarracino', 'Paola Lamperti', 'Donata Marcantonio',
+        'Fabio Bombana'
     ],
     'Cantù': [
         'Andrea Biotti', 'Viviana Tucci', 'Matteo Roncoroni',
@@ -80,7 +82,8 @@ people = {
     'Melzo': [ 'Alessandro Arbitrio' ],
     'Milano Giacinti' : [
         'Maurizio Gavina', 'Debora Stignani', 'Laura Trombini',
-        'Chiara Nicoli', 'Nadia Dallalonga', 'Domenico Scaldaferri'
+        'Chiara Nicoli', 'Nadia Dallalonga', 'Domenico Scaldaferri',
+        'Fabio Bombana'
     ],
     'Monticello': ['Alberta Molinari', 'Stefania Sala' ],
     'Morbegno': [
@@ -102,7 +105,7 @@ people = {
     ],
     'Vigevano': [ 'Margherita Previde', 'Viola Donato' ],
     'Vimercate': [ 'Davide Panzeri', 'Jacopo Tonon' ],
-    'Voghera': [ 'Alessandro Belli', 'Fabio Faroldi' ]
+    'Voghera': [ 'Alessandro Belli', 'Fabio Faroldi', 'Luca Panio' ]
 }
 
 total_files = len(files)
