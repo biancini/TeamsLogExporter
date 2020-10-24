@@ -19,6 +19,7 @@ folders = [
     datetime(2020, 10,  4),
     datetime(2020, 10,  11),
     datetime(2020, 10,  18),
+    datetime(2020, 10,  25),
 ]
 
 people = {

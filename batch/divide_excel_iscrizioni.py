@@ -11,9 +11,9 @@ excel_file = '/Users/andrea/Downloads/Iscrizioni corsi IeFP - Istruzione e Forma
 base = '/Users/andrea/Fondazione Enaip Lombardia/Istruzione e Formazione Professionale - Anno Scolastico 2020 2021/Iscrizioni'
 chdir(base)
 
-nome_excel = 'Iscritti 12-18 ott 20.xlsx'
-data_da = datetime(2020, 9, 12)
-data_a = datetime(2020, 10, 18)
+nome_excel = 'Iscritti 19-25 ott 20.xlsx'
+data_da = datetime(2020, 9, 19)
+data_a = datetime(2020, 10, 25)
 
 centri = {
     'Bergamo': b'Bergamo',
