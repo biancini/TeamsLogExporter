@@ -12,7 +12,7 @@ base = '/Users/andrea/Fondazione Enaip Lombardia/Istruzione e Formazione Profess
 chdir(base)
 
 nome_excel = 'Iscritti 19-25 ott 20.xlsx'
-data_da = datetime(2020, 9, 19)
+data_da = datetime(2020, 10, 19)
 data_a = datetime(2020, 10, 25)
 
 centri = {
