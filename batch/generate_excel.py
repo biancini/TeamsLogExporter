@@ -116,6 +116,8 @@ def generate_excel(t, filename):
             json_file.close()
             return 0
 
+        participants.sort(key=lambda stud: 'zzz_{}'.format(stud['name']) if 'Sconosciuto' in stud['name'] else stud['name'] )
+
         ###########
 
         workbook = Workbook()
