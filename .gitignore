@@ -136,3 +136,5 @@ dmypy.json
 .pyre/
 
 .vscode/
+
+credentials.json

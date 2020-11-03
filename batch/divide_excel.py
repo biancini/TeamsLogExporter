@@ -1,7 +1,7 @@
 import shutil
 from glob import glob
 from datetime import datetime
-from os import path, makedirs
+from os import path, makedirs, chdir
 
 reportfad = True
 #base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti\Anno Formativo 2020-2021'
@@ -17,6 +17,10 @@ folders = [
     datetime(2020, 9,  20),
     datetime(2020, 9,  27),
     datetime(2020, 10,  4),
+    datetime(2020, 10,  11),
+    datetime(2020, 10,  18),
+    datetime(2020, 10,  25),
+    datetime(2020, 11,  1),
 ]
 
 people = {
@@ -42,7 +46,8 @@ people = {
         'Raffaello Vaghi', 'Chiara Ferrè', 'Donata Molon',
         'Paolo Zuffinetti', 'Paola Zerbi', 'Michele Della Valle',
         'Francesca Milani', 'Raffaella Pigoli', 'Laura Ferioli',
-        'Franca Guarracino'
+        'Franca Guarracino', 'Paola Lamperti', 'Donata Marcantonio',
+        'Fabio Bombana'
     ],
     'Cantù': [
         'Andrea Biotti', 'Viviana Tucci', 'Matteo Roncoroni',
@@ -52,7 +57,8 @@ people = {
         'Arianna Cortellezzi', 'Sandra Bernasconi', 'Mauro Oricchio',
         'Rossella Clerici', 'Anna Bianchi', 'Francesco Beretta',
         'Roberto Morselli', 'Manuela Colombo',  'Miriam Garbi',
-        'Silvia Dellifiori', 'Adriano Drammissino', 'Laura Pellegatta'
+        'Silvia Dellifiori', 'Adriano Drammissino', 'Laura Pellegatta',
+        'Federico Di Martino'
     ],
     'Cremona': [
         'Claudio Elidoro', 'Laura Blasutta',
@@ -79,9 +85,13 @@ people = {
     'Melzo': [ 'Alessandro Arbitrio' ],
     'Milano Giacinti' : [
         'Maurizio Gavina', 'Debora Stignani', 'Laura Trombini',
-        'Chiara Nicoli', 'Nadia Dallalonga', 'Domenico Scaldaferri'
+        'Chiara Nicoli', 'Nadia Dallalonga', 'Domenico Scaldaferri',
+        'Fabio Bombana'
     ],
     'Monticello': ['Alberta Molinari', 'Stefania Sala' ],
+    'Morbegno': [
+        'Giovanni Colombo', 'Anna De Salvo', 'Claudia Del Barba'
+    ],
     'Pavia': [
         'Giovanni Corsico', 'Viviana Bernorio', 'Massimo Casella',
         'Alessandro Belli', 'Giovanni Susino', 'Chantall Passarella',
@@ -98,7 +108,7 @@ people = {
     ],
     'Vigevano': [ 'Margherita Previde', 'Viola Donato' ],
     'Vimercate': [ 'Davide Panzeri', 'Jacopo Tonon' ],
-    'Voghera': [ 'Alessandro Belli', 'Fabio Faroldi' ]
+    'Voghera': [ 'Alessandro Belli', 'Fabio Faroldi', 'Luca Panio' ]
 }
 
 total_files = len(files)

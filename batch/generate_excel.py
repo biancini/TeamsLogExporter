@@ -113,6 +113,8 @@ def generate_excel(t, filename):
             json_file.close()
             return 0
 
+        participants.sort(key=lambda stud: 'zzz_{}'.format(stud['name']) if 'Sconosciuto' in stud['name'] else stud['name'] )
+
         ###########
 
         workbook = Workbook()
@@ -150,6 +152,10 @@ def generate_excel(t, filename):
         mediumStyle = TableStyleInfo(name='TableStyleMedium2', showRowStripes=True)
         worksheet.add_table(Table(ref=f'A1:D{i}', displayName='RegistroPresenze', tableStyleInfo=mediumStyle))
         worksheet.sheet_view.showGridLines = False
+
+        report_id = os.path.basename(filename).replace('.json', '')
+        worksheet.append([f''])
+        worksheet.append([f'Report generato per il meeting con ID: {report_id}'])
 
         column_widths = [30, 20, 20, 20]
         for i, column_width in enumerate(column_widths):
