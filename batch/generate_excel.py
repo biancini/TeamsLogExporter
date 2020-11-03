@@ -156,6 +156,10 @@ def generate_excel(t, filename):
         worksheet.add_table(Table(ref=f'A1:D{i}', displayName='RegistroPresenze', tableStyleInfo=mediumStyle))
         worksheet.sheet_view.showGridLines = False
 
+        report_id = os.path.basename(filename).replace('.json', '')
+        worksheet.append([f''])
+        worksheet.append([f'Report generato per il meeting con ID: {report_id}'])
+
         column_widths = [30, 20, 20, 20]
         for i, column_width in enumerate(column_widths):
             worksheet.column_dimensions[get_column_letter(i+1)].width = column_width

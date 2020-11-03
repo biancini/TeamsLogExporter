@@ -57,7 +57,8 @@ people = {
         'Arianna Cortellezzi', 'Sandra Bernasconi', 'Mauro Oricchio',
         'Rossella Clerici', 'Anna Bianchi', 'Francesco Beretta',
         'Roberto Morselli', 'Manuela Colombo',  'Miriam Garbi',
-        'Silvia Dellifiori', 'Adriano Drammissino', 'Laura Pellegatta'
+        'Silvia Dellifiori', 'Adriano Drammissino', 'Laura Pellegatta',
+        'Federico Di Martino'
     ],
     'Cremona': [
         'Claudio Elidoro', 'Laura Blasutta',
