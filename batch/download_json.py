@@ -1,7 +1,9 @@
+from sys import flags
 import requests
 import json
 import csv
 import sys
+import getopt
 import os.path
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
@@ -34,10 +36,30 @@ def download_call_data(t, call_id):
         return 1
 
 
-if __name__ == '__main__':
-    tenant_id = os.getenv('TENANTID_ENAIP', None)
-    client_id = os.getenv('APPID_ENAIP', None)
-    client_secret =  os.getenv('APPSECRET_ENAIP', None)
+def main(argv):
+    try:
+        opts, _ = getopt.getopt(argv,"he:f:", ["help", "ente=", "file="])
+    except getopt.GetoptError:
+        print('download_json.py [-e <ente>] [-f <file>]')
+        sys.exit(2)
+
+    ente = 'ENAIP'
+    filename = 'calls.csv'
+    
+    for o, a in opts:
+        if o in ('-h', '--help'):
+            print('download_json.py [-e <ente>]')
+            sys.exit()
+        elif o in ('-e', '--ente'):
+            ente = a.upper()
+        elif o in ('-f', '--file'):
+            filename = a
+        else:
+            assert False
+
+    tenant_id = os.getenv(f'TENANTID_{ente}', None)
+    client_id = os.getenv(f'APPID_{ente}', None)
+    client_secret =  os.getenv(f'APPSECRET_{ente}', None)
     num_threads = 10
 
     data = parse.urlencode({
@@ -52,15 +74,10 @@ if __name__ == '__main__':
 
     if not 'access_token' in r:
         print(f'{r}')
-        exit(1)
-        
+        exit(1)    
     t = r['access_token']
 
-    filename = 'calls.csv'
-    if len(sys.argv) > 1:
-        filename = sys.argv[1]
-
-    print(f'Reading data from file {filename}')
+    print(f'Working for institution {ente}. Reading data from file {filename}')
 
     call_ids = []
     with open(filename) as csv_file:
@@ -86,3 +103,6 @@ if __name__ == '__main__':
                 out += result
         
     print(f'Script finito, scaricati {out} files.')
+
+if __name__ == '__main__':
+    main(sys.argv[1:])

@@ -4,6 +4,8 @@ import json
 import glob
 import os.path
 import math
+import sys
+import getopt
 from tqdm import tqdm
 from dateutil import tz
 from urllib import parse
@@ -171,10 +173,27 @@ def generate_excel(t, filename):
     return 1
 
 
-if __name__ == '__main__':
-    tenant_id = os.getenv('TENANTID_ENAIP', None)
-    client_id = os.getenv('APPID_ENAIP', None)
-    client_secret =  os.getenv('APPSECRET_ENAIP', None)
+def main(argv):
+    try:
+        opts, _ = getopt.getopt(argv,"he:", ["help", "ente="])
+    except getopt.GetoptError:
+        print('generate_excel.py [-e <ente>]')
+        sys.exit(2)
+
+    ente = 'ENAIP'
+    
+    for o, a in opts:
+        if o in ('-h', '--help'):
+            print('download_json.py [-e <ente>]')
+            sys.exit()
+        elif o in ('-e', '--ente'):
+            ente = a.upper()
+        else:
+            assert False
+
+    tenant_id = os.getenv(f'TENANTID_{ente}', None)
+    client_id = os.getenv(f'APPID_{ente}', None)
+    client_secret =  os.getenv(f'APPSECRET_{ente}', None)
     num_threads = 10
 
     data = parse.urlencode({
@@ -210,3 +229,6 @@ if __name__ == '__main__':
                 out += result
         
     print(f'Script finito, creati {out} files.')
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
