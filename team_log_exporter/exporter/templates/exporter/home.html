@@ -28,10 +28,10 @@
 <div class="row" ng-show="setupOk">  
   <div class="steppers col-12">
     <ul class="nav nav-tabs nav-tabs-icon-text" id="nav-tab" role="tablist">
-      <li class="nav-item"><a ng-class="(step1 == 'active')?'nav-link active':(step1 == 'disabled')?'nav-link disabled':'nav-link'" href="#" id="tab1-tab"><svg class="icon"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-presentation"></use></svg>Scegli gruppi <svg class="icon steppers-success" ng-if="step1 == 'completed'"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-check"></use></svg></a></li>
-      <li class="nav-item"><a ng-class="(step2 == 'active')?'nav-link active':(step2 == 'disabled')?'nav-link disabled':'nav-link'" href="#" id="tab2-tab"><svg class="icon"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-user"></use></svg>Scegli utenti <svg class="icon steppers-success" ng-if="step2 == 'completed'"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-check"></use></svg></a></li>
-      <li class="nav-item"><a ng-class="(step3 == 'active')?'nav-link active':(step3 == 'disabled')?'nav-link disabled':'nav-link'" href="#" id="tab3-tab"><svg class="icon"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-calendar"></use></svg>Scegli meeting <svg class="icon steppers-success" ng-if="step3 == 'completed'"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-check"></use></svg></a></li>
-      <li class="nav-item"><a ng-class="(step4 == 'active')?'nav-link active':(step4 == 'disabled')?'nav-link disabled':'nav-link'" href="#" id="tab4-tab"><svg class="icon"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-inbox"></use></svg>Stampa registri <svg class="icon steppers-success" ng-if="step4 == 'completed'"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-check"></use></svg></a></li>
+      <li class="nav-item"><a ng-class="(step1 == 'active')?'nav-link active':(step1 == 'disabled')?'nav-link disabled':'nav-link'" href="#" id="tab1-tab"><svg class="icon"><use xlink:href="{% static 'svg/sprite.svg' %}#it-presentation"></use></svg>Scegli gruppi <svg class="icon steppers-success" ng-if="step1 == 'completed'"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-check"></use></svg></a></li>
+      <li class="nav-item"><a ng-class="(step2 == 'active')?'nav-link active':(step2 == 'disabled')?'nav-link disabled':'nav-link'" href="#" id="tab2-tab"><svg class="icon"><use xlink:href="{% static 'svg/sprite.svg' %}#it-user"></use></svg>Scegli utenti <svg class="icon steppers-success" ng-if="step2 == 'completed'"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-check"></use></svg></a></li>
+      <li class="nav-item"><a ng-class="(step3 == 'active')?'nav-link active':(step3 == 'disabled')?'nav-link disabled':'nav-link'" href="#" id="tab3-tab"><svg class="icon"><use xlink:href="{% static 'svg/sprite.svg' %}#it-calendar"></use></svg>Scegli meeting <svg class="icon steppers-success" ng-if="step3 == 'completed'"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-check"></use></svg></a></li>
+      <li class="nav-item"><a ng-class="(step4 == 'active')?'nav-link active':(step4 == 'disabled')?'nav-link disabled':'nav-link'" href="#" id="tab4-tab"><svg class="icon"><use xlink:href="{% static 'svg/sprite.svg' %}#it-inbox"></use></svg>Stampa registri <svg class="icon steppers-success" ng-if="step4 == 'completed'"><use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-check"></use></svg></a></li>
     </ul>
     <div class="tab-content pre-scrollable" id="nav-tabContent">
       <div ng-class="(step1 == 'active')?'tab-pane p-4 fade show active':'tab-pane p-4 fade'" id="nav-tab1" role="tabpanel" aria-labelledby="tab1-tab">
@@ -103,10 +103,10 @@
                   </span>
                   <span class="it-multiple align-top col-2">
                     <svg class="icon" ng-click="showElement(meeting.id)">
-                      <use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-list"></use>
+                      <use xlink:href="{% static 'svg/sprite.svg' %}#it-list"></use>
                     </svg>
                     <svg class="icon" ng-click="downloadExcel(meeting.id)" >
-                      <use xlink:href="{% static 'exporter/svg/sprite.svg' %}#it-download"></use>
+                      <use xlink:href="{% static 'svg/sprite.svg' %}#it-download"></use>
                     </svg>
                   </span>
                 </div>

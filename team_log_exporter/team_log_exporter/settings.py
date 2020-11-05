@@ -25,7 +25,7 @@ SECRET_KEY = '7mzy-xnhvyeedq7h%u7oqj4k)@*d!g9n==2e$z6p+^y1$3t#=t'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'teams-log-exporter.herokuapp.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'teams-log-exporter.herokuapp.com']
 
 
 # Application definition
@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'exporter'
+    'exporter',
+    'batch'
 ]
 
 MIDDLEWARE = [
@@ -119,7 +120,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'staticfiles'),
+]
