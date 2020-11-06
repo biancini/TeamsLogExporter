@@ -10,10 +10,9 @@ from tqdm import tqdm
 from dateutil import tz
 from urllib import parse
 from concurrent.futures import ProcessPoolExecutor
-from datetime import datetime, time, timedelta
+from datetime import datetime
 from openpyxl import Workbook
 from openpyxl.styles import Font
-from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.utils import get_column_letter
 

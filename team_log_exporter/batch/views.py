@@ -1,16 +1,19 @@
 import json
 import os
 import csv
+import zipfile
+import urllib.parse
+from io import BytesIO
 
 from django.shortcuts import render
 from dateutil import tz
 
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.http import JsonResponse
 
-from batch.download_helper import get_berarertoken, download_call_data
+from batch.download_helper import get_berarertoken, download_call_data, generate_excel
 from batch.auth_helper import scopes, get_sign_in_url, get_token_from_code, store_token, store_bearertoken, store_user, remove_user_and_token, get_token
 from batch.graph_helper import get_meuser, get_all_groups
 
@@ -134,16 +137,36 @@ def download_json(request):
     if request.method == 'POST':
         data = json.loads(request.body)
 
-        ente = request.session['ente']
-        t = get_berarertoken(ente)
-        data = download_call_data(t, data['callId'])
+        if not 'token' in request.session:
+            ente = request.session['ente']
+            t = get_berarertoken(ente)
+            request.session['token'] = t
+
+        jsonFile = download_call_data(request.session['token'], data['callId']) 
 
         return JsonResponse({
             "esito": True,
-            "calldata": data,
+            "calldata": jsonFile
         })
 
     return JsonResponse({
         "esito": False,
         "message": "Must be invoked with POST.",
     }, status=500)
+
+
+def download_jsonzip(request):
+    data = urllib.parse.unquote(request.POST.get("filesJson", '\{\}'))
+    dictFile = json.loads(data)
+
+    buff = BytesIO()
+    zip_archive = zipfile.ZipFile(buff, mode='w')
+
+    for filename, filecontent in dictFile.items():
+        zip_archive.writestr(f'{filename}.json', filecontent)
+    
+    zip_archive.close()
+
+    response = HttpResponse(content=buff.getvalue(), content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="teams_reports.zip"'
+    return response

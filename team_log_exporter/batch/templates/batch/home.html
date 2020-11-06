@@ -73,8 +73,14 @@
 </div>
 
 <div class="row, float-right" style="margin-top: 30px">
+	<button type="button" ng-click="downloadJsonZip()" ng-class="(showDownloadZip) ? 'btn btn-secondary' : 'd-none'" >Scarica Zip</button>
 	<button type="button" ng-click="goNextStep()" ng-class="(stopProceed) ? 'btn btn-primary btn-sm steppers-btn-next disabled' : 'btn btn-primary btn-sm steppers-btn-next'" >Procedi</button>
 </div>
+
+<form method="post" action="/batch/download_jsonzip" id="downloadjson-form" target="_blank">
+	<input type="hidden" name="filesJson" id="filesJson" value="" />
+	{% csrf_token %}
+  </form>
 
 {% endif %}
 
