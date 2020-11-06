@@ -114,7 +114,8 @@ def upload_csvfile(request):
         lines = fileContent.splitlines()
         reader = csv.reader(lines, delimiter=',')
         for row in reader:
-            call_ids.append(row[0])
+            if row[0] != 'Conference Id':
+                call_ids.append(row[0])
 
         return JsonResponse({
             "esito": True,

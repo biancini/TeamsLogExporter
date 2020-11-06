@@ -16,7 +16,7 @@
 </div>
 
 {% if user.is_authenticated %}
-<div class="row">
+<div ng-class="(step1 == 'active') ? 'd-block' : 'd-none'">
 	<p>
 		<strong>Carica file con le lezioni di cui si vuole creare il registro</strong><br/>
 		Qui è possibile caricare due tipi diversi di files:
@@ -30,117 +30,53 @@
 		</ul>
 	</p>
 
-	<form id="uploadChangeStateTarget" class="upload-dragdrop" method="post" action="/batch/upload_csvfile" enctype="multipart/form-data" style="margin-top: 30px">
+	<form id="uploadChangeStateTarget" class="upload-dragdrop" method="post" action="/batch/upload_csvfile" enctype="multipart/form-data" style="margin-top: 30px" ng-on-drop="dropCSV($event)">
 		<div class="upload-dragdrop-image">
 			<img src="{% static 'svg/upload-drag-drop-icon.svg' %}" alt="imagealt" aria-hidden="true">
 			<div class="upload-dragdrop-loading">
-			<div id="divProgress1" class="upload-progress"></div>
+				<div id="divProgress1" class="upload-progress"></div>
 			</div>
 			<div class="upload-dragdrop-success">
-			<svg class="icon" aria-hidden="true"><use xlink:href="{% static 'svg/sprite.svg'%}#it-check"></use></svg>
+				<svg class="icon" aria-hidden="true"><use xlink:href="{% static 'svg/sprite.svg'%}#it-check"></use></svg>
 			</div>
 		</div>
 		<div class="upload-dragdrop-text">
 			<p class="upload-dragdrop-weight">
-			<svg class="icon icon-xs" aria-hidden="true"><use xlink:href="{% static 'svg/sprite.svg'%}#it-file"></use></svg> <span id="filetype">CSV (1.2KB)</span>
+				<svg class="icon icon-xs" aria-hidden="true"><use xlink:href="{% static 'svg/sprite.svg'%}#it-file"></use></svg> <span id="filetype">CSV (1.2KB)</span>
 			</p>
 			<h5 id="simTitle">Trascina il file per caricarlo</h5>
-		    <p id="simText">oppure <input type="file" name="uploadcsv" id="uploadcsv" class="upload-dragdrop-input" /><label for="uploadcsv">selezionalo dal dispositivo</label></p>
+			<p id="simText">oppure <input type="file" name="uploadcsv" id="uploadcsv" ng-on-change="uploadCSV($event)" class="upload-dragdrop-input" /><label for="uploadcsv">selezionalo dal dispositivo</label></p>
 		</div>
 		<input value="Submit" type="submit" class="d-none" />
 		{% csrf_token %}
 	</form>
+</div>
 
-	<script>
-		//attiva tooltip esempio loading
-		document.addEventListener("DOMContentLoaded", function() {
-			$("#divProgress1").circularloader({
-				backgroundColor: "#ffffff", //background colour of inner circle
-				fontColor: "#000000", //font color of progress text
-				fontSize: "40px", //font size of progress text
-				radius: 130, //radius of circle
-				progressBarBackground: "transparent", //background colour of circular progress Bar
-				progressBarColor: "#0073e6", //colour of circular progress bar
-				progressBarWidth: 96, //progress bar width
-				progressPercent: 0, //progress percentage out of 100
-			});
+<div ng-class="(step2 == 'active') ? 'd-block' : 'd-none'">
+	<p>Selezionare gli eventi per cui generare il registro:</p>
+	<div id="event-selection" class="it-list-wrapper">
+	  <ul class="it-list">
+		<li ng-repeat="item in lessonIds">
+		  <a class="it-has-checkbox" href="#">
+			<div class="form-check">
+			  <input id="checkbox-event-{a $index a}" ng-click="countChecked()" type="checkbox" value="{a item a}" class="checked" checked="true">
+			  <label for="checkbox-event-{a $index a}"></label>
+			</div>
+			<div class="it-right-zone">
+			  <span class="text" ng-click="selectCheck('checkbox-event-' + $index)">Lezione con id <b>{a item a}</b>.</span>
+			</div>
+		  </a>
+		</li>
+	  </ul>
+	</div>
+</div>
 
-			$('#uploadcsv').change(function () {
-				var f = document.getElementById("uploadcsv").files[0];
-				loadFile(f);
-			});
+<div class="row, float-right" style="margin-top: 30px">
+	<button type="button" ng-click="goNextStep()" ng-class="(stopProceed) ? 'btn btn-primary btn-sm steppers-btn-next disabled' : 'btn btn-primary btn-sm steppers-btn-next'" >Procedi</button>
+</div>
 
-			$('#uploadChangeStateTarget').on("drop", function(e) {
-				e.preventDefault();
-				var f = e.originalEvent.dataTransfer.files[0];
-				loadFile(f);
-			});
-		})
-		
-		function loadFile(dataFile) {
-			$('#uploadChangeStateTarget').removeClass('success');
-			$('#uploadChangeStateTarget').addClass('loading');
-			$('#simTitle').text(dataFile.name);
-			$('#simText').text('Caricamento in corso...');
+<div class="row" ng-show="listIds">
 
-			var fileExt = dataFile.name.split('.').pop().toUpperCase();
-			var fileSz = humanFileSize(dataFile.size);
-			$('#filetype').text(fileExt + " (" + fileSz + ")");
-
-			const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-			formData = new FormData();
-			formData.append("csrfmiddlewaretoken", csrftoken);
-			formData.append("uploadcsv", dataFile);
-
-			$.ajax({
-				url: $('#uploadChangeStateTarget').attr('action'),
-				type: 'POST',
-				data: formData,
-				processData: false,
-				contentType: false,
-				xhr: function() {
-					var myXhr = $.ajaxSettings.xhr();
-					return myXhr;
-				},
-				uploadProgress: function() {
-					var loaded = e.loaded;
-					var total = e.total
-					var percent_complete = (loaded / total) * 100;
-
-					$("#divProgress1").circularloader({
-						progressPercent: Math.floor(percent_complete)
-					});
-				}, 
-				success: function(response) {
-					$('#divProgress1').remove();
-					$('#uploadChangeStateTarget').removeClass('loading');
-					$('#uploadChangeStateTarget').addClass('success');
-					$('#simText').text('Caricamento completato. Indicate ' + response.message.length + ' lezioni da scaricare.');
-				},
-				resetForm: true
-			});
-		}
-
-		function humanFileSize(bytes) {
-			const thresh = 1000;
-
-			if (Math.abs(bytes) < thresh) {
-				return bytes + ' B';
-			}
-
-			const units = ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-			let u = -1;
-			const r = 10;
-
-			do {
-				bytes /= thresh;
-				++u;
-			} while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
-
-			return bytes.toFixed(1) + ' ' + units[u];
-		}
-	</script>
 </div>
 
 {% endif %}
