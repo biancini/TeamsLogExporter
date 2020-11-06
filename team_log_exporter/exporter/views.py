@@ -41,6 +41,7 @@ def sign_in(request):
     id = request.GET.get('id', None)
     request.session['appid'] = os.environ['APPID_%s' % id]
     request.session['appsecret'] = os.environ['APPSECRET_%s' % id]
+    request.session['ente'] = id
 
     print ("appid = %s" % request.session.get('appid', None))
     print ("appsecret = %s" % request.session.get('appsecret', None))

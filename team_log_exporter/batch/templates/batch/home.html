@@ -64,6 +64,7 @@
 			</div>
 			<div class="it-right-zone">
 			  <span class="text" ng-click="selectCheck('checkbox-event-' + $index)">Lezione con id <b>{a item a}</b>.</span>
+			  <svg id="downloaded-{a item a}" class="icon icon-success d-none"><use xlink:href="{% static 'svg/sprite.svg'%}#it-check-circle"></use></svg>
 			</div>
 		  </a>
 		</li>
@@ -73,10 +74,6 @@
 
 <div class="row, float-right" style="margin-top: 30px">
 	<button type="button" ng-click="goNextStep()" ng-class="(stopProceed) ? 'btn btn-primary btn-sm steppers-btn-next disabled' : 'btn btn-primary btn-sm steppers-btn-next'" >Procedi</button>
-</div>
-
-<div class="row" ng-show="listIds">
-
 </div>
 
 {% endif %}

@@ -10,6 +10,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.http import JsonResponse
 
+from batch.download_helper import get_berarertoken, download_call_data
 from batch.auth_helper import scopes, get_sign_in_url, get_token_from_code, store_token, store_bearertoken, store_user, remove_user_and_token, get_token
 from batch.graph_helper import get_meuser, get_all_groups
 
@@ -36,6 +37,7 @@ def sign_in(request):
     id = request.GET.get('id', None)
     request.session['appid'] = os.environ['APPID_%s' % id]
     request.session['appsecret'] = os.environ['APPSECRET_%s' % id]
+    request.session['ente'] = id
 
     print ("appid = %s" % request.session.get('appid', None))
     print ("appsecret = %s" % request.session.get('appsecret', None))
@@ -122,6 +124,25 @@ def upload_csvfile(request):
             "message": call_ids,
         })
         
+    return JsonResponse({
+        "esito": False,
+        "message": "Must be invoked with POST.",
+    }, status=500)
+
+
+def download_json(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        ente = request.session['ente']
+        t = get_berarertoken(ente)
+        data = download_call_data(t, data['callId'])
+
+        return JsonResponse({
+            "esito": True,
+            "calldata": data,
+        })
+
     return JsonResponse({
         "esito": False,
         "message": "Must be invoked with POST.",
