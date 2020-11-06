@@ -17,136 +17,132 @@
 
 {% if user.is_authenticated %}
 <div class="row">
-  <div class="form-group col-12">
-      <label for="formGroupExampleInput2">Inserisci un bearer token recuperato da Chrome</label>
-      <input type="text" class="form-control" ng-model="bearerToken" placeholder="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IllNRUxIVDBndmIwbXhvU0RvWWZvbWpxZmpZVSIsImtpZCI6IllNRUxIVDBndmIwbXhvU0RvWWZvbWpxZmpZVSJ9.eyJhdWQiOiIyZGRmYmU3MS1lZDEyLTQxMjMtYjk5Yi1kNWZjOGEwNjJhNzkiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC81NTJiZWQwMi00NTEyLTQ1MGMtODU4ZC04NGNmZTJiNDE4NmQvIiwiaWF0IjoxNTg2NjE0NDYwLCJuYmYiOjE1ODY2MTQ0NjAsImV4cCI6MTU4NjYxODM2MCwiYW1yIjpbInB3ZCJdLCJpcGFkZHIiOiI5My40NS43MC4yMDUiLCJuYW1lIjoiQW5kcmVhIEJpYW5jaW5pIiwibm9uY2UiOiI2ZDZlOTMxYi02NDgwLTQ4MGQtODQwZC1kMjdiYTQyNTFkN2QiLCJvaWQiOiJlYTQ2ZGU3NC1lYjA3LTRjMzgtODZlZC1mN2UyYjllOTU4NWEiLCJwdWlkIjoiMTAwMzNGRkZBRTMyMzExMSIsInN1YiI6IjZNeUpFeEtteU1kTTJ0dXVLOU1wa0tTb1JueTA2eEpqOERwV3hDTzNHczgiLCJ0aWQiOiI1NTJiZWQwMi00NTEyLTQ1MGMtODU4ZC04NGNmZTJiNDE4NmQiLCJ1bmlxdWVfbmFtZSI6ImFuZHJlYS5iaWFuY2luaUBzdHVkZW50aS5pdHNpbmNvbS5pdCIsInVwbiI6ImFuZHJlYS5iaWFuY2luaUBzdHVkZW50aS5pdHNpbmNvbS5pdCIsInV0aSI6InJjRDdXNVlPdDBXLXBNSXU1OHNIQUEiLCJ2ZXIiOiIxLjAifQ.ODjG2YIJ1nFJ_QObmawO-NTCu3P0JrkNAhktTK8zTo4cqtIempIGrjaLhvde6rDQpS92fUY5CwSnCoG-kZOIEGIe2D55R1kT0AVh6MEUuk_VtS8glIUghvIjumrOYaLiSuDcyUKrsudoK7FoXw2gH97ky54n9tL94aJszEldgBQFVQ8AdKsgDfgYbDQH1iPV9g8RpjVTINIh-CUufIwpuR35-V-ZtQOR6MVz2J97vzwCEr209lzmuGqc5Ul90VGxj-E38PLsQTU_6nk3qejsMumSztUwnBp_-2A5FeSWcB6-36_MWbWgKBaUDFl-N6gvZuSeDsWEz7cZvaLRJtyzjQ" />
-      <input type="hidden" ng-model="user" value="{{ user.name }}" />
-      <button type="button" ng-click="startFlow()" class="btn btn-primary btn-sm steppers-btn-next">Inizia</button>
-  </div>
+	<p>
+		<strong>Carica file con le lezioni di cui si vuole creare il registro</strong><br/>
+		Qui è possibile caricare due tipi diversi di files:
+		<ul>
+			<li>
+				Un file CSV con l'elenco delle lezioni a cui si è interessati (ottenuto da <a href="https://cqd.teams.microsoft.com/" target="_blank">questo link</a>).
+			</li>
+			<li>
+				Un file ZIP contenente diversi file JSON delle lezioni cui si è interessati, precedentemente scaricato da questa interfaccia.
+			</li>
+		</ul>
+	</p>
+
+	<form id="uploadChangeStateTarget" class="upload-dragdrop" method="post" action="/batch/upload_csvfile" enctype="multipart/form-data" style="margin-top: 30px">
+		<div class="upload-dragdrop-image">
+			<img src="{% static 'svg/upload-drag-drop-icon.svg' %}" alt="imagealt" aria-hidden="true">
+			<div class="upload-dragdrop-loading">
+			<div id="divProgress1" class="upload-progress"></div>
+			</div>
+			<div class="upload-dragdrop-success">
+			<svg class="icon" aria-hidden="true"><use xlink:href="{% static 'svg/sprite.svg'%}#it-check"></use></svg>
+			</div>
+		</div>
+		<div class="upload-dragdrop-text">
+			<p class="upload-dragdrop-weight">
+			<svg class="icon icon-xs" aria-hidden="true"><use xlink:href="{% static 'svg/sprite.svg'%}#it-file"></use></svg> <span id="filetype">CSV (1.2KB)</span>
+			</p>
+			<h5 id="simTitle">Trascina il file per caricarlo</h5>
+		    <p id="simText">oppure <input type="file" name="uploadcsv" id="uploadcsv" class="upload-dragdrop-input" /><label for="uploadcsv">selezionalo dal dispositivo</label></p>
+		</div>
+		<input value="Submit" type="submit" class="d-none" />
+		{% csrf_token %}
+	</form>
+
+	<script>
+		//attiva tooltip esempio loading
+		document.addEventListener("DOMContentLoaded", function() {
+			$("#divProgress1").circularloader({
+				backgroundColor: "#ffffff", //background colour of inner circle
+				fontColor: "#000000", //font color of progress text
+				fontSize: "40px", //font size of progress text
+				radius: 130, //radius of circle
+				progressBarBackground: "transparent", //background colour of circular progress Bar
+				progressBarColor: "#0073e6", //colour of circular progress bar
+				progressBarWidth: 96, //progress bar width
+				progressPercent: 0, //progress percentage out of 100
+			});
+
+			$('#uploadcsv').change(function () {
+				var f = document.getElementById("uploadcsv").files[0];
+				loadFile(f);
+			});
+
+			$('#uploadChangeStateTarget').on("drop", function(e) {
+				e.preventDefault();
+				var f = e.originalEvent.dataTransfer.files[0];
+				loadFile(f);
+			});
+		})
+		
+		function loadFile(dataFile) {
+			$('#uploadChangeStateTarget').removeClass('success');
+			$('#uploadChangeStateTarget').addClass('loading');
+			$('#simTitle').text(dataFile.name);
+			$('#simText').text('Caricamento in corso...');
+
+			var fileExt = dataFile.name.split('.').pop().toUpperCase();
+			var fileSz = humanFileSize(dataFile.size);
+			$('#filetype').text(fileExt + " (" + fileSz + ")");
+
+			const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+			formData = new FormData();
+			formData.append("csrfmiddlewaretoken", csrftoken);
+			formData.append("uploadcsv", dataFile);
+
+			$.ajax({
+				url: $('#uploadChangeStateTarget').attr('action'),
+				type: 'POST',
+				data: formData,
+				processData: false,
+				contentType: false,
+				xhr: function() {
+					var myXhr = $.ajaxSettings.xhr();
+					return myXhr;
+				},
+				uploadProgress: function() {
+					var loaded = e.loaded;
+					var total = e.total
+					var percent_complete = (loaded / total) * 100;
+
+					$("#divProgress1").circularloader({
+						progressPercent: Math.floor(percent_complete)
+					});
+				}, 
+				success: function(response) {
+					$('#divProgress1').remove();
+					$('#uploadChangeStateTarget').removeClass('loading');
+					$('#uploadChangeStateTarget').addClass('success');
+					$('#simText').text('Caricamento completato. Indicate ' + response.message.length + ' lezioni da scaricare.');
+				},
+				resetForm: true
+			});
+		}
+
+		function humanFileSize(bytes) {
+			const thresh = 1000;
+
+			if (Math.abs(bytes) < thresh) {
+				return bytes + ' B';
+			}
+
+			const units = ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+			let u = -1;
+			const r = 10;
+
+			do {
+				bytes /= thresh;
+				++u;
+			} while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+
+			return bytes.toFixed(1) + ' ' + units[u];
+		}
+	</script>
 </div>
 
-<div class="row" ng-show="setupOk">  
-  <div class="steppers col-12">
-    <ul class="nav nav-tabs nav-tabs-icon-text" id="nav-tab" role="tablist">
-      <li class="nav-item"><a ng-class="(step1 == 'active')?'nav-link active':(step1 == 'disabled')?'nav-link disabled':'nav-link'" href="#" id="tab1-tab"><svg class="icon"><use xlink:href="{% static 'svg/sprite.svg' %}#it-presentation"></use></svg>Scegli gruppi <svg class="icon steppers-success" ng-if="step1 == 'completed'"><use xlink:href="{% static 'svg/sprite.svg' %}#it-check"></use></svg></a></li>
-      <li class="nav-item"><a ng-class="(step2 == 'active')?'nav-link active':(step2 == 'disabled')?'nav-link disabled':'nav-link'" href="#" id="tab2-tab"><svg class="icon"><use xlink:href="{% static 'svg/sprite.svg' %}#it-user"></use></svg>Scegli utenti <svg class="icon steppers-success" ng-if="step2 == 'completed'"><use xlink:href="{% static 'svg/sprite.svg' %}#it-check"></use></svg></a></li>
-      <li class="nav-item"><a ng-class="(step3 == 'active')?'nav-link active':(step3 == 'disabled')?'nav-link disabled':'nav-link'" href="#" id="tab3-tab"><svg class="icon"><use xlink:href="{% static 'svg/sprite.svg' %}#it-calendar"></use></svg>Scegli meeting <svg class="icon steppers-success" ng-if="step3 == 'completed'"><use xlink:href="{% static 'svg/sprite.svg' %}#it-check"></use></svg></a></li>
-      <li class="nav-item"><a ng-class="(step4 == 'active')?'nav-link active':(step4 == 'disabled')?'nav-link disabled':'nav-link'" href="#" id="tab4-tab"><svg class="icon"><use xlink:href="{% static 'svg/sprite.svg' %}#it-inbox"></use></svg>Stampa registri <svg class="icon steppers-success" ng-if="step4 == 'completed'"><use xlink:href="{% static 'svg/sprite.svg' %}#it-check"></use></svg></a></li>
-    </ul>
-    <div class="tab-content pre-scrollable" id="nav-tabContent">
-      <div ng-class="(step1 == 'active')?'tab-pane p-4 fade show active':'tab-pane p-4 fade'" id="nav-tab1" role="tabpanel" aria-labelledby="tab1-tab">
-        <p>Selezionare uno o più gruppi di interesse <i>(laciare vuoto per selezionare tutti gli utenti)</i>:
-          <input ng-model="groupSearch" />
-        </p>
-        <div id="group-selection" class="it-list-wrapper">
-          <ul class="it-list">
-            <li ng-repeat="item in grouplist | search:'name':groupSearch">
-              <a class="it-has-checkbox" href="#">
-                <div class="form-check">
-                  <input id="checkbox-group-{a $index a}" type="checkbox" value="{a item.id a}">
-                  <label for="checkbox-group-{a $index a}"></label>
-                </div>
-                <div class="it-right-zone">
-                  <span class="text" ng-click="selectCheck('checkbox-group-' + $index)">{a item.name a}<em>{a item.id a}</em></span>
-                </div>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div ng-class="(step2 == 'active')?'tab-pane p-4 fade show active':'tab-pane p-4 fade'" id="nav-tab2" role="tabpanel" aria-labelledby="tab2-tab">
-        <p>Selezionare uno o più utenti:
-          <input ng-model="userSearch" />
-        </p>
-        <div id="user-selection" class="it-list-wrapper">
-          <ul class="it-list">
-            <li ng-repeat="item in userlist | search:'name':userSearch">
-              <a class="it-has-checkbox" href="#">
-                <div class="form-check">
-                  <input id="checkbox-user-{a $index a}" type="checkbox" value="{a item.id a}">
-                  <label for="checkbox-user-{a $index a}"></label>
-                </div>
-                <div class="it-right-zone">
-                  <span class="text" ng-click="selectCheck('checkbox-user-' + $index)">{a item.name a}<em>{a item.id a}</em></span>
-                </div>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div ng-class="(step3 == 'active')?'tab-pane p-4 fade show active':'tab-pane p-4 fade'" id="nav-tab3" role="tabpanel" aria-labelledby="tab3-tab">
-        <p>Selezionare gli eventi per cui generare il registro:</p>
-        <div id="event-selection" class="it-list-wrapper">
-          <ul class="it-list">
-            <li ng-repeat="item in eventlist">
-              <a class="it-has-checkbox" href="#">
-                <div class="form-check">
-                  <input id="checkbox-event-{a $index a}" type="checkbox" value="{a item.id a}">
-                  <label for="checkbox-event-{a $index a}"></label>
-                </div>
-                <div class="it-right-zone">
-                  <span class="text" ng-click="selectCheck('checkbox-event-' + $index)">Lezione di <b>{a item.start a}</b>, durata {a item.durata a} <i>({a item.partecipant a} partecipanti)</i>.<em>{a item.id a}</em></span>
-                </div>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div ng-class="(step4 == 'active')?'tab-pane p-4 fade show active':'tab-pane p-4 fade'" id="nav-tab4" role="tabpanel" aria-labelledby="tab4-tab">
-        <div class="it-list-wrapper">
-          <ul class="it-list">
-            <li ng-repeat="meeting in meetingRecords">
-              <a href="#">
-                <div class="it-right-zone">
-                  <span class="text">
-                    {a meeting.descr a}<em>{a meeting.id a}</em>
-                  </span>
-                  <span class="it-multiple align-top col-2">
-                    <svg class="icon" ng-click="showElement(meeting.id)">
-                      <use xlink:href="{% static 'svg/sprite.svg' %}#it-list"></use>
-                    </svg>
-                    <svg class="icon" ng-click="downloadExcel(meeting.id)" >
-                      <use xlink:href="{% static 'svg/sprite.svg' %}#it-download"></use>
-                    </svg>
-                  </span>
-                </div>
-              </a>
-
-              <table id="{a meeting.id a}" class="d-block table" ng-show="showTable == meeting.id">
-                <thead>
-                  <tr>
-                    <th scope="col">Partecipante</th>
-                    <th scope="col">Inizio presenza</th>
-                    <th scope="col">Fine Presenza</th>
-                    <th scope="col">Tempo di partecipazione</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr ng-repeat="p in meeting.participants">
-                    <th scope="row">{a p.name a}</th>
-                    <td>{a p.start | date:'dd/MM/yyyy HH:mm' a}</td>
-                    <td>{a p.end | date:'dd/MM/yyyy HH:mm' a}</td>
-                    <td>{a p.duration a}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <nav class="steppers-nav">
-      <button type="button" class="btn btn-outline-primary btn-sm steppers-btn-prev" ng-click="prevFlow()">Indietro</button>
-      <button type="button" class="btn btn-primary btn-sm steppers-btn-next" ng-click="nextFlow()">Avanti</button>
-    </nav>
-  </div>
-</div>
-
-<form method="post" action="/exporter/export_xls" id="excel-form" target="_blank">
-  <input type="hidden" name="filename" id="filename" value="" />
-  <input type="hidden" name="table" id="table" value="" />
-  {% csrf_token %}
-</form>
 {% endif %}
 
 {% endblock %}
