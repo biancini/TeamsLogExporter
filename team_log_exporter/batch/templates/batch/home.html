@@ -83,7 +83,7 @@
 		<li ng-repeat="item in lessonExcels">
 			<a class="it-has-checkbox" href="#">
 				<div class="it-right-zone">
-					<span class="text" ng-click="selectCheck('checkbox-excel-' + c)">Report: <b>{a item a}</b>.</span>
+					<span class="text" ng-click="selectCheck('checkbox-excel-' + c)">Report: <b>{a item a}</b></span>
 					<svg id="downloadexcel-{a $index a}" class="icon icon-success" ng-click="downloadExcelFile(item)"><use xlink:href="{% static 'svg/sprite.svg'%}#it-arrow-down-circle"></use></svg>
 				</div>
 			</a>

@@ -142,7 +142,7 @@ def download_generatedexcel(t, jsonFileData):
         participants.append({ 'uid': _uid, 'name': data['name'], 'start': data['min_start'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'end': data['max_end'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'duration': duration})
 
     if len(participants) <= 1:
-        return None
+        return dest_filename, None
 
     participants.sort(key=lambda stud: 'zzz_{}'.format(stud['name']) if 'Sconosciuto' in stud['name'] else stud['name'] )
 

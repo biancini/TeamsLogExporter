@@ -213,7 +213,7 @@ def generate_excel(request):
             return JsonResponse({
                 "esito": True,
                 "filename": filename,
-                "calldata": base64.b64encode(excelFile).decode('utf-8')
+                "calldata": base64.b64encode(excelFile).decode('utf-8') if excelFile is not None else None
             })
 
     return JsonResponse({
