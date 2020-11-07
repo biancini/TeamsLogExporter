@@ -2,6 +2,7 @@ import json
 import os
 import csv
 import zipfile
+import base64
 import urllib.parse
 from io import BytesIO
 
@@ -13,7 +14,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.http import JsonResponse
 
-from batch.download_helper import get_berarertoken, download_call_data, generate_excel
+from batch.download_helper import get_berarertoken, download_call_data, download_generatedexcel
 from batch.auth_helper import scopes, get_sign_in_url, get_token_from_code, store_token, store_bearertoken, store_user, remove_user_and_token, get_token
 from batch.graph_helper import get_meuser, get_all_groups
 
@@ -187,4 +188,63 @@ def download_jsonzip(request):
 
     response = HttpResponse(content=buff.getvalue(), content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename="teams_reports.zip"'
+    return response
+
+
+def generate_excel(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        dictFile = json.loads(data['jsonFile'])
+
+        tries = 0
+        excelFile = None
+        while excelFile is None and tries < 2:
+            if not 'token' in request.session:
+                ente = request.session['ente']
+                t = get_berarertoken(ente)
+                request.session['token'] = t
+
+            filename, excelFile = download_generatedexcel(request.session['token'], dictFile)
+            tries += 1
+
+            if excelFile is None:
+                del request.session['token']
+
+            return JsonResponse({
+                "esito": True,
+                "filename": filename,
+                "calldata": base64.b64encode(excelFile).decode('utf-8')
+            })
+
+    return JsonResponse({
+        "esito": False,
+        "message": "Must be invoked with POST.",
+    }, status=500)
+
+
+def download_excel(request):
+    meetingName = urllib.parse.unquote(request.POST.get("meetingName", '\{\}'))
+    meetingData = urllib.parse.unquote(request.POST.get("meetingData", '\{\}'))
+    meetingData = base64.b64decode(meetingData.encode('utf-8'))
+
+    response = HttpResponse(content=meetingData, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="{meetingName}"'
+    return response
+
+
+def download_excelzip(request):
+    data = urllib.parse.unquote(request.POST.get("filesExcel", '\{\}'))
+    dictFile = json.loads(data)
+
+    buff = BytesIO()
+    zip_archive = zipfile.ZipFile(buff, mode='w')
+
+    for filename, filecontent in dictFile.items():
+        fileexcel = base64.b64decode(filecontent.encode('utf-8'))
+        zip_archive.writestr(f'{filename}', fileexcel)
+    
+    zip_archive.close()
+
+    response = HttpResponse(content=buff.getvalue(), content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="excel_reports.zip"'
     return response

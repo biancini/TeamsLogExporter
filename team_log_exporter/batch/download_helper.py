@@ -10,6 +10,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Font
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.utils import get_column_letter
+from io import BytesIO
+from tempfile import NamedTemporaryFile
 
 '''
 Scaricare i dati dal report creato appostivamente qui:
@@ -76,25 +78,29 @@ def get_usernamefromid(t, userid, displayName=False):
     return username
 
 
-def generate_excel(filename, t, p):
-    name = 'Sconosciuto'
-    if 'organizer' in p and p['organizer'] is not None:
-        if 'user' in p['organizer'] and p['organizer']['user'] is not None:
-            if 'id' in p['organizer']['user']:
-                name = get_usernamefromid(t, p['organizer']['user']['id'], True)
+def save_virtual_workbook(workbook):
+    with NamedTemporaryFile() as tf:
+        workbook.save(tf.name)
+        in_memory = BytesIO(tf.read())
+        return in_memory.getvalue()
+        
 
-    start_time = datetime.strptime(p['startDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
+def download_generatedexcel(t, jsonFileData):
+    name = 'Sconosciuto'
+    if 'organizer' in jsonFileData and jsonFileData['organizer'] is not None:
+        if 'user' in jsonFileData['organizer'] and jsonFileData['organizer']['user'] is not None:
+            if 'id' in jsonFileData['organizer']['user']:
+                name = get_usernamefromid(t, jsonFileData['organizer']['user']['id'], True)
+
+    start_time = datetime.strptime(jsonFileData['startDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
     start_time = start_time.replace(tzinfo=from_zone).astimezone(to_zone)
     start_time = start_time.strftime('%Y-%m-%d %H-%M')
-    dest_filename = f'excel/{start_time} - {name}.xlsx'
+    dest_filename = f'{start_time} - {name}.xlsx'
 
     i = 2
-    while os.path.isfile(dest_filename):
-        dest_filename = f'excel/{start_time} - {name} - {i}.xlsx'
-        i = i + 1
 
     users = {}
-    for c in p['sessions']:
+    for c in jsonFileData['sessions']:
         if 'caller' not in c or c['caller'] is None:
             continue
         if 'identity' not in c['caller'] or c['caller']['identity'] is None:
@@ -178,12 +184,8 @@ def generate_excel(filename, t, p):
     worksheet.add_table(Table(ref=f'A1:D{i}', displayName='RegistroPresenze', tableStyleInfo=mediumStyle))
     worksheet.sheet_view.showGridLines = False
 
-    report_id = os.path.basename(filename).replace('.json', '')
-    worksheet.append([f''])
-    worksheet.append([f'Report generato per il meeting con ID: {report_id}'])
-
     column_widths = [30, 20, 20, 20]
     for i, column_width in enumerate(column_widths):
         worksheet.column_dimensions[get_column_letter(i+1)].width = column_width
 
-    return workbook
+    return dest_filename, save_virtual_workbook(workbook)

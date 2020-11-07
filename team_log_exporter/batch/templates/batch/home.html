@@ -64,7 +64,7 @@
 			</div>
 			<div class="it-right-zone">
 			  <span class="text" ng-click="selectCheck('checkbox-event-' + $index)">Lezione con id <b>{a item a}</b>.</span>
-			  <svg id="downloaded-{a item a}" class="icon icon-success d-none" ng-click="downloadJson(item)"><use xlink:href="{% static 'svg/sprite.svg'%}#it-check-circle"></use></svg>
+			  <svg id="downloaded-{a item a}" class="icon icon-success d-none" ng-click="downloadJson(item)"><use xlink:href="{% static 'svg/sprite.svg'%}#it-arrow-down-circle"></use></svg>
 			</div>
 		  </a>
 		</li>
@@ -76,7 +76,28 @@
 	</div>
 </div>
 
+<div ng-class="(step3 == 'active') ? 'd-block' : 'd-none'">
+	<p>Elenco dei report delle lezioni scaricate:</p>
+	<div id="report-selection" class="it-list-wrapper">
+	  <ul class="it-list">
+		<li ng-repeat="item in lessonExcels">
+			<a class="it-has-checkbox" href="#">
+				<div class="it-right-zone">
+					<span class="text" ng-click="selectCheck('checkbox-excel-' + c)">Report: <b>{a item a}</b>.</span>
+					<svg id="downloadexcel-{a $index a}" class="icon icon-success" ng-click="downloadExcelFile(item)"><use xlink:href="{% static 'svg/sprite.svg'%}#it-arrow-down-circle"></use></svg>
+				</div>
+			</a>
+		</li>
+	  </ul>
+	</div>
+
+	<div class="progress">
+		<div id="progress-excel" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+	</div>
+</div>
+
 <div class="row, float-right" style="margin-top: 30px">
+	<button type="button" ng-click="downloadExcelZip()" ng-class="(showDownloadExcel) ? 'btn btn-secondary' : 'd-none'" >Scarica Zip</button>
 	<button type="button" ng-click="downloadJsonZip()" ng-class="(showDownloadZip) ? 'btn btn-secondary' : 'd-none'" >Scarica Zip</button>
 	<button type="button" ng-click="goNextStep()" ng-class="(stopProceed) ? 'btn btn-primary btn-sm steppers-btn-next disabled' : 'btn btn-primary btn-sm steppers-btn-next'" >Procedi</button>
 </div>
@@ -89,6 +110,17 @@
 <form method="post" action="/batch/download_json" id="downloadjson-form" target="_blank">
 	<input type="hidden" name="eventId" id="eventId" value="" />
 	<input type="hidden" name="eventJson" id="eventJson" value="" />
+	{% csrf_token %}
+</form>
+
+<form method="post" action="/batch/download_excelzip" id="downloadexcelzip-form" target="_blank">
+	<input type="hidden" name="filesExcel" id="filesExcel" value="" />
+	{% csrf_token %}
+</form>
+
+<form method="post" action="/batch/download_excel" id="downloadexcel-form" target="_blank">
+	<input type="hidden" name="meetingName" id="meetingName" value="" />
+	<input type="hidden" name="meetingData" id="meetingData" value="" />
 	{% csrf_token %}
 </form>
 
