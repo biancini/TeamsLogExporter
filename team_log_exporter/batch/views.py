@@ -133,16 +133,23 @@ def upload_csvfile(request):
     }, status=500)
 
 
-def download_json(request):
+def download_jsonapi(request):
     if request.method == 'POST':
         data = json.loads(request.body)
 
-        if not 'token' in request.session:
-            ente = request.session['ente']
-            t = get_berarertoken(ente)
-            request.session['token'] = t
+        tries = 0
+        jsonFile = None
+        while jsonFile is None and tries < 2:
+            if not 'token' in request.session:
+                ente = request.session['ente']
+                t = get_berarertoken(ente)
+                request.session['token'] = t
 
-        jsonFile = download_call_data(request.session['token'], data['callId']) 
+            jsonFile = download_call_data(request.session['token'], data['callId']) 
+            tries += 1
+
+            if jsonFile is None:
+                del request.session['token']
 
         return JsonResponse({
             "esito": True,
@@ -155,6 +162,16 @@ def download_json(request):
     }, status=500)
 
 
+def download_json(request):
+    eventid = urllib.parse.unquote(request.POST.get("eventId", '\{\}'))
+    data = urllib.parse.unquote(request.POST.get("eventJson", '\{\}'))
+    dictFile = json.loads(json.loads(data))
+
+    response = HttpResponse(content=json.dumps(dictFile, indent=4).encode('utf-8'), content_type='application/json')
+    response['Content-Disposition'] = f'attachment; filename="{eventid}.json"'
+    return response
+
+
 def download_jsonzip(request):
     data = urllib.parse.unquote(request.POST.get("filesJson", '\{\}'))
     dictFile = json.loads(data)
@@ -163,7 +180,8 @@ def download_jsonzip(request):
     zip_archive = zipfile.ZipFile(buff, mode='w')
 
     for filename, filecontent in dictFile.items():
-        zip_archive.writestr(f'{filename}.json', filecontent)
+        filejson = json.loads(filecontent)
+        zip_archive.writestr(f'{filename}.json', json.dumps(filejson, indent=4).encode('utf-8'))
     
     zip_archive.close()
 

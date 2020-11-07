@@ -64,7 +64,7 @@
 			</div>
 			<div class="it-right-zone">
 			  <span class="text" ng-click="selectCheck('checkbox-event-' + $index)">Lezione con id <b>{a item a}</b>.</span>
-			  <svg id="downloaded-{a item a}" class="icon icon-success d-none"><use xlink:href="{% static 'svg/sprite.svg'%}#it-check-circle"></use></svg>
+			  <svg id="downloaded-{a item a}" class="icon icon-success d-none" ng-click="downloadJson(item)"><use xlink:href="{% static 'svg/sprite.svg'%}#it-check-circle"></use></svg>
 			</div>
 		  </a>
 		</li>
@@ -77,10 +77,16 @@
 	<button type="button" ng-click="goNextStep()" ng-class="(stopProceed) ? 'btn btn-primary btn-sm steppers-btn-next disabled' : 'btn btn-primary btn-sm steppers-btn-next'" >Procedi</button>
 </div>
 
-<form method="post" action="/batch/download_jsonzip" id="downloadjson-form" target="_blank">
+<form method="post" action="/batch/download_jsonzip" id="downloadjsonzip-form" target="_blank">
 	<input type="hidden" name="filesJson" id="filesJson" value="" />
 	{% csrf_token %}
-  </form>
+</form>
+
+<form method="post" action="/batch/download_json" id="downloadjson-form" target="_blank">
+	<input type="hidden" name="eventId" id="eventId" value="" />
+	<input type="hidden" name="eventJson" id="eventJson" value="" />
+	{% csrf_token %}
+</form>
 
 {% endif %}
 
