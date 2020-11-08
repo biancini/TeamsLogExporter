@@ -102,18 +102,6 @@
 	<button type="button" ng-click="goNextStep()" ng-class="(stopProceed) ? 'btn btn-primary btn-sm steppers-btn-next disabled' : 'btn btn-primary btn-sm steppers-btn-next'" >Procedi</button>
 </div>
 
-<!--form method="post" action="/batch/download_json" id="downloadjson-form" target="_blank">
-	<input type="hidden" name="eventId" id="eventId" value="" />
-	<input type="hidden" name="eventJson" id="eventJson" value="" />
-	{% csrf_token %}
-</form>
-
-<form method="post" action="/batch/download_excel" id="downloadexcel-form" target="_blank">
-	<input type="hidden" name="meetingName" id="meetingName" value="" />
-	<input type="hidden" name="meetingData" id="meetingData" value="" />
-	{% csrf_token %}
-</form-->
-
 {% endif %}
 
 {% endblock %}
