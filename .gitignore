@@ -137,7 +137,6 @@ dmypy.json
 
 .vscode/
 
-**/static/
-
+staticfiles/
 
 credentials.json
