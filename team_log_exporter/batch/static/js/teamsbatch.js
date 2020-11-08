@@ -197,12 +197,30 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
 
             $scope.stopProceed = false;
             $scope.showDownloadZip = true;
+        }
+        else if (uploadedFilename.split('.').pop().toLowerCase() == 'json') {
+            $scope.goNextStep();
+            $scope.lessonIds = [];
+            
+            var callId = uploadedFilename.replace('\.json', '');
+            var jsonData = await file.text();
+
+            $scope.lessonIds.push(callId);
+            $scope.downloadedJsons[callId] = jsonData;
             $scope.$apply();
+            $("#downloaded-" + callId).removeClass('d-none');
+
+            $("#progress-json").attr("style", "width: 100%");
+            $("#progress-json").attr("aria-valuenow", 100);
+
+            $scope.stopProceed = false;
+            $scope.showDownloadZip = true;
         }
         else {
-            $scope.showError("File caricato di tipo errato (ammessi solo CSV o ZIP).");
-            $scope.$apply();
+            $scope.showError("File caricato di tipo errato (ammessi solo CSV, ZIP o JSON).");
         }
+
+        $scope.$apply();
     };
 
     $scope.dropCSV = function(event) {
