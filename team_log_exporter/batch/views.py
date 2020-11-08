@@ -168,6 +168,7 @@ def generate_excel(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         dictFile = json.loads(data['jsonFile'])
+        reportId = data['reportId']
 
         tries = 0
         excelFile = None
@@ -177,7 +178,7 @@ def generate_excel(request):
                 t = get_berarertoken(ente)
                 request.session['token'] = t
 
-            filename, excelFile = download_generatedexcel(request.session['token'], dictFile)
+            filename, excelFile = download_generatedexcel(request.session['token'], dictFile, reportId)
             tries += 1
 
             if excelFile is None:

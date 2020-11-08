@@ -109,10 +109,10 @@ app.service('DjangoAPI', ['$http', '$q', function ($http, $q) {
         return def.promise;
     };
 
-    this.downloadTeamsExcel = function (jsonFile) {
+    this.downloadTeamsExcel = function (jsonFile, callId) {
         var def = $q.defer();
-
-        $http.post("/batch/generate_excel", { 'jsonFile': jsonFile }).then(function successCallback(response) {
+        console.log(callId);
+        $http.post("/batch/generate_excel", { 'jsonFile': jsonFile, 'reportId': callId }).then(function successCallback(response) {
             var filename = response.data.filename;
             var jsonData = response.data.calldata;
             def.resolve([filename, jsonData]);
@@ -212,7 +212,7 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
         for (let callId in $scope.downloadedJsons) {
             var jsonFile = $scope.downloadedJsons[callId];
 
-            var prom = DjangoAPI.downloadTeamsExcel(jsonFile).then(function (data) {
+            var prom = DjangoAPI.downloadTeamsExcel(jsonFile, callId).then(function (data) {
                 if (data[1] != null && typeof(data[1]) != "undefined") {
                     filename = data[0];
                     duplicatenum = 0;
