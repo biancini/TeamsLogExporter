@@ -1,6 +1,8 @@
 TeamsLogExporter
 ================
 
+![Screenshot](screenshot.png)
+
 This project aims at creating a simple application that allows you to download the logs (both in technical and Excel format) of all the meetings held over a certain period from Microsoft Reams.
 
 You can see it in action at [this youtube video](https://youtu.be/s_GNMujBYFk) (only in Italian).
