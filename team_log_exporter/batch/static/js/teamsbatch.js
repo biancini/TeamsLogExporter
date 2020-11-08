@@ -85,9 +85,13 @@ app.service('DjangoAPI', ['$http', '$q', function ($http, $q) {
             $('#divProgress1').remove();
             $('#uploadChangeStateTarget').removeClass('loading');
             $('#uploadChangeStateTarget').addClass('success');
-            $('#simText').text('Caricamento completato. Indicate ' + event.data.message.length + ' lezioni da scaricare.');
-
-            def.resolve(event.data.message);
+            if (event.data.esito == true) {
+                $('#simText').text('Caricamento completato. Indicate ' + event.data.message.length + ' lezioni da scaricare.');
+                def.resolve(event.data.message);
+            }
+            else {
+                def.reject(event.data.message);
+            }
         }).catch(function (err) {
             def.reject(err.message);
         });
@@ -99,10 +103,14 @@ app.service('DjangoAPI', ['$http', '$q', function ($http, $q) {
         var def = $q.defer();
 
         $http.post("/batch/download_jsonapi", { 'callId': callId }).then(function successCallback(response) {
-            var jsonData = response.data.calldata;
-            def.resolve(jsonData);
+            if (response.data.esito == true) {
+                var jsonData = response.data.calldata;
+                def.resolve(jsonData);
+            }
+            else {
+                def.reject(response.data.message);
+            }
         }, function errorCallback(err) {
-            console.log("Error while downloading file: " + err.message);
             def.reject(err.message);
         });
 
@@ -111,13 +119,16 @@ app.service('DjangoAPI', ['$http', '$q', function ($http, $q) {
 
     this.downloadTeamsExcel = function (jsonFile, callId) {
         var def = $q.defer();
-        console.log(callId);
         $http.post("/batch/generate_excel", { 'jsonFile': jsonFile, 'reportId': callId }).then(function successCallback(response) {
-            var filename = response.data.filename;
-            var jsonData = response.data.calldata;
-            def.resolve([filename, jsonData]);
+            if (response.data.esito == true) {
+                var filename = response.data.filename;
+                var jsonData = response.data.calldata;
+                def.resolve([filename, jsonData]);
+            }
+            else {
+                def.reject(response.data.message);
+            }
         }, function errorCallback(err) {
-            console.log("Error while downloading file: " + err.message);
             def.reject(err.message);
         });
 
@@ -132,7 +143,9 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
 
     $scope.stopProceed = true;
     $scope.showDownloadZip = false;
+    $scope.disableDownloadJsonZip = false;
     $scope.showDownloadExcel = false;
+    $scope.disableDownloadExcelZip = false;
     $scope.errorMessage = '';
 
     $scope.downloadedJsons = {};
@@ -146,25 +159,58 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
         $('#error-message').modal('show');
     };
 
-    $scope.dropCSV = function(event) {
-        DjangoAPI.loadCSVFile(event.originalEvent.dataTransfer.files[0]).then(function (data) {
+    $scope.manageUploadedFile = async function(file) {
+        let uploadedFilename = file.name;
+        
+        if (uploadedFilename.split('.').pop().toLowerCase() == 'csv') {
+            DjangoAPI.loadCSVFile(file).then(function (data) {
+                $scope.stopProceed = false;
+                $scope.lessonIds = data;
+            },
+            function (data) {
+                $scope.showError(data);
+            });
+        }
+        else if (uploadedFilename.split('.').pop().toLowerCase() == 'zip') {
+            $scope.goNextStep();
+            $scope.lessonIds = [];
+
+            const zip = await JSZip.loadAsync(file);
+            var count = 0
+            var total = 0;
+            for (zipEntry in zip.files) total++;
+
+            for (zipEntry in zip.files) {
+                var callId = zipEntry.replace('\.json', '');
+                var jsonData = await zip.file(zipEntry).async("text");
+
+                $scope.lessonIds.push(callId);
+                $scope.downloadedJsons[callId] = jsonData;
+                $scope.$apply();
+                $("#downloaded-" + callId).removeClass('d-none');
+
+                count++;
+                var percent = (count / total) * 100;
+                $("#progress-json").attr("style", "width: " + percent + "%");
+                $("#progress-json").attr("aria-valuenow", percent);
+            }
+
             $scope.stopProceed = false;
-            $scope.lessonIds = data;
-        },
-        function (data) {
-            console.log("errore");
-            $scope.showError(data);
-        });
+            $scope.showDownloadZip = true;
+            $scope.$apply();
+        }
+        else {
+            $scope.showError("File caricato di tipo errato (ammessi solo CSV o ZIP).");
+            $scope.$apply();
+        }
+    };
+
+    $scope.dropCSV = function(event) {
+        $scope.manageUploadedFile(event.originalEvent.dataTransfer.files[0]);
     };
 
     $scope.uploadCSV = function(event) {
-        DjangoAPI.loadCSVFile(event.originalEvent.srcElement.files[0]).then(function (data) {
-            $scope.stopProceed = false;
-            $scope.lessonIds = data;
-        },
-        function (data) {
-            $scope.showError(data);
-        });
+        $scope.manageUploadedFile(event.originalEvent.srcElement.files[0]);
     };
 
     $scope.downloadJsonAPI = function() {
@@ -192,7 +238,6 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
                 $("#progress-json").attr("aria-valuenow", percent);
             },
             function (data) {
-                console.log("errore");
                 $scope.showError(data);
             });
 
@@ -232,7 +277,6 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
                 $("#progress-excel").attr("aria-valuenow", percent);
             },
             function (data) {
-                console.log("errore");
                 $scope.showError(data);
             });
 
@@ -253,6 +297,9 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
             $scope.downloadJsonAPI().then(function (r) {
                 $scope.stopProceed = false;
                 $scope.showDownloadZip = true;
+            },
+            function (data) {
+                $scope.showError(data);
             });
         }
         else if ($scope.step2 == 'active' && $scope.showDownloadZip == true) {
@@ -265,6 +312,9 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
             
             $scope.generateExcel().then(function (r) {
                 $scope.showDownloadExcel = true;
+            },
+            function (data) {
+                $scope.showError(data);
             });
         }
     }
@@ -294,6 +344,11 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
     };
 
     $scope.downloadExcelZip = function() {
+        if ($scope.disableDownloadExcelZip == true) {
+            return;
+        }
+
+        $scope.disableDownloadExcelZip = true;
         const zip = JSZip();
         for (let callId in $scope.downloadedExcels) {
             var excelFile = encodeURI($scope.downloadedExcels[callId]);
@@ -302,6 +357,7 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
         }
 
         zip.generateAsync({type: 'blob'}).then(zipFile => {
+            $scope.disableDownloadExcelZip = false;
             return saveAs(zipFile, 'excel_reports.zip');
         });
     };
@@ -313,6 +369,11 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
     };
 
     $scope.downloadJsonZip = function() {
+        if ($scope.disableDownloadExcelZip == true) {
+            return;
+        }
+        
+        $scope.disableDownloadJsonZip = true;
         const zip = JSZip();
         for (let callId in $scope.downloadedJsons) {
             var jsonFile = $scope.downloadedJsons[callId];
@@ -321,6 +382,7 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
         }
 
         zip.generateAsync({type: 'blob'}).then(zipFile => {
+            $scope.disableDownloadJsonZip = false;
             return saveAs(zipFile, 'teams_reports.zip');
         });
     };

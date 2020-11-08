@@ -1,16 +1,12 @@
 import json
 import os
 import csv
-import zipfile
 import base64
-import urllib.parse
-from io import BytesIO
 
 from django.shortcuts import render
 from dateutil import tz
 
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.http import JsonResponse
 
@@ -115,19 +111,25 @@ def bearer(request):
 
 def upload_csvfile(request):
     if request.method == 'POST':
-        call_ids = []
+        try:
+            call_ids = []
 
-        fileContent = request.FILES.get("uploadcsv").read().decode("utf-8")
-        lines = fileContent.splitlines()
-        reader = csv.reader(lines, delimiter=',')
-        for row in reader:
-            if row[0] != 'Conference Id':
-                call_ids.append(row[0])
+            fileContent = request.FILES.get("uploadcsv").read().decode("utf-8")
+            lines = fileContent.splitlines()
+            reader = csv.reader(lines, delimiter=',')
+            for row in reader:
+                if row[0] != 'Conference Id':
+                    call_ids.append(row[0])
 
-        return JsonResponse({
-            "esito": True,
-            "message": call_ids,
-        })
+            return JsonResponse({
+                "esito": True,
+                "message": call_ids,
+            })
+        except Exception as e:
+            return JsonResponse({
+                "esito": False,
+                "message": "Exception: " + str(e)
+            })
         
     return JsonResponse({
         "esito": False,
@@ -137,26 +139,32 @@ def upload_csvfile(request):
 
 def download_jsonapi(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
+        try:
+            data = json.loads(request.body)
 
-        tries = 0
-        jsonFile = None
-        while jsonFile is None and tries < 2:
-            if not 'token' in request.session:
-                ente = request.session['ente']
-                t = get_berarertoken(ente)
-                request.session['token'] = t
+            tries = 0
+            jsonFile = None
+            while jsonFile is None and tries < 2:
+                if not 'token' in request.session:
+                    ente = request.session['ente']
+                    t = get_berarertoken(ente)
+                    request.session['token'] = t
 
-            jsonFile = download_call_data(request.session['token'], data['callId']) 
-            tries += 1
+                jsonFile = download_call_data(request.session['token'], data['callId']) 
+                tries += 1
 
-            if jsonFile is None:
-                del request.session['token']
+                if jsonFile is None:
+                    del request.session['token']
 
-        return JsonResponse({
-            "esito": True,
-            "calldata": jsonFile
-        })
+            return JsonResponse({
+                "esito": True,
+                "calldata": jsonFile
+            })
+        except Exception as e:
+            return JsonResponse({
+                "esito": False,
+                "message": "Exception: " + str(e)
+            })
 
     return JsonResponse({
         "esito": False,
@@ -166,28 +174,34 @@ def download_jsonapi(request):
 
 def generate_excel(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        dictFile = json.loads(data['jsonFile'])
-        reportId = data['reportId']
+        try:
+            data = json.loads(request.body)
+            dictFile = json.loads(data['jsonFile'])
+            reportId = data['reportId']
 
-        tries = 0
-        excelFile = None
-        while excelFile is None and tries < 2:
-            if not 'token' in request.session:
-                ente = request.session['ente']
-                t = get_berarertoken(ente)
-                request.session['token'] = t
+            tries = 0
+            excelFile = None
+            while excelFile is None and tries < 2:
+                if not 'token' in request.session:
+                    ente = request.session['ente']
+                    t = get_berarertoken(ente)
+                    request.session['token'] = t
 
-            filename, excelFile = download_generatedexcel(request.session['token'], dictFile, reportId)
-            tries += 1
+                filename, excelFile = download_generatedexcel(request.session['token'], dictFile, reportId)
+                tries += 1
 
-            if excelFile is None:
-                del request.session['token']
+                if excelFile is None:
+                    del request.session['token']
 
+                return JsonResponse({
+                    "esito": True,
+                    "filename": filename,
+                    "calldata": base64.b64encode(excelFile).decode('utf-8') if excelFile is not None else None
+                })
+        except Exception as e:
             return JsonResponse({
-                "esito": True,
-                "filename": filename,
-                "calldata": base64.b64encode(excelFile).decode('utf-8') if excelFile is not None else None
+                "esito": False,
+                "message": "Exception: " + str(e)
             })
 
     return JsonResponse({

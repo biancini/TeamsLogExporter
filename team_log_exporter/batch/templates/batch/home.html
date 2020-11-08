@@ -97,8 +97,8 @@
 </div>
 
 <div class="row, float-right" style="margin-top: 30px">
-	<button type="button" ng-click="downloadExcelZip()" ng-class="(showDownloadExcel) ? 'btn btn-secondary' : 'd-none'" >Scarica Zip</button>
-	<button type="button" ng-click="downloadJsonZip()" ng-class="(showDownloadZip) ? 'btn btn-secondary' : 'd-none'" >Scarica Zip</button>
+	<button type="button" ng-click="downloadExcelZip()" ng-class="(showDownloadExcel) ? ((disableDownloadExcelZip) ? 'btn btn-secondary disabled' : 'btn btn-secondary') : 'd-none'" >Scarica Zip</button>
+	<button type="button" ng-click="downloadJsonZip()" ng-class="(showDownloadZip) ? ((disableDownloadJsonZip) ? 'btn btn-secondary disabled' : 'btn btn-secondary') : 'd-none'" >Scarica Zip</button>
 	<button type="button" ng-click="goNextStep()" ng-class="(stopProceed) ? 'btn btn-primary btn-sm steppers-btn-next disabled' : 'btn btn-primary btn-sm steppers-btn-next'" >Procedi</button>
 </div>
 
