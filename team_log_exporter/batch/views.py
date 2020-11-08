@@ -78,6 +78,7 @@ def home(request):
     context = initialize_context(request)
     context['appdata'] = {
         'appid': request.session.get('appid', None),
+        'ente': request.session.get('ente', None),
         'scopes': scopes
     }
 
@@ -163,34 +164,6 @@ def download_jsonapi(request):
     }, status=500)
 
 
-def download_json(request):
-    eventid = urllib.parse.unquote(request.POST.get("eventId", '\{\}'))
-    data = urllib.parse.unquote(request.POST.get("eventJson", '\{\}'))
-    dictFile = json.loads(json.loads(data))
-
-    response = HttpResponse(content=json.dumps(dictFile, indent=4).encode('utf-8'), content_type='application/json')
-    response['Content-Disposition'] = f'attachment; filename="{eventid}.json"'
-    return response
-
-
-def download_jsonzip(request):
-    data = urllib.parse.unquote(request.POST.get("filesJson", '\{\}'))
-    dictFile = json.loads(data)
-
-    buff = BytesIO()
-    zip_archive = zipfile.ZipFile(buff, mode='w')
-
-    for filename, filecontent in dictFile.items():
-        filejson = json.loads(filecontent)
-        zip_archive.writestr(f'{filename}.json', json.dumps(filejson, indent=4).encode('utf-8'))
-    
-    zip_archive.close()
-
-    response = HttpResponse(content=buff.getvalue(), content_type='application/zip')
-    response['Content-Disposition'] = 'attachment; filename="teams_reports.zip"'
-    return response
-
-
 def generate_excel(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -220,31 +193,3 @@ def generate_excel(request):
         "esito": False,
         "message": "Must be invoked with POST.",
     }, status=500)
-
-
-def download_excel(request):
-    meetingName = urllib.parse.unquote(request.POST.get("meetingName", '\{\}'))
-    meetingData = urllib.parse.unquote(request.POST.get("meetingData", '\{\}'))
-    meetingData = base64.b64decode(meetingData.encode('utf-8'))
-
-    response = HttpResponse(content=meetingData, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = f'attachment; filename="{meetingName}"'
-    return response
-
-
-def download_excelzip(request):
-    data = urllib.parse.unquote(request.POST.get("filesExcel", '\{\}'))
-    dictFile = json.loads(data)
-
-    buff = BytesIO()
-    zip_archive = zipfile.ZipFile(buff, mode='w')
-
-    for filename, filecontent in dictFile.items():
-        fileexcel = base64.b64decode(filecontent.encode('utf-8'))
-        zip_archive.writestr(f'{filename}', fileexcel)
-    
-    zip_archive.close()
-
-    response = HttpResponse(content=buff.getvalue(), content_type='application/zip')
-    response['Content-Disposition'] = 'attachment; filename="excel_reports.zip"'
-    return response

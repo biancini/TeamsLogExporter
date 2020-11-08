@@ -269,30 +269,67 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
         }
     }
 
-    $scope.downloadExcelZip = function() {
-        $("#filesExcel").val(encodeURIComponent(JSON.stringify($scope.downloadedExcels)));
-        var form = angular.element('#downloadexcelzip-form');
-        form.submit();
+    $scope.b64toBlob = function (b64Data, contentType, sliceSize) {
+        contentType = contentType || '';
+        sliceSize = sliceSize || 512;
+      
+        var byteCharacters = atob(b64Data);
+        var byteArrays = [];
+      
+        for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+          var slice = byteCharacters.slice(offset, offset + sliceSize);
+      
+          var byteNumbers = new Array(slice.length);
+          for (var i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+          }
+      
+          var byteArray = new Uint8Array(byteNumbers);
+      
+          byteArrays.push(byteArray);
+        }
+          
+        var blob = new Blob(byteArrays, {type: contentType});
+        return blob;
     };
 
-    $scope.downloadExcelFile = function(meetingName) {
-        $("#meetingName").val(meetingName);
-        $("#meetingData").val(encodeURIComponent(JSON.stringify($scope.downloadedExcels[meetingName])));
-        var form = angular.element('#downloadexcel-form');
-        form.submit();
+    $scope.downloadExcelZip = function() {
+        const zip = JSZip();
+        for (let callId in $scope.downloadedExcels) {
+            var excelFile = encodeURI($scope.downloadedExcels[callId]);
+            excelFile = $scope.b64toBlob(excelFile, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            zip.file(callId, excelFile);
+        }
+
+        zip.generateAsync({type: 'blob'}).then(zipFile => {
+            return saveAs(zipFile, 'excel_reports.zip');
+        });
+    };
+
+    $scope.downloadExcelFile = function(callId) {
+        var excelFile = encodeURI($scope.downloadedExcels[callId]);
+        excelFile = $scope.b64toBlob(excelFile, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        return saveAs(excelFile, callId);
     };
 
     $scope.downloadJsonZip = function() {
-        $("#filesJson").val(encodeURIComponent(JSON.stringify($scope.downloadedJsons)));
-        var form = angular.element('#downloadjsonzip-form');
-        form.submit();
+        const zip = JSZip();
+        for (let callId in $scope.downloadedJsons) {
+            var jsonFile = $scope.downloadedJsons[callId];
+            jsonFile = JSON.stringify(JSON.parse(jsonFile), null, 4);
+            zip.file(`${callId}.json`, jsonFile);
+        }
+
+        zip.generateAsync({type: 'blob'}).then(zipFile => {
+            return saveAs(zipFile, 'teams_reports.zip');
+        });
     };
 
-    $scope.downloadJson = function(eventID) {
-        $("#eventId").val(eventID);
-        $("#eventJson").val(encodeURIComponent(JSON.stringify($scope.downloadedJsons[eventID])));
-        var form = angular.element('#downloadjson-form');
-        form.submit();
+    $scope.downloadJson = function(callId) {
+        var jsonFile = $scope.downloadedJsons[callId];
+        jsonFile = JSON.stringify(JSON.parse(jsonFile), null, 4);
+        jsonFile = new Blob([jsonFile], { type: 'application/json' });
+        return saveAs(jsonFile, `${callId}.json`);
     };
 
     $scope.countChecked = function () {

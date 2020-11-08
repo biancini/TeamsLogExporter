@@ -78,6 +78,7 @@ def home(request):
     context = initialize_context(request)
     context['appdata'] = {
         'appid': request.session.get('appid', None),
+        'ente': request.session.get('ente', None),
         'scopes': scopes
     }
 

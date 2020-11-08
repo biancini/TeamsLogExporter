@@ -6,7 +6,7 @@
   <div class="col-12">
       {% if user.is_authenticated %}
         <h3>Benvenuto {{ user.name }}.</h3>
-        <p class="d-none d-lg-block">L'application Id utilizzato è {{ appdata.appid }}<br/>Gli scope richiesti sono {{ appdata.scopes }}</p>
+        <p class="d-none d-lg-block small font-italic">L'application Id utilizzato è {{ appdata.appid }}.<br/>Hai fatto login per l'ente {{ appdata.ente }}.<br/>Gli scope richiesti sono {{ appdata.scopes }}</p>
       {% else %}
         <h3>Benvenuto.</h3></h4>
         <p class="d-none d-lg-block">Per proseguire devi fare login: <a href="{% url 'signin' %}" class="btn btn-primary btn-large">qui</a></p>
@@ -102,19 +102,9 @@
 	<button type="button" ng-click="goNextStep()" ng-class="(stopProceed) ? 'btn btn-primary btn-sm steppers-btn-next disabled' : 'btn btn-primary btn-sm steppers-btn-next'" >Procedi</button>
 </div>
 
-<form method="post" action="/batch/download_jsonzip" id="downloadjsonzip-form" target="_blank">
-	<input type="hidden" name="filesJson" id="filesJson" value="" />
-	{% csrf_token %}
-</form>
-
-<form method="post" action="/batch/download_json" id="downloadjson-form" target="_blank">
+<!--form method="post" action="/batch/download_json" id="downloadjson-form" target="_blank">
 	<input type="hidden" name="eventId" id="eventId" value="" />
 	<input type="hidden" name="eventJson" id="eventJson" value="" />
-	{% csrf_token %}
-</form>
-
-<form method="post" action="/batch/download_excelzip" id="downloadexcelzip-form" target="_blank">
-	<input type="hidden" name="filesExcel" id="filesExcel" value="" />
 	{% csrf_token %}
 </form>
 
@@ -122,7 +112,7 @@
 	<input type="hidden" name="meetingName" id="meetingName" value="" />
 	<input type="hidden" name="meetingData" id="meetingData" value="" />
 	{% csrf_token %}
-</form>
+</form-->
 
 {% endif %}
 

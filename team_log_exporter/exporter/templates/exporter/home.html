@@ -6,7 +6,7 @@
   <div class="col-12">
       {% if user.is_authenticated %}
         <h3>Benvenuto {{ user.name }}.</h3>
-        <p class="d-none d-lg-block">L'application Id utilizzato è {{ appdata.appid }}<br/>Gli scope richiesti sono {{ appdata.scopes }}</p>
+        <p class="d-none d-lg-block small font-italic">L'application Id utilizzato è {{ appdata.appid }}.<br/>Hai fatto login per l'ente {{ appdata.ente }}.<br/>Gli scope richiesti sono {{ appdata.scopes }}</p>
       {% else %}
         <h3>Benvenuto.</h3></h4>
         <p class="d-none d-lg-block">Per proseguire devi fare login: <a href="{% url 'signin' %}" class="btn btn-primary btn-large">qui</a></p>
