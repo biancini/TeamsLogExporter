@@ -1,4 +1,3 @@
-from sys import flags
 import requests
 import json
 import csv
@@ -8,7 +7,6 @@ import os.path
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
 from urllib import parse
-from datetime import datetime, time
 
 '''
 Scaricare i dati dal report creato appostivamente qui:
@@ -36,31 +34,10 @@ def download_call_data(t, call_id):
         return 1
 
 
-def main(argv):
-    try:
-        opts, _ = getopt.getopt(argv,"he:f:", ["help", "ente=", "file="])
-    except getopt.GetoptError:
-        print('download_json.py [-e <ente>] [-f <file>]')
-        sys.exit(2)
-
-    ente = 'ENAIP'
-    filename = 'calls.csv'
-    
-    for o, a in opts:
-        if o in ('-h', '--help'):
-            print('download_json.py [-e <ente>]')
-            sys.exit()
-        elif o in ('-e', '--ente'):
-            ente = a.upper()
-        elif o in ('-f', '--file'):
-            filename = a
-        else:
-            assert False
-
+def get_access_token(ente):
     tenant_id = os.getenv(f'TENANTID_{ente}', None)
     client_id = os.getenv(f'APPID_{ente}', None)
     client_secret =  os.getenv(f'APPSECRET_{ente}', None)
-    num_threads = 10
 
     data = parse.urlencode({
         'client_id': client_id,
@@ -74,11 +51,34 @@ def main(argv):
 
     if not 'access_token' in r:
         print(f'{r}')
-        exit(1)    
-    t = r['access_token']
+        sys.exit(1)    
+    return r['access_token']
+
+def main(argv):
+    try:
+        opts, _ = getopt.getopt(argv,"he:f:", ["help", "ente=", "file="])
+    except getopt.GetoptError:
+        print('download_json.py [-e <ente>] [-f <file>]')
+        sys.exit(2)
+
+    ente = 'ENAIP'
+    filename = 'calls.csv'
+    t = get_access_token(ente)
+    
+    for o, a in opts:
+        if o in ('-h', '--help'):
+            print('download_json.py [-e <ente>]')
+            sys.exit()
+        elif o in ('-e', '--ente'):
+            ente = a.upper()
+        elif o in ('-f', '--file'):
+            filename = a
+        else:
+            assert False
 
     print(f'Working for institution {ente}. Reading data from file {filename}')
 
+    num_threads = 10
     call_ids = []
     with open(filename) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')

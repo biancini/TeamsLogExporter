@@ -1,150 +1,150 @@
+import requests
 import shutil
+import sys
+import getopt
 from glob import glob
-from datetime import datetime
-from os import path, makedirs, chdir
+from datetime import datetime, date, timedelta
+from os import path, makedirs, chdir, getenv
+from urllib import parse
 
-reportfad = True
-#base = 'D:\Fondazione Enaip Lombardia\Pianificazione Attività - Documenti\Anno Formativo 2020-2021'
-base = '/Users/andrea/Fondazione Enaip Lombardia/Pianificazione Attività - Documenti/Anno Formativo 2020-2021/'
-#chdir(base)
-#lookdir = '00_Generale/Report FAD/'
-lookdir = '.'
-files = glob(f'{lookdir}/**/*.xlsx', recursive=True)
 
-folders = [
-    datetime(2020, 9,  6),
-    datetime(2020, 9,  13),
-    datetime(2020, 9,  20),
-    datetime(2020, 9,  27),
-    datetime(2020, 10,  4),
-    datetime(2020, 10,  11),
-    datetime(2020, 10,  18),
-    datetime(2020, 10,  25),
-    datetime(2020, 11,  1),
-    datetime(2020, 11,  8),
-]
+def get_access_token(ente):
+    tenant_id = getenv(f'TENANTID_{ente}', None)
+    client_id = getenv(f'APPID_{ente}', None)
+    client_secret =  getenv(f'APPSECRET_{ente}', None)
 
-people = {
-    'Bergamo': [
-        'Adriano Fico', 'Arianna Assandri', 'Lucia Manuela Dondossola',
-        'Arianna Assandri', 'Gianalberto Lubrina', 'Giacomo Suardi',
-        'Nicola Iannone', 'Serena Roveri', 'Matteo Rossi',
-        'Stella Galbiati', 'Enrico Caroppo', 'Daphne Della Vite',
-        'Pippo Grossi', 'Enrico Canali', 'Chiara Tiraboschi',
-        'Giacomo Scandola', 'Elena Rottigni', 'Fabio Mazzoleni',
-        'Diego Pagnoncelli', 'Clara Mangili', 'Enrico Caroppo',
-        'Emiliano Amadei', 'Elena Besola', 'Michela Vezzoli',
-        'Angela Macario', 'Lorenzo Pezzotti', 'Lidia Gherardi',
-        'Chiara Martinelli', 'Cecilia Acerbi', 'Laiza Ratti',
-        'Gabriella Erba'
-    ],
-    'Bergamo ITS': [
-        'Valentina Iavarone', 'Ramona Ubbiali', 'Giacomo Scandola',
-        'Marcello Cenati'
-    ],
-    'Botticino': [ 'Daniela Melardi' ],
-    'Busto Arsizio': [
-        'Raffaello Vaghi', 'Chiara Ferrè', 'Donata Molon',
-        'Paolo Zuffinetti', 'Paola Zerbi', 'Michele Della Valle',
-        'Francesca Milani', 'Raffaella Pigoli', 'Laura Ferioli',
-        'Franca Guarracino', 'Paola Lamperti', 'Donata Marcantonio',
-        'Fabio Bombana'
-    ],
-    'Cantù': [
-        'Andrea Biotti', 'Viviana Tucci', 'Matteo Roncoroni',
-        'Federica Meroni'
-    ],
-    'Como': [
-        'Arianna Cortellezzi', 'Sandra Bernasconi', 'Mauro Oricchio',
-        'Rossella Clerici', 'Anna Bianchi', 'Francesco Beretta',
-        'Roberto Morselli', 'Manuela Colombo',  'Miriam Garbi',
-        'Silvia Dellifiori', 'Adriano Drammissino', 'Laura Pellegatta',
-        'Federico Di Martino'
-    ],
-    'Cremona': [
-        'Claudio Elidoro', 'Laura Blasutta',
-        #####
-        'Silvia Granelli', 'Mariarosa Bignami',
-        'Enrico Angelo Fiori ', 'Matteo Bellocchio', 'Federico Biolchi',
-        'Michele Bonoli', 'Stefano Benedetti', 'Giorgio Galli',
-        'Daniela Maccagnola', 'Paola Mignani', 'Sabrina Nicolazzo',
-        'Donatella Oliani', 'Enrico Platè', 'Simone Portesani',
-        'Daniela Riccardi', 'Marzia Somenzini', 'Mario Valcarenghi'
-    ],
-    'Dalmine': [
-        'Chiara Pezzotta', 'Stefania Boschi', 'Laiza Ratti',
-        'Clara Mangili'
-    ],
-    'Lecco': [
-        'Federica Colombo', 'Beatrice  Pigolotti'
-    ],
-    'Magenta': [ 'Lara Cuzzocrea' ],
-    'Mantova': [
-        'Giovanna Maretti', 'Paolo Ghilotti', 'Antonella Bellini',
-        'Fabio Veneri', 'Elda Borghi'
-    ],
-    'Melzo': [ 'Alessandro Arbitrio' ],
-    'Milano Giacinti' : [
-        'Maurizio Gavina', 'Debora Stignani', 'Laura Trombini',
-        'Chiara Nicoli', 'Nadia Dallalonga', 'Domenico Scaldaferri',
-        'Fabio Bombana'
-    ],
-    'Monticello': ['Alberta Molinari', 'Stefania Sala' ],
-    'Morbegno': [
-        'Giovanni Colombo', 'Anna De Salvo', 'Claudia Del Barba'
-    ],
-    'Pavia': [
-        'Giovanni Corsico', 'Viviana Bernorio', 'Massimo Casella',
-        'Alessandro Belli', 'Giovanni Susino', 'Chantall Passarella',
-        'Andrea Ferraris', 'Catia Saronni', 'Daniele Longhi'
-    ],
-    'Romano': [
-        'Anna Maria Bergamini', 'Roberta Oggionni', 'Paola Vezzoli',
-        'Serena Pezzotta'
-    ],
-    'Varese': [
-        'Alessandro Bertoni', 'Diana Accili', 'Chiara Roncari', 
-        'Sara Campiglio', 'Domenico Battista', 'Donatella Gelmi',
-        'Federica Platini'
-    ],
-    'Vigevano': [ 'Margherita Previde', 'Viola Donato' ],
-    'Vimercate': [ 'Davide Panzeri', 'Jacopo Tonon' ],
-    'Voghera': [ 'Alessandro Belli', 'Fabio Faroldi', 'Luca Panio' ]
-}
+    data = parse.urlencode({
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'scope': 'https://graph.microsoft.com/.default',
+        'grant_type': 'client_credentials'
+    })
 
-total_files = len(files)
-file_moved = 0
+    uri = 'https://login.microsoftonline.com/{0}/oauth2/v2.0/token'.format(tenant_id)
+    r = requests.post(uri, data=data).json()
 
-for f in files:
-    centro = '00_Generale' if reportfad else 'Altro'
-    for c, o in people.items():
-        for organizer in o:
-            if organizer in path.basename(f):
-                centro = c
+    if not 'access_token' in r:
+        print(f'{r}')
+        sys.exit(1)    
+    return r['access_token']
 
-    file_date = datetime.strptime(path.basename(f)[:10], '%Y-%m-%d')
+
+def allsundays(years):
+    for year in years:
+        d = datetime(year, 1, 1)                # January 1st
+        d += timedelta(days = 6 - d.weekday())  # First Sunday
+        while d.year == year:
+            yield d
+            d += timedelta(days = 7)
+
+
+def get_graph_data(t, uri):
+    while uri:
+        head = { 'Authorization': f'Bearer {t}' }
+        r = requests.get(uri, headers=head)
+        response = r.json()
+
+        if 'error' in response:
+            print (f'{response}')
+            sys.exit(1)
+
+        yield from response['value']
+        uri = response['@odata.nextLink'] if '@odata.nextLink' in response else None
+
+
+def main(argv):
+    try:
+        opts, _ = getopt.getopt(argv,"he:l", ["help", "ente=", "local"])
+    except getopt.GetoptError:
+        print('divide_excel.py [-e <ente>] [-l]')
+        sys.exit(2)
+
+    ente = 'ENAIP'
+    local = False
     
-    for d in folders:
-        folder = '%s_Report Teams' % d.strftime("%Y-%m-%d")
+    for o, a in opts:
+        if o in ('-h', '--help'):
+            print('download_json.py [-e <ente>]')
+            sys.exit()
+        elif o in ('-e', '--ente'):
+            ente = a.upper()
+        elif o in ('-l', '--local'):
+            local = True
+        else:
+            assert False
 
-        if file_date <= d:
-            if reportfad:
-                newpath = path.join(base, centro, 'Report FAD', folder)
-            else:
-                newpath = path.join(base, centro, folder)
+    t = get_access_token(ente)
 
-            if not path.exists(newpath):
-                makedirs(newpath)
-            
-            newpath = path.join(newpath, path.basename(f))
-            if f not in newpath:
-                #print (f'mv {f} {newpath}')
-                shutil.move(f, newpath)
-                file_moved = file_moved + 1
+    print(f'Working for institution {ente}. Working on %s source.' % ('local' if local else 'remote'))
 
-            break
+    reportfad = True
+    base = '/Users/andrea/Fondazione Enaip Lombardia/Pianificazione Attività - Documenti/Anno Formativo 2020-2021/'
+    lookdir = '.'
 
-print(f'Total files {total_files}')
-print(f'Files moved {file_moved}')
+    if local:
+        chdir(base)
+        lookdir = '00_Generale/Report FAD/'
 
-print("Script finito.")
+    folders = []
+    files = glob(f'{lookdir}/**/*.xlsx', recursive=True)
+    for d in allsundays([2020, 2021]):
+        folders.append(d)
+
+    groups = []
+    uri = f'https://graph.microsoft.com/beta/groups?$orderby=displayName'
+    for g in get_graph_data(t, uri):
+        groups.append(g)
+    
+    people = {}
+    for g in groups:
+        if g['displayName'].startswith('Organizzatori FAD '):
+            centro = g['displayName'].replace('Organizzatori FAD ', '')
+            groupid = g['id']
+
+            participants = []
+            uri = f'https://graph.microsoft.com/beta/groups/{groupid}/members'
+            for p in get_graph_data(t, uri):
+                participants.append(p['displayName'])
+
+            people[centro] = participants
+
+    total_files = len(files)
+    file_moved = 0
+
+    for f in files:
+        centro = '00_Generale' if reportfad else 'Altro'
+        for c, o in people.items():
+            for organizer in o:
+                if organizer in path.basename(f):
+                    centro = c
+
+        file_date = datetime.strptime(path.basename(f)[:10], '%Y-%m-%d')
+        
+        for d in folders:
+            folder = '%s_Report Teams' % d.strftime("%Y-%m-%d")
+
+            if file_date <= d:
+                if reportfad:
+                    newpath = path.join(base, centro, 'Report FAD', folder)
+                else:
+                    newpath = path.join(base, centro, folder)
+
+                if not path.exists(newpath):
+                    makedirs(newpath)
+                
+                newpath = path.join(newpath, path.basename(f))
+                if f not in newpath:
+                    #print (f'mv {f} {newpath}')
+                    shutil.move(f, newpath)
+                    file_moved = file_moved + 1
+
+                break
+
+    print(f'Total files {total_files}')
+    print(f'Files moved {file_moved}')
+
+    print("Script finito.")
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
