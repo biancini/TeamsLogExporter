@@ -66,13 +66,13 @@ def callback(request):
     store_token(request, token)
     store_user(request, user)
 
-    return HttpResponseRedirect(reverse('home'))
+    return HttpResponseRedirect(reverse('exporter_home'))
 
 def sign_out(request):
     # Clear out the user and token
     remove_user_and_token(request)
 
-    return HttpResponseRedirect(reverse('home'))
+    return HttpResponseRedirect(reverse('exporter_home'))
 
 def home(request):
     context = initialize_context(request)

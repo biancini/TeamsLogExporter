@@ -21,7 +21,7 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="it-header-slim-wrapper-content">
-                            <a class="d-lg-block navbar-brand" style="font-size: 1rem; font-weight: bold" href="/batch">
+                            <a class="d-lg-block navbar-brand" style="font-size: 1rem; font-weight: bold" href="/exporter">
                                 <svg class="icon icon-white icon-sm align-middle"><use xlink:href="{% static 'svg/sprite.svg' %}#it-exchange-circle"></use></svg>
                                 Teams Log Exporter Web
                             </a>
@@ -41,7 +41,7 @@
                                           <div class="link-list-wrapper">
                                             <ul class="link-list">
                                               <li><a class="list-item" href="#">{{ user.email }}</li>
-                                              <li><a class="list-item" href="{% url 'signout' %}"><span>Signout</span></a></li>
+                                              <li><a class="list-item" href="{% url 'exporter_signout' %}"><span>Signout</span></a></li>
                                             </ul>
                                           </div>
                                         </div>
@@ -60,10 +60,10 @@
                                         <div class="dropdown-menu">
                                           <div class="link-list-wrapper">
                                             <ul class="link-list">
-                                                <li><a class="list-item" href="{% url 'signin' %}?id=ENAIP"><span>Enaip</span></a></li>
-                                                <li><a class="list-item" href="{% url 'signin' %}?id=ITSINCOM"><span>ITS Incom</span></a></li>
-                                                <li><a class="list-item" href="{% url 'signin' %}?id=ITSINCOM2"><span>ITS Incom 2</span></a></li>
-                                                <li><a class="list-item" href="{% url 'signin' %}?id=ITSTTF"><span>ITS TTF</span></a></li>
+                                                <li><a class="list-item" href="{% url 'exporter_signin' %}?id=ENAIP"><span>Enaip</span></a></li>
+                                                <li><a class="list-item" href="{% url 'exporter_signin' %}?id=ITSINCOM"><span>ITS Incom</span></a></li>
+                                                <li><a class="list-item" href="{% url 'exporter_signin' %}?id=ITSINCOM2"><span>ITS Incom 2</span></a></li>
+                                                <li><a class="list-item" href="{% url 'exporter_signin' %}?id=ITSTTF"><span>ITS TTF</span></a></li>
                                             </ul>
                                           </div>
                                         </div>
