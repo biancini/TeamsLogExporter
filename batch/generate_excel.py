@@ -38,7 +38,6 @@ def get_usernamefromid(t, userid, displayName=False):
         r = requests.get(uri, headers=head)
         user = r.json()
 
-
         if displayName:
             if 'displayName' in user:
                 usernames[keyname] = user['displayName']
@@ -170,7 +169,6 @@ def generate_excel_file(t, filename):
         workbook.save(filename=dest_filename)
 
     json_file.close()
-    #os.remove(filename)
     return 1
 
 
@@ -193,8 +191,10 @@ def generate_excel(configuration):
             for future in futures:
                 result = future.result()
                 out += result
-        
-    print(f'Created {out} excel files.')
+    
+    if out > 0:
+        print(f'Created {out} excel files.')
+    
     return out
 
 
