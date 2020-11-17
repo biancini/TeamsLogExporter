@@ -6,15 +6,17 @@ import os.path
 import math
 import sys
 import getopt
+import configparser
 from tqdm import tqdm
 from dateutil import tz
-from urllib import parse
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.utils import get_column_letter
+
+from .utils import get_access_token
 
 
 usernames = {}
@@ -51,7 +53,7 @@ def get_usernamefromid(t, userid, displayName=False):
     return usernames[keyname]
 
 
-def generate_excel(t, filename):
+def generate_excel_file(t, filename):
     with open(filename) as json_file:
         p = json.load(json_file)
 
@@ -172,14 +174,40 @@ def generate_excel(t, filename):
     return 1
 
 
-def main(argv):
+def generate_excel(configuration):
+    ente = configuration['ente']
+    t = get_access_token(ente)
+
+    json_files = glob.glob("json/*.json")
+    out = 0
+    num_threads = 10
+
+    with ProcessPoolExecutor(max_workers=num_threads) as pool:
+        with tqdm(total=len(json_files)) as progress:
+            futures = []
+            for filename in json_files:
+                future = pool.submit(generate_excel_file, t, filename)
+                future.add_done_callback(lambda p: progress.update())
+                futures.append(future)
+
+            for future in futures:
+                result = future.result()
+                out += result
+        
+    print(f'Created {out} excel files.')
+    return out
+
+
+if __name__ == '__main__':
+    config = configparser.ConfigParser()
+    config.read('configuration.ini')
+    ente = 'ENAIP'
+
     try:
-        opts, _ = getopt.getopt(argv,"he:", ["help", "ente="])
+        opts, _ = getopt.getopt(sys.argv[1:],"he:", ["help", "ente="])
     except getopt.GetoptError:
         print('generate_excel.py [-e <ente>]')
         sys.exit(2)
-
-    ente = 'ENAIP'
     
     for o, a in opts:
         if o in ('-h', '--help'):
@@ -190,44 +218,8 @@ def main(argv):
         else:
             assert False
 
-    tenant_id = os.getenv(f'TENANTID_{ente}', None)
-    client_id = os.getenv(f'APPID_{ente}', None)
-    client_secret =  os.getenv(f'APPSECRET_{ente}', None)
-    num_threads = 10
+    configuration = config[ente]
+    configuration['ente'] = ente
 
-    data = parse.urlencode({
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'scope': 'https://graph.microsoft.com/.default',
-        'grant_type': 'client_credentials'
-    })
-
-    uri = f'https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token'
-    r = requests.post(uri, data=data).json()
-
-    if not 'access_token' in r:
-        print(f'{r}')
-        exit(1)
-
-    t = r['access_token']
-
-    json_files = glob.glob("json/*.json")
-
-    out = 0
-
-    with ProcessPoolExecutor(max_workers=num_threads) as pool:
-        with tqdm(total=len(json_files)) as progress:
-            futures = []
-            for filename in json_files:
-                future = pool.submit(generate_excel, t, filename)
-                future.add_done_callback(lambda p: progress.update())
-                futures.append(future)
-
-            for future in futures:
-                result = future.result()
-                out += result
-        
-    print(f'Script finito, creati {out} files.')
-
-if __name__ == '__main__':
-    main(sys.argv[1:])
+    generate_excel(configuration)
+    print("Script finito.")

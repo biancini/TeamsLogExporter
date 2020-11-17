@@ -3,10 +3,14 @@ import json
 import csv
 import sys
 import getopt
+import zipfile
+import configparser
 import os.path
+from glob import glob
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
-from urllib import parse
+
+from .utils import get_access_token, nearestsunday
 
 '''
 Scaricare i dati dal report creato appostivamente qui:
@@ -34,49 +38,10 @@ def download_call_data(t, call_id):
         return 1
 
 
-def get_access_token(ente):
-    tenant_id = os.getenv(f'TENANTID_{ente}', None)
-    client_id = os.getenv(f'APPID_{ente}', None)
-    client_secret =  os.getenv(f'APPSECRET_{ente}', None)
-
-    data = parse.urlencode({
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'scope': 'https://graph.microsoft.com/.default',
-        'grant_type': 'client_credentials'
-    })
-
-    uri = 'https://login.microsoftonline.com/{0}/oauth2/v2.0/token'.format(tenant_id)
-    r = requests.post(uri, data=data).json()
-
-    if not 'access_token' in r:
-        print(f'{r}')
-        sys.exit(1)    
-    return r['access_token']
-
-def main(argv):
-    try:
-        opts, _ = getopt.getopt(argv,"he:f:", ["help", "ente=", "file="])
-    except getopt.GetoptError:
-        print('download_json.py [-e <ente>] [-f <file>]')
-        sys.exit(2)
-
-    ente = 'ENAIP'
-    filename = 'calls.csv'
+def download_json(configuration):
+    filename = configuration['filename']
+    print(f'Downloading all jsons for meeting listed in file {filename}.')
     t = get_access_token(ente)
-    
-    for o, a in opts:
-        if o in ('-h', '--help'):
-            print('download_json.py [-e <ente>]')
-            sys.exit()
-        elif o in ('-e', '--ente'):
-            ente = a.upper()
-        elif o in ('-f', '--file'):
-            filename = a
-        else:
-            assert False
-
-    print(f'Working for institution {ente}. Reading data from file {filename}')
 
     num_threads = 10
     call_ids = []
@@ -102,7 +67,72 @@ def main(argv):
                 result = future.result()
                 out += result
         
-    print(f'Script finito, scaricati {out} files.')
+    print(f'Finished downloading of json files, {out} files downloaded.')
+    return out
+
+def zip_jsonfiles(configuration):
+    zipfolder = os.path.join(configuration['basepath'], configuration['zipfolder'])
+    if 'zipfile' in configuration:
+        zipfilename = configuration['zipfile']
+    else:
+        s = nearestsunday()
+        zipfilename = '%s_Report.zip' % s.strftime("%Y-%m-%d")
+
+    print(f'Creating zip file {zipfilename} in folder {zipfolder}.')
+    out = 0
+    
+    zf = zipfile.ZipFile(os.path.join(zipfolder, zipfilename), 'w')
+    basedir = 'json/'
+    files = glob(f'{basedir}**/*.json', recursive=True)
+    for f in files:
+        zf.write(f, f.replace(basedir, ''))
+        out += 1
+    zf.close()
+
+    print(f'Added {out} files to zip {zipfilename}.')
+    return out
+
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    config = configparser.ConfigParser()
+    config.read('configuration.ini')
+    ente = 'ENAIP'
+    filename = None
+    zipfilename = None
+
+    try:
+        opts, _ = getopt.getopt(sys.argv[1:], "he:f:z:", ["help", "ente=", "file=", "zipfile="])
+    except getopt.GetoptError:
+        print('download_json.py [-e <ente>] [-f <file>] [-z <zipfile>]')
+        sys.exit(2)
+    
+    for o, a in opts:
+        if o in ('-h', '--help'):
+            print('download_json.py [-e <ente>] [-f <file>] [-z <zipfile>]')
+            sys.exit()
+        elif o in ('-e', '--ente'):
+            ente = a.upper()
+        elif o in ('-f', '--file'):
+            filename = a
+        elif o in ('-z', '--zipfile'):
+            zipfilename = a
+        else:
+            assert False
+
+    configuration = config[ente]
+    configuration['ente'] = ente
+    configuration['filename'] = filename
+    configuration['zipfile'] = zipfilename
+
+    print(f'Working for institution {ente}.')
+    numfiles = download_json(configuration)
+
+    if numfiles <= 0:
+        print('No files to be zipped.')
+    else:
+        zippedfiles = zip_jsonfiles(configuration)
+    
+        if numfiles != zippedfiles:
+            print(f'Should have zipped {numfiles}, but zipped {zippedfiles}. Leaving json folder untouched.')
+    
+    print("Script finito.")

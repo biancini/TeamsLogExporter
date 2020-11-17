@@ -2,40 +2,13 @@ import requests
 import shutil
 import sys
 import getopt
+import configparser
 from glob import glob
 from datetime import datetime, date, timedelta
-from os import path, makedirs, chdir, getenv
+from os import path, makedirs, chdir
 from urllib import parse
 
-
-def get_access_token(ente):
-    tenant_id = getenv(f'TENANTID_{ente}', None)
-    client_id = getenv(f'APPID_{ente}', None)
-    client_secret =  getenv(f'APPSECRET_{ente}', None)
-
-    data = parse.urlencode({
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'scope': 'https://graph.microsoft.com/.default',
-        'grant_type': 'client_credentials'
-    })
-
-    uri = 'https://login.microsoftonline.com/{0}/oauth2/v2.0/token'.format(tenant_id)
-    r = requests.post(uri, data=data).json()
-
-    if not 'access_token' in r:
-        print(f'{r}')
-        sys.exit(1)    
-    return r['access_token']
-
-
-def allsundays(years):
-    for year in years:
-        d = datetime(year, 1, 1)                # January 1st
-        d += timedelta(days = 6 - d.weekday())  # First Sunday
-        while d.year == year:
-            yield d
-            d += timedelta(days = 7)
+from .utils import get_access_token, allsundays
 
 
 def get_graph_data(t, uri):
@@ -52,38 +25,20 @@ def get_graph_data(t, uri):
         uri = response['@odata.nextLink'] if '@odata.nextLink' in response else None
 
 
-def main(argv):
-    try:
-        opts, _ = getopt.getopt(argv,"he:l", ["help", "ente=", "local"])
-    except getopt.GetoptError:
-        print('divide_excel.py [-e <ente>] [-l]')
-        sys.exit(2)
-
-    ente = 'ENAIP'
-    local = False
-    
-    for o, a in opts:
-        if o in ('-h', '--help'):
-            print('download_json.py [-e <ente>]')
-            sys.exit()
-        elif o in ('-e', '--ente'):
-            ente = a.upper()
-        elif o in ('-l', '--local'):
-            local = True
-        else:
-            assert False
-
+def divide_excel(configuration):
+    ente = configuration['ente']
+    local = configuration['local']
+    base = configuration['basepath']
     t = get_access_token(ente)
 
     print(f'Working for institution {ente}. Working on %s source.' % ('local' if local else 'remote'))
 
     reportfad = True
-    base = '/Users/andrea/Fondazione Enaip Lombardia/Pianificazione Attività - Documenti/Anno Formativo 2020-2021/'
     lookdir = '.'
 
     if local:
         chdir(base)
-        lookdir = '00_Generale/Report FAD/'
+        lookdir = configuration['xllookdir']
 
     folders = []
     files = glob(f'{lookdir}/**/*.xlsx', recursive=True)
@@ -134,17 +89,41 @@ def main(argv):
                 
                 newpath = path.join(newpath, path.basename(f))
                 if f not in newpath:
-                    #print (f'mv {f} {newpath}')
                     shutil.move(f, newpath)
                     file_moved = file_moved + 1
 
                 break
 
-    print(f'Total files {total_files}')
-    print(f'Files moved {file_moved}')
-
-    print("Script finito.")
+    print(f'Total excel files {total_files}')
+    print(f'Files excel moved {file_moved}')
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    config = configparser.ConfigParser()
+    config.read('configuration.ini')
+    ente = 'ENAIP'
+    local = False
+
+    try:
+        opts, _ = getopt.getopt(sys.argv[1:],"he:l", ["help", "ente=", "local"])
+    except getopt.GetoptError:
+        print('divide_excel.py [-e <ente>] [-l]')
+        sys.exit(2)
+    
+    for o, a in opts:
+        if o in ('-h', '--help'):
+            print('download_json.py [-e <ente>]')
+            sys.exit()
+        elif o in ('-e', '--ente'):
+            ente = a.upper()
+        elif o in ('-l', '--local'):
+            local = True
+        else:
+            assert False
+
+    configuration = config[ente]
+    configuration['ente'] = ente
+    configuration['local'] = local
+
+    divide_excel(configuration)
+    print("Script finito.")
