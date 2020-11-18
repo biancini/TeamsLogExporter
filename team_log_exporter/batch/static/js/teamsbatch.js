@@ -1,5 +1,24 @@
 $("#error-message").hide();
 
+Promise.retry = function(fn, times, delay) {
+    return new Promise(function(resolve, reject){
+        var error;
+        var attempt = function() {
+            if (times == 0) {
+                reject(error);
+            } else {
+                fn().then(resolve)
+                    .catch(function(e){
+                        times--;
+                        error = e;
+                        setTimeout(function(){attempt()}, delay);
+                    });
+            }
+        };
+        attempt();
+    });
+};
+
 var app = angular.module('teamsBatch', []);
 
 app.config(['$interpolateProvider', '$httpProvider', function($interpolateProvider, $httpProvider) {
@@ -119,6 +138,7 @@ app.service('DjangoAPI', ['$http', '$q', function ($http, $q) {
 
     this.downloadTeamsExcel = function (jsonFile, callId) {
         var def = $q.defer();
+
         $http.post("/batch/generate_excel", { 'jsonFile': jsonFile, 'reportId': callId }).then(function successCallback(response) {
             if (response.data.esito == true) {
                 var filename = response.data.filename;
@@ -186,13 +206,13 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
 
                 $scope.lessonIds.push(callId);
                 $scope.downloadedJsons[callId] = jsonData;
-                $scope.$apply();
                 $("#downloaded-" + callId).removeClass('d-none');
 
                 count++;
                 var percent = (count / total) * 100;
                 $("#progress-json").attr("style", "width: " + percent + "%");
                 $("#progress-json").attr("aria-valuenow", percent);
+                $scope.$apply();
             }
 
             $scope.stopProceed = false;
@@ -207,7 +227,6 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
 
             $scope.lessonIds.push(callId);
             $scope.downloadedJsons[callId] = jsonData;
-            $scope.$apply();
             $("#downloaded-" + callId).removeClass('d-none');
 
             $("#progress-json").attr("style", "width: 100%");
@@ -215,12 +234,11 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
 
             $scope.stopProceed = false;
             $scope.showDownloadZip = true;
+            $scope.$apply();
         }
         else {
             $scope.showError("File caricato di tipo errato (ammessi solo CSV, ZIP o JSON).");
         }
-
-        $scope.$apply();
     };
 
     $scope.dropCSV = function(event) {
@@ -246,7 +264,7 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
 
         var promises = [];
         for (let callId of eventIds) {
-            var prom = DjangoAPI.downloadTeamsJson(callId).then(function (data) {
+            var prom = Promise.retry(DjangoAPI.downloadTeamsJson.bind(DjangoAPI, callId), 5, 1000).then(function (data) {
                 $("#downloaded-" + callId).removeClass('d-none');
                 $scope.downloadedJsons[callId] = data;
                 count++;
@@ -275,7 +293,7 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
         for (let callId in $scope.downloadedJsons) {
             var jsonFile = $scope.downloadedJsons[callId];
 
-            var prom = DjangoAPI.downloadTeamsExcel(jsonFile, callId).then(function (data) {
+            var prom = Promise.retry(DjangoAPI.downloadTeamsExcel.bind(DjangoAPI, jsonFile, callId), 5, 1000).then(function (data) {
                 if (data[1] != null && typeof(data[1]) != "undefined") {
                     filename = data[0];
                     duplicatenum = 0;
