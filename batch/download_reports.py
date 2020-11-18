@@ -1,7 +1,9 @@
 from batch.divide_excel import divide_excel
 import sys
+import os
 import getopt
 import configparser
+from glob import glob
 
 from .download_json import download_json, zip_jsonfiles
 from .generate_excel import generate_excel
@@ -66,6 +68,11 @@ if __name__ == '__main__':
         if numexcels <=0:
             print("No excels generated.")
             goon = False
+
+    basedir = 'json/'
+    files = glob(f'{basedir}**/*.json', recursive=True)
+    for f in files:
+        os.remove(f)
 
     if goon:
         divide_excel(configuration)
