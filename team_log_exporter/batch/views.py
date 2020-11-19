@@ -118,7 +118,7 @@ def upload_csvfile(request):
             lines = fileContent.splitlines()
             reader = csv.reader(lines, delimiter=',')
             for row in reader:
-                if row[0] != 'Conference Id':
+                if 'Conference' not in row[0]:
                     call_ids.append(row[0])
 
             return JsonResponse({
