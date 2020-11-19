@@ -58,7 +58,7 @@ def download_json(configuration):
         with tqdm(total=len(call_ids)) as progress:
             futures = []
             for call_id in call_ids:
-                if call_id == "Conference Id": continue
+                if "Conference" in call_id: continue
                 future = pool.submit(download_call_data, t, call_id)
                 future.add_done_callback(lambda p: progress.update())
                 futures.append(future)
