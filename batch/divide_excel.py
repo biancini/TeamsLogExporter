@@ -27,7 +27,7 @@ def get_graph_data(t, uri):
 
 def divide_excel(configuration):
     ente = configuration['ente']
-    local = configuration['local']
+    local = configuration['local'] if 'local' in configuration else False
     base = configuration['basepath']
     t = get_access_token(ente)
 
