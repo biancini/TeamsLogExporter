@@ -67,8 +67,15 @@ if __name__ == '__main__':
     if goon:
         numexcels = generate_excel(configuration)
 
-        if numexcels <=0:
+        if numexcels <= 0:
             print("No excels generated.")
+            goon = False
+
+    if goon:
+        moved = divide_excel(configuration)
+
+        if moved <= 0:
+            print("No files moved, preserving JSON file to check what happened...")
             goon = False
 
     if goon:
@@ -76,8 +83,5 @@ if __name__ == '__main__':
         files = glob(f'{basedir}**/*.json', recursive=True)
         for f in files:
             os.remove(f)
-
-    if goon:
-        divide_excel(configuration)
 
     print("Script finito.")

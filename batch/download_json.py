@@ -84,7 +84,7 @@ def zip_jsonfiles(configuration):
     
     zippath = os.path.join(zipfolder, zipfilename)
     print(f'Zipping JSON files to {zippath}')
-    zf = zipfile.ZipFile(zippath, 'w')
+    zf = zipfile.ZipFile(zippath, 'w', zipfile.ZIP_DEFLATED)
     basedir = 'json/'
     files = glob(f'{basedir}**/*.json', recursive=True)
     for f in files:

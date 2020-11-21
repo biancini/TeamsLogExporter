@@ -96,6 +96,7 @@ def divide_excel(configuration):
 
     print(f'Total excel files {total_files}.')
     print(f'Files excel moved {file_moved}.')
+    return file_moved
 
 
 if __name__ == '__main__':
