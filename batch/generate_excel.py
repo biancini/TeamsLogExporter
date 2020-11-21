@@ -16,7 +16,7 @@ from openpyxl.styles import Font
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.utils import get_column_letter
 
-from .utils import get_access_token
+from utils import get_access_token
 
 
 usernames = {}

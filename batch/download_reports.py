@@ -1,12 +1,12 @@
-from batch.divide_excel import divide_excel
 import sys
 import os
 import getopt
 import configparser
 from glob import glob
 
-from .download_json import download_json, zip_jsonfiles
-from .generate_excel import generate_excel
+from download_json import download_json, zip_jsonfiles
+from generate_excel import generate_excel
+from divide_excel import divide_excel
 
 
 '''
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read('configuration.ini')
     ente = 'ENAIP'
-    filename = None
+    filename = 'calls.csv'
     zipfilename = None
 
     try:
@@ -43,8 +43,10 @@ if __name__ == '__main__':
 
     configuration = config[ente]
     configuration['ente'] = ente
-    configuration['filename'] = filename
-    configuration['zipfile'] = zipfilename
+    if filename:
+        configuration['filename'] = filename
+    if zipfilename:
+        configuration['zipfile'] = zipfilename
 
     print(f'Working for institution {ente}.')
 
@@ -69,10 +71,11 @@ if __name__ == '__main__':
             print("No excels generated.")
             goon = False
 
-    basedir = 'json/'
-    files = glob(f'{basedir}**/*.json', recursive=True)
-    for f in files:
-        os.remove(f)
+    if goon:
+        basedir = 'json/'
+        files = glob(f'{basedir}**/*.json', recursive=True)
+        for f in files:
+            os.remove(f)
 
     if goon:
         divide_excel(configuration)

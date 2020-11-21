@@ -8,7 +8,7 @@ from datetime import datetime, date, timedelta
 from os import path, makedirs, chdir
 from urllib import parse
 
-from .utils import get_access_token, allsundays
+from utils import get_access_token, allsundays
 
 
 def get_graph_data(t, uri):

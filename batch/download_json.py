@@ -10,7 +10,7 @@ from glob import glob
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
 
-from .utils import get_access_token, nearestsunday
+from utils import get_access_token, nearestsunday
 
 '''
 Scaricare i dati dal report creato appostivamente qui:
@@ -20,7 +20,7 @@ https://cqd.teams.microsoft.com/spd/#/Dashboard?language=it-IT
 
 def download_call_data(t, call_id):
     if os.path.isfile(f'json/{call_id}.json'):
-        return 0
+        return 1
         
     uri = f'https://graph.microsoft.com/beta/communications/callRecords/{call_id}?$expand=sessions($expand=segments)'
     head = { 'Authorization': f'Bearer {t}' }
@@ -39,6 +39,7 @@ def download_call_data(t, call_id):
 
 
 def download_json(configuration):
+    ente = configuration['ente']
     filename = configuration['filename']
     print(f'Downloading all jsons for meeting listed in file {filename}.')
     t = get_access_token(ente)
@@ -81,7 +82,9 @@ def zip_jsonfiles(configuration):
     print(f'Creating zip file {zipfilename} in folder {zipfolder}.')
     out = 0
     
-    zf = zipfile.ZipFile(os.path.join(zipfolder, zipfilename), 'w')
+    zippath = os.path.join(zipfolder, zipfilename)
+    print(f'Zipping JSON files to {zippath}')
+    zf = zipfile.ZipFile(zippath, 'w')
     basedir = 'json/'
     files = glob(f'{basedir}**/*.json', recursive=True)
     for f in files:
@@ -89,7 +92,7 @@ def zip_jsonfiles(configuration):
         out += 1
     zf.close()
 
-    print(f'Added {out} files to zip {zipfilename}.')
+    print(f'Added {out} files to zip.')
     return out
 
 
@@ -121,8 +124,10 @@ if __name__ == '__main__':
 
     configuration = config[ente]
     configuration['ente'] = ente
-    configuration['filename'] = filename
-    configuration['zipfile'] = zipfilename
+    if filename:
+        configuration['filename'] = filename
+    if zipfilename:
+        configuration['zipfile'] = zipfilename
 
     print(f'Working for institution {ente}.')
     numfiles = download_json(configuration)
