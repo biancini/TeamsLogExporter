@@ -11,7 +11,7 @@ from tqdm import tqdm
 from dateutil import tz
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.utils import get_column_letter
@@ -69,6 +69,17 @@ def generate_excel_file(t, filename):
 
         i = 2
         while os.path.isfile(dest_filename):
+            f = os.path.splitext(os.path.basename(filename))[0]
+            wb_obj = load_workbook(dest_filename) 
+            sheet_obj = wb_obj.active
+            m_row = sheet_obj.max_row 
+  
+            for i in range(1, m_row + 1): 
+                cell_obj = sheet_obj.cell(row = i, column = 1) 
+                if cell_obj.value and f in cell_obj.value:
+                    print(f'File excel already created for meetign with id {f}')
+                    return 1
+
             dest_filename = f'excel/{start_time} - {name} - {i}.xlsx'
             i = i + 1
 
@@ -221,5 +232,6 @@ if __name__ == '__main__':
     configuration = config[ente]
     configuration['ente'] = ente
 
-    generate_excel(configuration)
+    filecount = generate_excel(configuration)
+    print(f'Generati {filecount} file excel.')
     print("Script finito.")

@@ -78,12 +78,14 @@ def zip_jsonfiles(configuration):
     else:
         s = nearestsunday()
         zipfilename = '%s_Report.zip' % s.strftime("%Y-%m-%d")
-
-    print(f'Creating zip file {zipfilename} in folder {zipfolder}.')
-    out = 0
     
     zippath = os.path.join(zipfolder, zipfilename)
-    print(f'Zipping JSON files to {zippath}')
+    print(f'Zipping all JSON files in zip file {zipfilename} in folder {zipfolder}.')
+    if os.path.isfile(zippath):
+        print(f'File zip {zipfilename} aleardy exists in folder {zipfolder}.')
+        print(f'Skipping zip file creation')
+        return 0
+
     zf = zipfile.ZipFile(zippath, 'w', zipfile.ZIP_DEFLATED)
     basedir = 'json/'
     files = glob(f'{basedir}**/*.json', recursive=True)
