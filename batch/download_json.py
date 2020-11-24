@@ -72,6 +72,7 @@ def download_json(configuration):
     return out
 
 def zip_jsonfiles(configuration):
+    out = 0
     zipfolder = os.path.join(configuration['basepath'], configuration['zipfolder'])
     if 'zipfile' in configuration:
         zipfilename = configuration['zipfile']
@@ -103,23 +104,27 @@ if __name__ == '__main__':
     config.read('configuration.ini')
     ente = 'ENAIP'
     filename = None
+    zip = False
     zipfilename = None
 
     try:
-        opts, _ = getopt.getopt(sys.argv[1:], "he:f:z:", ["help", "ente=", "file=", "zipfile="])
+        opts, _ = getopt.getopt(sys.argv[1:], "he:f:Zz:", ["help", "ente=", "file=", "zip", "zipfile="])
     except getopt.GetoptError:
-        print('download_json.py [-e <ente>] [-f <file>] [-z <zipfile>]')
+        print('download_json.py [-e <ente>] [-f <file>] [-Z] [-z <zipfile>]')
         sys.exit(2)
     
     for o, a in opts:
         if o in ('-h', '--help'):
-            print('download_json.py [-e <ente>] [-f <file>] [-z <zipfile>]')
+            print('download_json.py [-e <ente>] [-f <file>] [-Z] [-z <zipfile>]')
             sys.exit()
         elif o in ('-e', '--ente'):
             ente = a.upper()
         elif o in ('-f', '--file'):
             filename = a
+        elif o in ('-Z', '--zip'):
+            zip = True
         elif o in ('-z', '--zipfile'):
+            zip = True
             zipfilename = a
         else:
             assert False
@@ -134,12 +139,13 @@ if __name__ == '__main__':
     print(f'Working for institution {ente}.')
     numfiles = download_json(configuration)
 
-    if numfiles <= 0:
-        print('No files to be zipped.')
-    else:
-        zippedfiles = zip_jsonfiles(configuration)
-    
-        if numfiles != zippedfiles:
-            print(f'Should have zipped {numfiles}, but zipped {zippedfiles}. Leaving json folder untouched.')
+    if zip:
+        if numfiles <= 0:
+            print('No files to be zipped.')
+        else:
+            zippedfiles = zip_jsonfiles(configuration)
+        
+            if numfiles != zippedfiles:
+                print(f'Should have zipped {numfiles}, but zipped {zippedfiles}. Leaving json folder untouched.')
     
     print("Script finito.")

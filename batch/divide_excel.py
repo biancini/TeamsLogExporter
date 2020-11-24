@@ -27,7 +27,7 @@ def get_graph_data(t, uri):
 
 def divide_excel(configuration):
     ente = configuration['ente']
-    local = configuration['local'] if 'local' in configuration else False
+    local = configuration['local'] == 'true'
     base = configuration['basepath']
     t = get_access_token(ente)
 
@@ -103,7 +103,7 @@ if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read('configuration.ini')
     ente = 'ENAIP'
-    local = False
+    local = 'false'
 
     try:
         opts, _ = getopt.getopt(sys.argv[1:],"he:l", ["help", "ente=", "local"])
@@ -113,12 +113,12 @@ if __name__ == '__main__':
     
     for o, a in opts:
         if o in ('-h', '--help'):
-            print('download_json.py [-e <ente>]')
+            print('divide_excel.py [-e <ente>] [-l]')
             sys.exit()
         elif o in ('-e', '--ente'):
             ente = a.upper()
         elif o in ('-l', '--local'):
-            local = True
+            local = 'true'
         else:
             assert False
 
