@@ -3,7 +3,6 @@ import requests
 import json
 import glob
 import os.path
-import math
 import sys
 import getopt
 import configparser
@@ -15,6 +14,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.utils import get_column_letter
+from openpyxl.chart import BarChart, Reference
 
 from utils import get_access_token
 
@@ -52,6 +52,136 @@ def get_usernamefromid(t, userid, displayName=False):
     return usernames[keyname]
 
 
+def generate_sheet_registro(worksheet, participants, filename):
+    worksheet.append(['Partecipante', 'Inizio presenza', 'Fine presenza', 'Tempo di partecipazione'])
+    for cell in worksheet["1:1"]:
+        cell.font = Font(bold=True)
+
+    i = 1
+    for pp in participants:
+        i = i + 1
+
+        start = datetime.strptime(pp['start'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
+        end = datetime.strptime(pp['end'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
+
+        delta = pp['duration']
+        #delta = (end - start).seconds
+        delta /= 60*60*24
+
+        worksheet.append([
+            pp['name'],
+            start,
+            end,
+            delta
+        ])
+
+        cell = worksheet.cell(i, 2)
+        cell.number_format = 'dd/mm/yyyy hh:mm'
+        cell = worksheet.cell(i, 3)
+        cell.number_format = 'dd/mm/yyyy hh:mm' 
+        cell = worksheet.cell(i, 4)
+        cell.number_format = 'h "ore e" mm "minuti"' 
+
+    mediumStyle = TableStyleInfo(name='TableStyleMedium2', showRowStripes=True)
+    worksheet.add_table(Table(ref=f'A1:D{i}', displayName='RegistroPresenze', tableStyleInfo=mediumStyle))
+    worksheet.sheet_view.showGridLines = False
+
+    report_id = os.path.basename(filename).replace('.json', '')
+    worksheet.append([f''])
+    worksheet.append([f'Report generato per il meeting con ID: {report_id}'])
+
+    column_widths = [30, 20, 20, 20]
+    for i, column_width in enumerate(column_widths):
+        worksheet.column_dimensions[get_column_letter(i+1)].width = column_width
+
+
+def generate_sheet_partecipation(worksheet, participants, filename):
+    titles = ['Partecipante']
+
+    min_start = None
+    cols = 0
+    for pp in participants:
+        start = datetime.strptime(pp['start'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
+        start = start.replace(tzinfo=from_zone).astimezone(to_zone)
+        if min_start is None or start < min_start:
+            min_start = start
+
+        le = len(pp['participation'])
+        if le > cols:
+            cols = le
+    cols = int(cols/2)
+
+    for ii in range(cols):
+        titles.append(f'Inizio {ii}')
+        titles.append(f'Fine {ii}')
+
+    worksheet.append(titles)
+    for cell in worksheet["1:1"]:
+        cell.font = Font(bold=True)
+
+    i = 1
+    for pp in participants:
+        i = i + 1
+        
+        values = [pp['name']]
+
+        part = min_start
+        for p in pp['participation']:
+            d = (p - part).seconds
+            d /= 60*60*24
+            values.append(d)
+            part = p
+
+        worksheet.append(values)
+
+        cell = worksheet.cell(i, 2)
+        cell.number_format = 'dd/mm/yyyy hh:mm'
+        for c in range(1, 1 + 2 * cols):
+            cell = worksheet.cell(i, c + 1)
+            cell.number_format = 'h "ore e" mm "minuti"' 
+
+    report_id = os.path.basename(filename).replace('.json', '')
+    worksheet.append([f''])
+    worksheet.append([f'Report generato per il meeting con ID: {report_id}'])
+
+    column_widths = [20 for _ in range(2 * cols + 1)]
+    column_widths[0] = 30
+    for ii, column_width in enumerate(column_widths):
+        worksheet.column_dimensions[get_column_letter(ii+1)].width = column_width
+
+    f = get_column_letter(1 + 2 * cols)
+    mediumStyle = TableStyleInfo(name='TableStyleMedium2', showRowStripes=True)
+    worksheet.add_table(Table(ref=f'A1:{f}{i}', displayName='Partecipazione', tableStyleInfo=mediumStyle))
+    worksheet.sheet_view.showGridLines = False
+
+    # Generate Chart
+    chart = BarChart()
+    chart.type = "bar"
+    chart.height = 20
+    chart.width = 40
+    chart.grouping = "stacked"
+    chart.overlap = 100
+    chart.legend = None
+    chart.x_axis.scaling.orientation = "maxMin"
+
+    for cur_col in range(2, 2 + 2 * cols):
+        data = Reference(worksheet, min_col=cur_col, min_row=2, max_row=i, max_col=cur_col)
+        cats = Reference(worksheet, min_col=1, min_row=2, max_row=i, max_col=1)
+        chart.add_data(data, titles_from_data=False)
+        chart.set_categories(cats)
+
+    for ii, s in enumerate(chart.series):
+        s.graphicalProperties.Shape3D = False
+        if (ii % 2) == 0:
+            s.graphicalProperties.line.noFill = True
+            s.graphicalProperties.noFill = True
+        else:
+            s.graphicalProperties.line.solidFill = '5F8E28'
+            s.graphicalProperties.solidFill = '5F8E28'
+    
+    worksheet.add_chart(chart, "A43")
+
+
 def generate_excel_file(t, filename):
     with open(filename) as json_file:
         p = json.load(json_file)
@@ -74,8 +204,8 @@ def generate_excel_file(t, filename):
             sheet_obj = wb_obj.active
             m_row = sheet_obj.max_row 
   
-            for i in range(1, m_row + 1): 
-                cell_obj = sheet_obj.cell(row = i, column = 1) 
+            for ii in range(1, m_row + 1): 
+                cell_obj = sheet_obj.cell(row = ii, column = 1) 
                 if cell_obj.value and f in cell_obj.value:
                     print(f'File excel already created for meetign with id {f}')
                     return 1
@@ -113,17 +243,26 @@ def generate_excel_file(t, filename):
                 users[curuid]['max_end'] = end
             
             if end is not None and start is not None:
+                if not 'participation' in users[curuid]: users[curuid]['participation'] = [] 
+
+                users[curuid]['participation'].append(start.replace(tzinfo=from_zone).astimezone(to_zone))
+                users[curuid]['participation'].append(end.replace(tzinfo=from_zone).astimezone(to_zone))
+
                 delta = end - start
                 users[curuid]['duration'] += delta.seconds
 
         participants = []
         for _uid, data in users.items():
-            data['duration'] /= 60
-            hours = math.floor(data['duration'] / 60)
-            minutes = math.floor(data['duration'] % 60)
-            duration = "{0} ore e {1} minuti".format(hours, minutes)
+            data['participation'].sort()
 
-            participants.append({ 'uid': _uid, 'name': data['name'], 'start': data['min_start'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'end': data['max_end'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'duration': duration})
+            participants.append({
+                'uid': _uid,
+                'name': data['name'],
+                'start': data['min_start'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+                'end': data['max_end'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+                'duration': data['duration'],
+                'participation': data['participation']
+            })
 
         if len(participants) <= 1:
             json_file.close()
@@ -136,47 +275,9 @@ def generate_excel_file(t, filename):
         workbook = Workbook()
         worksheet = workbook.active
         worksheet.title = 'Registro'
-
-        worksheet.append(['Partecipante', 'Inizio presenza', 'Fine presenza', 'Tempo di partecipazione'])
-        for cell in worksheet["1:1"]:
-            cell.font = Font(bold=True)
-
-        i = 1
-        for pp in participants:
-            i = i + 1
-
-            start = datetime.strptime(pp['start'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
-            end = datetime.strptime(pp['end'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
-
-            delta = (end - start).seconds
-            delta /= 60*60*24
-
-            worksheet.append([
-                pp['name'],
-                start,
-                end,
-                delta
-            ])
-
-            cell = worksheet.cell(i, 2)
-            cell.number_format = 'dd/mm/yyyy hh:mm'
-            cell = worksheet.cell(i, 3)
-            cell.number_format = 'dd/mm/yyyy hh:mm' 
-            cell = worksheet.cell(i, 4)
-            cell.number_format = 'h "ore e" mm "minuti"' 
-
-        mediumStyle = TableStyleInfo(name='TableStyleMedium2', showRowStripes=True)
-        worksheet.add_table(Table(ref=f'A1:D{i}', displayName='RegistroPresenze', tableStyleInfo=mediumStyle))
-        worksheet.sheet_view.showGridLines = False
-
-        report_id = os.path.basename(filename).replace('.json', '')
-        worksheet.append([f''])
-        worksheet.append([f'Report generato per il meeting con ID: {report_id}'])
-
-        column_widths = [30, 20, 20, 20]
-        for i, column_width in enumerate(column_widths):
-            worksheet.column_dimensions[get_column_letter(i+1)].width = column_width
-
+        generate_sheet_registro(worksheet, participants, filename)
+        worksheet = workbook.create_sheet('Partecipazione')
+        generate_sheet_partecipation(worksheet, participants, filename)
         workbook.save(filename=dest_filename)
 
     json_file.close()
