@@ -8,6 +8,7 @@ import getopt
 import configparser
 from tqdm import tqdm
 from dateutil import tz
+from operator import itemgetter
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 from openpyxl import Workbook, load_workbook
@@ -182,6 +183,21 @@ def generate_sheet_partecipation(worksheet, participants, filename):
     worksheet.add_chart(chart, "A43")
 
 
+def merge_times(times):
+    times = iter(times)
+    merged = next(times).copy()
+    for entry in times:
+        start, end = entry['start'], entry['end']
+        if start <= merged['end']:
+            # overlapping, merge
+            merged['end'] = max(merged['end'], end)
+        else:
+            # distinct; yield merged and start a new copy
+            yield merged
+            merged = entry.copy()
+    yield merged
+
+
 def generate_excel_file(t, filename):
     with open(filename) as json_file:
         p = json.load(json_file)
@@ -245,23 +261,32 @@ def generate_excel_file(t, filename):
             if end is not None and start is not None:
                 if not 'participation' in users[curuid]: users[curuid]['participation'] = [] 
 
-                users[curuid]['participation'].append(start.replace(tzinfo=from_zone).astimezone(to_zone))
-                users[curuid]['participation'].append(end.replace(tzinfo=from_zone).astimezone(to_zone))
-
-                delta = end - start
-                users[curuid]['duration'] += delta.seconds
+                users[curuid]['participation'].append({
+                    'start': start.replace(tzinfo=from_zone).astimezone(to_zone),
+                    'end': end.replace(tzinfo=from_zone).astimezone(to_zone)
+                })
 
         participants = []
         for _uid, data in users.items():
-            data['participation'].sort()
+            participation = sorted(data['participation'], key=itemgetter('start', 'end'))
+            participation = merge_times(participation)
 
+            duration = 0
+            part = []
+            for pp in participation:
+                delta = pp['end'] - pp['start']
+                duration += delta.seconds
+                part.append(pp['start'])
+                part.append(pp['end'])
+
+            part.sort()
             participants.append({
                 'uid': _uid,
                 'name': data['name'],
                 'start': data['min_start'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
                 'end': data['max_end'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
-                'duration': data['duration'],
-                'participation': data['participation']
+                'duration': duration,
+                'participation': part
             })
 
         if len(participants) <= 1:
