@@ -47,6 +47,7 @@ if __name__ == '__main__':
         configuration['filename'] = filename
     if zipfilename:
         configuration['zipfile'] = zipfilename
+    configuration['local'] = 'false'
 
     print(f'Working for institution {ente}.')
 
