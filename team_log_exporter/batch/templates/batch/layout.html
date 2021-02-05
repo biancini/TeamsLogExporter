@@ -1,0 +1,119 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>TeamsLogExporterWeb Batch</title>
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap-italia.min.css' %}" />
+</head>
+<body class="h-100 dimmable" ng-app="teamsBatch" ng-controller="mainController">
+    <div class="position-fixed h-100 w-100 modal dimmer dimmer-primary" id="flowDimmer">
+        <div class="dimmer-inner">
+            <h4>Azione in corso, prego attendere...</h4>
+        </div>
+    </div>
+    <div>
+        <div class="it-header-slim-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="it-header-slim-wrapper-content">
+                            <a class="d-lg-block navbar-brand" style="font-size: 1rem; font-weight: bold" href="/batch">
+                                <svg class="icon icon-white icon-sm align-middle"><use xlink:href="{% static 'svg/sprite.svg' %}#it-exchange-circle"></use></svg>
+                                Teams Log Batch Generator
+                            </a>
+                            <div class="it-header-slim-left-zone">
+                                {% if user.is_authenticated %}
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="rounded-icon">
+                                                <svg class="icon icon-white">
+                                                    <use xlink:href="{% static 'svg/sprite.svg' %}#it-user"></use>
+                                                </svg>
+                                            </span>
+                                            <span>{{ user.name }}</span>
+                                            <svg class="icon-expand icon icon-sm icon-light"><use xlink:href="{% static 'svg/sprite.svg' %}#it-expand"></use></svg>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                          <div class="link-list-wrapper">
+                                            <ul class="link-list">
+                                              <li><a class="list-item" href="#">{{ user.email }}</li>
+                                              <li><a class="list-item" href="{% url 'batch_signout' %}"><span>Signout</span></a></li>
+                                            </ul>
+                                          </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="rounded-icon">
+                                                <svg class="icon icon-white">
+                                                    <use xlink:href="{% static 'svg/sprite.svg' %}#it-user"></use>
+                                                </svg>
+                                            </span>
+                                            <span>Accedi a O365</span>
+                                            <svg class="icon-expand icon icon-sm icon-light"><use xlink:href="{% static 'svg/sprite.svg' %}#it-expand"></use></svg>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                          <div class="link-list-wrapper">
+                                            <ul class="link-list">
+                                                <li><a class="list-item" href="{% url 'batch_signin' %}?id=ENAIP"><span>Enaip</span></a></li>
+                                                <li><a class="list-item" href="{% url 'batch_signin' %}?id=ITSINCOM"><span>ITS Incom</span></a></li>
+                                                <li><a class="list-item" href="{% url 'batch_signin' %}?id=ITSINCOM2"><span>ITS Incom 2</span></a></li>
+                                                <li><a class="list-item" href="{% url 'batch_signin' %}?id=ITSTTF"><span>ITS TTF</span></a></li>
+                                            </ul>
+                                          </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if errors %}
+        {% for error in errors %}
+        <div class="alert alert-danger" role="alert">
+            <p class="mb-3">{{ error.message }}</p>
+            {% if error.debug %}
+            <pre class="alert-pre border bg-light p-2"><code>{{ error.debug }}</code></pre>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="error-message">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Errore
+                </h5>
+            </div>
+            <div class="modal-body">
+                <p>{a errorMessage a}</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-sm" data-dismiss="modal" type="button">Close</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="margin-top: 25px;">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>window.__PUBLIC_PATH__ = '{% static "fonts" %}'</script>
+    <script src="{% static 'js/bootstrap-italia.bundle.min.js' %}"></script>
+    <script src="{% static 'js/jszip.min.js' %}"></script>
+    <script src="{% static 'js/filesaver.js' %}"></script>
+    <script src="{% static 'js/angular.min.js' %}"></script>
+    <script src="{% static 'js/teamsbatch.js' %}"></script>
+</body>
+</html> 

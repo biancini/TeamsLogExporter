@@ -1,0 +1,110 @@
+{% extends "batch/layout.html" %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+      {% if user.is_authenticated %}
+        <h3>Benvenuto {{ user.name }}.</h3>
+        <p class="d-none d-lg-block small font-italic">L'application Id utilizzato è {{ appdata.appid }}.<br/>Hai fatto login per l'ente {{ appdata.ente }}.<br/>Gli scope richiesti sono {{ appdata.scopes }}</p>
+      {% else %}
+        <h3>Benvenuto.</h3></h4>
+        <p class="d-none d-lg-block">Per proseguire devi fare login: <a href="{% url 'batch_signin' %}" class="btn btn-primary btn-large">qui</a></p>
+      {% endif %}
+      <br/>
+  </div>
+</div>
+
+{% if user.is_authenticated %}
+<div ng-class="(step1 == 'active') ? 'd-block' : 'd-none'">
+	<p>
+		<strong>Carica file con le lezioni di cui si vuole creare il registro</strong><br/>
+		Qui è possibile caricare tre tipi diversi di files:
+		<ul>
+			<li>
+				Un file CSV con l'elenco delle lezioni a cui si è interessati (ottenuto da <a href="https://cqd.teams.microsoft.com/" target="_blank">questo link</a>).
+			</li>
+			<li>
+				Un file ZIP contenente diversi file JSON delle lezioni cui si è interessati, precedentemente scaricato da questa applicazione.
+			</li>
+			<li>
+				Un file JSON contenente i dati di una singola lezione cui si è interessati.
+			</li>
+		</ul>
+	</p>
+
+	<form id="uploadChangeStateTarget" class="upload-dragdrop" method="post" action="/batch/upload_csvfile" enctype="multipart/form-data" style="margin-top: 30px" ng-on-drop="dropCSV($event)">
+		<div class="upload-dragdrop-image">
+			<img src="{% static 'svg/upload-drag-drop-icon.svg' %}" alt="imagealt" aria-hidden="true">
+			<div class="upload-dragdrop-loading">
+				<div id="divProgress1" class="upload-progress"></div>
+			</div>
+			<div class="upload-dragdrop-success">
+				<svg class="icon" aria-hidden="true"><use xlink:href="{% static 'svg/sprite.svg'%}#it-check"></use></svg>
+			</div>
+		</div>
+		<div class="upload-dragdrop-text">
+			<p class="upload-dragdrop-weight">
+				<svg class="icon icon-xs" aria-hidden="true"><use xlink:href="{% static 'svg/sprite.svg'%}#it-file"></use></svg> <span id="filetype">CSV (1.2KB)</span>
+			</p>
+			<h5 id="simTitle">Trascina il file per caricarlo</h5>
+			<p id="simText">oppure <input type="file" name="uploadcsv" id="uploadcsv" ng-on-change="uploadCSV($event)" class="upload-dragdrop-input" /><label for="uploadcsv">selezionalo dal dispositivo</label></p>
+		</div>
+		<input value="Submit" type="submit" class="d-none" />
+		{% csrf_token %}
+	</form>
+</div>
+
+<div ng-class="(step2 == 'active') ? 'd-block' : 'd-none'">
+	<p>Selezionare gli eventi per cui generare il registro:</p>
+	<div id="event-selection" class="it-list-wrapper">
+	  <ul class="it-list">
+		<li ng-repeat="item in lessonIds">
+		  <a class="it-has-checkbox" href="#">
+			<div class="form-check">
+			  <input id="checkbox-event-{a $index a}" ng-click="countChecked()" type="checkbox" value="{a item a}" class="checked" checked="true">
+			  <label for="checkbox-event-{a $index a}"></label>
+			</div>
+			<div class="it-right-zone">
+			  <span class="text" ng-click="selectCheck('checkbox-event-' + $index)">Lezione con id <b>{a item a}</b>.</span>
+			  <svg id="downloaded-{a item a}" class="icon icon-success d-none" ng-click="downloadJson(item)"><use xlink:href="{% static 'svg/sprite.svg'%}#it-arrow-down-circle"></use></svg>
+			</div>
+		  </a>
+		</li>
+	  </ul>
+	</div>
+
+	<div class="progress">
+		<div id="progress-json" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+	</div>
+</div>
+
+<div ng-class="(step3 == 'active') ? 'd-block' : 'd-none'">
+	<p>Elenco dei report delle lezioni scaricate:</p>
+	<div id="report-selection" class="it-list-wrapper">
+	  <ul class="it-list">
+		<li ng-repeat="item in lessonExcels">
+			<a class="it-has-checkbox" href="#">
+				<div class="it-right-zone">
+					<span class="text" ng-click="selectCheck('checkbox-excel-' + c)">Report: <b>{a item a}</b></span>
+					<svg id="downloadexcel-{a $index a}" class="icon icon-success" ng-click="downloadExcelFile(item)"><use xlink:href="{% static 'svg/sprite.svg'%}#it-arrow-down-circle"></use></svg>
+				</div>
+			</a>
+		</li>
+	  </ul>
+	</div>
+
+	<div class="progress">
+		<div id="progress-excel" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+	</div>
+</div>
+
+<div class="row, float-right" style="margin-top: 30px">
+	<button type="button" ng-click="downloadExcelZip()" ng-class="(showDownloadExcel) ? ((disableDownloadExcelZip) ? 'btn btn-secondary disabled' : 'btn btn-secondary') : 'd-none'" >Scarica Zip</button>
+	<button type="button" ng-click="downloadJsonZip()" ng-class="(showDownloadZip) ? ((disableDownloadJsonZip) ? 'btn btn-secondary disabled' : 'btn btn-secondary') : 'd-none'" >Scarica Zip</button>
+	<button type="button" ng-click="goNextStep()" ng-class="(stopProceed) ? 'btn btn-primary btn-sm steppers-btn-next disabled' : 'btn btn-primary btn-sm steppers-btn-next'" >Procedi</button>
+</div>
+
+{% endif %}
+
+{% endblock %}

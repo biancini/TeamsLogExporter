@@ -41,6 +41,7 @@ def sign_in(request):
     id = request.GET.get('id', None)
     request.session['appid'] = os.environ['APPID_%s' % id]
     request.session['appsecret'] = os.environ['APPSECRET_%s' % id]
+    request.session['ente'] = id
 
     print ("appid = %s" % request.session.get('appid', None))
     print ("appsecret = %s" % request.session.get('appsecret', None))
@@ -65,18 +66,19 @@ def callback(request):
     store_token(request, token)
     store_user(request, user)
 
-    return HttpResponseRedirect(reverse('home'))
+    return HttpResponseRedirect(reverse('exporter_home'))
 
 def sign_out(request):
     # Clear out the user and token
     remove_user_and_token(request)
 
-    return HttpResponseRedirect(reverse('home'))
+    return HttpResponseRedirect(reverse('exporter_home'))
 
 def home(request):
     context = initialize_context(request)
     context['appdata'] = {
         'appid': request.session.get('appid', None),
+        'ente': request.session.get('ente', None),
         'scopes': scopes
     }
 
