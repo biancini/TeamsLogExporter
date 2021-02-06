@@ -2,6 +2,7 @@ import json
 import glob
 import os.path
 import math
+import requests
 from tqdm import tqdm
 from dateutil import tz
 from urllib import parse
