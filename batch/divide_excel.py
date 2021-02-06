@@ -29,6 +29,8 @@ def divide_excel(configuration):
     ente = configuration['ente']
     local = configuration['local'] == 'true'
     base = configuration['basepath']
+    print("%s" % base)
+    sys.exit(1)
     t = get_access_token(ente)
 
     print(f'Working for institution {ente}. Working on %s source.' % ('local' if local else 'remote'))
@@ -101,7 +103,7 @@ def divide_excel(configuration):
 
 if __name__ == '__main__':
     config = configparser.ConfigParser()
-    config.read('configuration.ini')
+    config.read('configuration.ini', encoding='utf-8')
     ente = 'ENAIP'
     local = 'false'
 
