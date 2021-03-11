@@ -333,6 +333,7 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
             $scope.downloadJsonAPI().then(function (r) {
                 $scope.stopProceed = false;
                 $scope.showDownloadZip = true;
+                $scope.apply();
             },
             function (data) {
                 $scope.showError(data);
@@ -348,6 +349,7 @@ app.controller('mainController', ['$scope', '$q', 'DjangoAPI', function($scope, 
             
             $scope.generateExcel().then(function (r) {
                 $scope.showDownloadExcel = true;
+                $scope.apply();
             },
             function (data) {
                 $scope.showError(data);

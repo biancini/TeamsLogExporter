@@ -9,6 +9,7 @@ from datetime import datetime
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.chart import BarChart, Reference
 from openpyxl.utils import get_column_letter
 from io import BytesIO
 from tempfile import NamedTemporaryFile
@@ -213,10 +214,8 @@ def download_generatedexcel(t, jsonFileData, report_id=None):
 
     start_time = datetime.strptime(jsonFileData['startDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
     start_time = start_time.replace(tzinfo=from_zone).astimezone(to_zone)
-    start_time = start_time.strftime('%Y-%m-%d %H-%M')
-    dest_filename = f'{start_time} - {name}.xlsx'
-
-    i = 2
+    start_time_name = start_time.strftime('%Y-%m-%d %H-%M')
+    dest_filename = f'{start_time_name} - {name}.xlsx'
 
     users = {}
     for c in jsonFileData['sessions']:
@@ -237,6 +236,8 @@ def download_generatedexcel(t, jsonFileData, report_id=None):
             displayname = get_usernamefromid(t, curuid)
             users[curuid] = { 'name': displayname, 'min_start': None, 'max_end': None, 'duration': 0 }
 
+        if 'periods' not in users[curuid]: users[curuid]['periods'] = []
+
         start = datetime.strptime(c['startDateTime'].split('.', 1)[0].split('Z', 1)[0], '%Y-%m-%dT%H:%M:%S')
         start = start.replace(tzinfo=from_zone).astimezone(to_zone)
         if users[curuid]['min_start'] is None or start < users[curuid]['min_start']:
@@ -251,14 +252,24 @@ def download_generatedexcel(t, jsonFileData, report_id=None):
             delta = end - start
             users[curuid]['duration'] += delta.seconds
 
+        users[curuid]['periods'].append([start, end])
+
     participants = []
     for _uid, data in users.items():
         data['duration'] /= 60
+        
         hours = math.floor(data['duration'] / 60)
         minutes = math.floor(data['duration'] % 60)
         duration = "{0} ore e {1} minuti".format(hours, minutes)
 
-        participants.append({ 'uid': _uid, 'name': data['name'], 'start': data['min_start'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'end': data['max_end'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'), 'duration': duration})
+        participants.append({
+            'uid': _uid,
+            'name': data['name'],
+            'start': data['min_start'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+            'end': data['max_end'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+            'duration': duration,
+            'periods': merge_intervals(data['periods'])
+        })
 
     if len(participants) <= 1:
         return dest_filename, None
@@ -270,6 +281,5 @@ def download_generatedexcel(t, jsonFileData, report_id=None):
     workbook = Workbook()
     sheet_registro(report_id, participants, workbook)
     sheet_partecipazione(report_id, start_time, participants, workbook)
-    workbook.save(filename=dest_filename)
 
     return dest_filename, save_virtual_workbook(workbook)
