@@ -97,13 +97,16 @@ def sheet_registro(filename, participants, workbook):
         i = i + 1
         start = datetime.strptime(pp['start'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
         end = datetime.strptime(pp['end'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
-        delta = pp['duration']
-        delta /= 60*60*24
+        duration = 0
+        for [start, end] in merge_intervals(pp['periods']):
+            delta = end - start
+            duration += delta.seconds
+        duration /= 60*60*24
         worksheet.append([
                 pp['name'],
                 start,
                 end,
-                delta
+                duration
             ])
         cell = worksheet.cell(i, 2)
         cell.number_format = 'dd/mm/yyyy hh:mm'
@@ -234,7 +237,7 @@ def download_generatedexcel(t, jsonFileData, report_id=None):
         curuid = c['caller']['identity']['user']['id']
         if curuid not in users:
             displayname = get_usernamefromid(t, curuid)
-            users[curuid] = { 'name': displayname, 'min_start': None, 'max_end': None, 'duration': 0 }
+            users[curuid] = { 'name': displayname, 'min_start': None, 'max_end': None }
 
         if 'periods' not in users[curuid]: users[curuid]['periods'] = []
 
@@ -247,10 +250,6 @@ def download_generatedexcel(t, jsonFileData, report_id=None):
         end = end.replace(tzinfo=from_zone).astimezone(to_zone)
         if users[curuid]['max_end'] is None or end > users[curuid]['max_end']:
             users[curuid]['max_end'] = end
-        
-        if end is not None and start is not None:
-            delta = end - start
-            users[curuid]['duration'] += delta.seconds
 
         users[curuid]['periods'].append([start, end])
 
@@ -261,7 +260,6 @@ def download_generatedexcel(t, jsonFileData, report_id=None):
             'name': data['name'],
             'start': data['min_start'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
             'end': data['max_end'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
-            'duration': data['duration'],
             'periods': merge_intervals(data['periods'])
         })
 

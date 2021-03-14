@@ -1,7 +1,9 @@
 import json
 import glob
 import os.path
-import math
+import sys
+import getopt
+import configparser
 import requests
 from tqdm import tqdm
 from dateutil import tz
@@ -14,6 +16,7 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.chart import BarChart, Reference
 from openpyxl.utils import get_column_letter
 
+from utils import get_access_token
 
 usernames = {}
 from_zone = tz.gettz('UTC')
@@ -59,13 +62,16 @@ def sheet_registro(filename, participants, workbook):
         i = i + 1
         start = datetime.strptime(pp['start'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
         end = datetime.strptime(pp['end'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
-        delta = pp['duration']
-        delta /= 60*60*24
+        duration = 0
+        for [start, end] in merge_intervals(pp['periods']):
+            delta = end - start
+            duration += delta.seconds
+        duration /= 60*60*24
         worksheet.append([
                 pp['name'],
                 start,
                 end,
-                delta
+                duration
             ])
         cell = worksheet.cell(i, 2)
         cell.number_format = 'dd/mm/yyyy hh:mm'
@@ -204,7 +210,7 @@ def generate_excel(t, filename):
             curuid = c['caller']['identity']['user']['id']
             if curuid not in users:
                 displayname = get_usernamefromid(t, curuid)
-                users[curuid] = { 'name': displayname, 'min_start': None, 'max_end': None, 'duration': 0 }
+                users[curuid] = { 'name': displayname, 'min_start': None, 'max_end': None }
 
             if 'periods' not in users[curuid]: users[curuid]['periods'] = []
             
@@ -220,10 +226,6 @@ def generate_excel(t, filename):
             if users[curuid]['max_end'] is None or end > users[curuid]['max_end']:
                 users[curuid]['max_end'] = end
             
-            if end is not None and start is not None:
-                delta = end - start
-                users[curuid]['duration'] += delta.seconds
-
             users[curuid]['periods'].append([start, end])
 
         participants = []
@@ -233,8 +235,7 @@ def generate_excel(t, filename):
                 'name': data['name'],
                 'start': data['min_start'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
                 'end': data['max_end'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
-                'periods': merge_intervals(data['periods']),
-                'duration': data['duration']})
+                'periods': merge_intervals(data['periods'])})
 
         if len(participants) <= 1:
             json_file.close()
@@ -255,30 +256,36 @@ def generate_excel(t, filename):
 
 
 if __name__ == '__main__':
-    tenant_id = os.getenv('TENANTID_ENAIP', None)
-    client_id = os.getenv('APPID_ENAIP', None)
-    client_secret =  os.getenv('APPSECRET_ENAIP', None)
-    num_threads = 10
+    config = configparser.ConfigParser()
+    config.read('configuration.ini')
+    ente = 'ENAIP'
+    filename = None
+    zip = False
+    zipfilename = None
 
-    data = parse.urlencode({
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'scope': 'https://graph.microsoft.com/.default',
-        'grant_type': 'client_credentials'
-    })
+    try:
+        opts, _ = getopt.getopt(sys.argv[1:], "he:", ["help", "ente="])
+    except getopt.GetoptError:
+        print('generate_excel.py [-e <ente>]')
+        sys.exit(2)
+    
+    for o, a in opts:
+        if o in ('-h', '--help'):
+            print('generate_excel.py [-e <ente>]')
+            sys.exit()
+        elif o in ('-e', '--ente'):
+            ente = a.upper()
+        else:
+            assert False
 
-    uri = f'https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token'
-    r = requests.post(uri, data=data).json()
+    configuration = config[ente]
+    configuration['ente'] = ente
 
-    if not 'access_token' in r:
-        print(f'{r}')
-        exit(1)
-
-    t = r['access_token']
-
+    print(f'Working for institution {ente}.')
+    t = get_access_token(ente)
     json_files = glob.glob("json/*.json")
-
     out = 0
+    num_threads = 10
 
     with ProcessPoolExecutor(max_workers=num_threads) as pool:
         with tqdm(total=len(json_files)) as progress:
