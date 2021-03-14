@@ -59,7 +59,7 @@ def sheet_registro(filename, participants, workbook):
         i = i + 1
         start = datetime.strptime(pp['start'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
         end = datetime.strptime(pp['end'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
-        delta = (end - start).seconds
+        delta = pp['duration']
         delta /= 60*60*24
         worksheet.append([
                 pp['name'],
