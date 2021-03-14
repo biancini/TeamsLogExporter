@@ -256,18 +256,12 @@ def download_generatedexcel(t, jsonFileData, report_id=None):
 
     participants = []
     for _uid, data in users.items():
-        data['duration'] /= 60
-        
-        hours = math.floor(data['duration'] / 60)
-        minutes = math.floor(data['duration'] % 60)
-        duration = "{0} ore e {1} minuti".format(hours, minutes)
-
         participants.append({
             'uid': _uid,
             'name': data['name'],
             'start': data['min_start'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
             'end': data['max_end'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
-            'duration': duration,
+            'duration': data['duration'],
             'periods': merge_intervals(data['periods'])
         })
 
