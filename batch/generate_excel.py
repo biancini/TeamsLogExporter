@@ -173,7 +173,7 @@ def sheet_partecipazione(filename, start_time, participants, workbook):
     worksheet.add_chart(chart, "A43")
 
 
-def generate_excel(t, filename):
+def generate_one_excel(t, filename):
     with open(filename) as json_file:
         p = json.load(json_file)
 
@@ -251,17 +251,40 @@ def generate_excel(t, filename):
         workbook.save(filename=dest_filename)
 
     json_file.close()
-    #os.remove(filename)
     return 1
 
+
+def generate_excel(configuration):
+    ente = configuration['ente']
+    filename = None
+
+    print(f'Working for institution {ente}.')
+
+    t = get_access_token(ente)
+    json_files = glob.glob("json/*.json")
+    out = 0
+    num_threads = 10
+
+    with ProcessPoolExecutor(max_workers=num_threads) as pool:
+        with tqdm(total=len(json_files)) as progress:
+            futures = []
+            for filename in json_files:
+                future = pool.submit(generate_one_excel, t, filename)
+                future.add_done_callback(lambda p: progress.update())
+                futures.append(future)
+
+            for future in futures:
+                result = future.result()
+                out += result
+        
+    print(f'Script finito, creati {out} files.')
+    return out
+    
 
 if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read('configuration.ini')
     ente = 'ENAIP'
-    filename = None
-    zip = False
-    zipfilename = None
 
     try:
         opts, _ = getopt.getopt(sys.argv[1:], "he:", ["help", "ente="])
@@ -280,23 +303,4 @@ if __name__ == '__main__':
 
     configuration = config[ente]
     configuration['ente'] = ente
-
-    print(f'Working for institution {ente}.')
-    t = get_access_token(ente)
-    json_files = glob.glob("json/*.json")
-    out = 0
-    num_threads = 10
-
-    with ProcessPoolExecutor(max_workers=num_threads) as pool:
-        with tqdm(total=len(json_files)) as progress:
-            futures = []
-            for filename in json_files:
-                future = pool.submit(generate_excel, t, filename)
-                future.add_done_callback(lambda p: progress.update())
-                futures.append(future)
-
-            for future in futures:
-                result = future.result()
-                out += result
-        
-    print(f'Script finito, creati {out} files.')
+    generate_excel(configuration)
