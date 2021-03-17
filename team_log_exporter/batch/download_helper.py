@@ -95,8 +95,8 @@ def sheet_registro(filename, participants, workbook):
     i = 1
     for pp in participants:
         i = i + 1
-        start = datetime.strptime(pp['start'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
-        end = datetime.strptime(pp['end'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
+        min_start = datetime.strptime(pp['start'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
+        max_end = datetime.strptime(pp['end'].split('.', 1)[0], '%Y-%m-%dT%H:%M:%S')
         duration = 0
         for [start, end] in merge_intervals(pp['periods']):
             delta = end - start
@@ -104,8 +104,8 @@ def sheet_registro(filename, participants, workbook):
         duration /= 60*60*24
         worksheet.append([
                 pp['name'],
-                start,
-                end,
+                min_start,
+                max_end,
                 duration
             ])
         cell = worksheet.cell(i, 2)
