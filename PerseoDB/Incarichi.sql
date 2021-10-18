@@ -18,7 +18,7 @@ INNER JOIN t_TipoAttivitaEdizione ON t_AttivitaEdizioni.FK_TipoAttivita = t_Tipo
 LEFT OUTER JOIN t_TipoFormativoInterno ON t_PianoServizi.FK_TipoFormativoInterno = t_TipoFormativoInterno.IDtformaint
 LEFT OUTER JOIN t_ArgomentiModuli ON t_IncarichiEdizioni.FK_Argomento = t_ArgomentiModuli.IDargomento
 
-WHERE AnnoBando = '2020/2021'
+WHERE AnnoBando = '2021/2022'
 AND FK_Tipo > 1
 
 AND SedeTest=0
