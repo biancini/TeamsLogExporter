@@ -1,15 +1,16 @@
-SELECT AnnoBando, SiglaSede,
-    --CodiceEdizione,
-    DescrEdizione,
-    --CodiceProgetto,
-    DescrProgetto,
-    Cognome,
-    Nome,
-    CodFiscale, 
-    DataIscr AS DataIscrizione,
-    DataRitiro,
-    Disabile,
-    Svantaggio AS DSA
+SELECT AnnoBando,
+  SiglaSede,
+  --CodiceEdizione,
+  DescrEdizione,
+  --CodiceProgetto,
+  DescrProgetto,
+  Cognome,
+  Nome,
+  CodFiscale,
+  DataIscr AS DataIscrizione,
+  DataRitiro,
+  Disabile,
+  Svantaggio AS DSA
 
 FROM t_TipoDoteStudente
 RIGHT OUTER JOIN t_StudentiDoti ON t_TipoDoteStudente.IDtdote = t_StudentiDoti.FK_TipoDote

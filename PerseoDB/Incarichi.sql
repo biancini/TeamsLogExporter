@@ -1,10 +1,24 @@
-SELECT (t_Docenti.IDdocente) AS PKdoc, (IDincarico) AS NumeroIncarico, IDedizione,
-    (Cognome + ' ' + Nome) AS StrDOC,
+SELECT SiglaSede AS Sede,
+    Cognome, Nome,
     (CASE WHEN FK_Tipo=1 THEN 'Generico' WHEN FK_Tipo=2 THEN 'Interno' ELSE 'Esterno' END) AS StrTipo,
-    CodFiscale, SiglaSede, CodiceEdizione, DescrEdizione, CodiceProgetto, DescrProgetto, TipoFormativoInterno,
-    DataAvvio, DataFine, DataInizioFA, DataFineFA, Durata, TipoAttivita, Aula, ContrattoAula, DescrArgomento, OreAssegnate,
+    CodFiscale,
+    DescrTitoloStudio,
+    DATEDIFF(year, t_Docenti.DataRec, GETDATE()) AS AnniEsperienzaEnaip,
+    --CodiceEdizione,
+    DescrEdizione,
+    --CodiceProgetto,
+    DescrProgetto,
+    TipoFormativoInterno AS TipoFormativo,
+    DataAvvio, DataFine,
+    DataInizioFA, DataFineFA,
+    Durata,
+    TipoAttivita, Aula, ContrattoAula,
+    --DescrArgomento,
+    OreAssegnate,
     (CASE WHEN FK_Tipo<=2 THEN OreAssegnate ELSE (SELECT SUM(OreSvolgere) FROM t_IncarichiEdizioniContratti WHERE FK_IncaricoEdizione=IDincarico AND ApprovaIncarico=1) END) AS OreApprovate,
-    IncaricoBloccato, IncaricoGenericoGratuito, DescrGratuito, DescrIncarico, PreDimissione
+    IncaricoBloccato,
+    IncaricoGenericoGratuito
+    --DescrIncarico
 
 FROM t_Docenti
 INNER JOIN t_IncarichiEdizioni ON t_Docenti.IDdocente = t_IncarichiEdizioni.FK_Docente
