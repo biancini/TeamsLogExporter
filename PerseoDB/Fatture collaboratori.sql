@@ -16,7 +16,7 @@ SELECT (t_DocentiParcelle.IDparcella) AS Parcella,
     CodiceTributo,
     DescrAmmNomina,
     DescrDatoreLavoro,
-    DataParcella,
+    DataParcella,       
     DataPagamento,
     ImportoParcella,
     sngRiva,
@@ -29,7 +29,7 @@ SELECT (t_DocentiParcelle.IDparcella) AS Parcella,
     sngINPS13,
     sngRiteAcc,
     sngNettoInc,
-    NumeroFattura,
+    UNICODE(NumeroFattura) as NumeroFattura,
     DataFattura
 
 FROM t_Progetti
@@ -47,3 +47,5 @@ LEFT OUTER JOIN t_Aziende ON t_DocentiParcelle.FK_Azienda = t_Aziende.IDazienda
 WHERE DataPagamento IS NOT NULL
 
 ORDER BY (CASE WHEN FK_Azienda IS NOT NULL THEN DescrAzienda ELSE (Cognome + ' ' + Nome) END), DataPagamento 
+
+--OFFSET 2629 ROWS FETCH NEXT 1 ROWS ONLY
