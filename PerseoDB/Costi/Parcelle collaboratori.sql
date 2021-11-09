@@ -1,4 +1,5 @@
 SELECT (t_DocentiParcelle.IDparcella) AS Parcella,
+    (CASE WHEN MONTH(DataParcella)>=9 THEN (CAST(YEAR(DataParcella) AS VARCHAR) + '/' + CAST(YEAR(DataParcella) + 1 AS VARCHAR)) ELSE (CAST(YEAR(DataParcella) - 1 AS VARCHAR) + '/' + CAST(YEAR(DataParcella) AS VARCHAR)) END) AS AnnoAmm,
     (CASE WHEN IDazienda IS NOT NULL THEN DescrAzienda ELSE (Cognome + ' ' + Nome) END) AS Collaboratore,
     DescrProgetto,
     CodiceProgetto,

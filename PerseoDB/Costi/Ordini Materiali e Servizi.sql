@@ -24,6 +24,7 @@ SELECT (t_RichiesteOrdini.IDordine) AS PKord,
     (SELECT SUM(TotaleIMponibile) FROM t_RichiesteOrdiniFatture WHERE FK_ordine=IDordine) AS TotaleImponibileFatture,
     DataOrdineEvaso,
     (NULL) AS ProtocolloEvaso
+    
 FROM t_RichiesteOrdini
 INNER JOIN t_Sedi ON t_RichiesteOrdini.FK_Sede = t_Sedi.IDsede
 INNER JOIN t_TipoSpesa ON t_RichiesteOrdini.FK_TipoOrdineSpesa = t_TipoSpesa.IDtipospesa
