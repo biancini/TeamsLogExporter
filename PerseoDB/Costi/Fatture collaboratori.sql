@@ -15,6 +15,7 @@ SELECT t_ProgettiPagamentiCompensiOneri.IDcompensi,
     CodiceTributo,
     DescrProgetto,
     CodiceProgetto,
+    TipoProgetto,
     IDmwp,
     DescrEdizione,
     CodiceEdizione,
@@ -42,6 +43,7 @@ SELECT t_ProgettiPagamentiCompensiOneri.IDcompensi,
 FROM t_ProgettiPagamenti
 INNER JOIN t_ProgettiPagamentiCompensiOneri ON t_ProgettiPagamenti.IDprogpagamento = t_ProgettiPagamentiCompensiOneri.FK_ProgettoPagamento
 INNER JOIN t_Progetti ON t_ProgettiPagamenti.FK_Progetto = t_Progetti.IDprogetto
+INNER JOIN t_TipoProgetto ON t_Progetti.FK_TipoProgetto = t_TipoProgetto.IDtprogetto
 INNER JOIN t_DecodificatoreParametroFiscale ON t_ProgettiPagamentiCompensiOneri.FK_ParFiscaleAttuale = t_DecodificatoreParametroFiscale.IDparfisc
 LEFT OUTER JOIN t_Docenti ON t_ProgettiPagamentiCompensiOneri.IDdocente = t_Docenti.IDdocente
 LEFT OUTER JOIN t_Aziende ON t_ProgettiPagamentiCompensiOneri.FK_Azienda = t_Aziende.IDazienda
