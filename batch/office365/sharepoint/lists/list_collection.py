@@ -1,11 +1,11 @@
-from office365.runtime.client_object_collection import ClientObjectCollection
-from office365.runtime.client_query import CreateEntityQuery
-from office365.runtime.resource_path_service_operation import ResourcePathServiceOperation
-from office365.runtime.queries.serviceOperationQuery import ServiceOperationQuery
+from office365.runtime.queries.create_entity_query import CreateEntityQuery
+from office365.runtime.queries.service_operation_query import ServiceOperationQuery
+from office365.runtime.paths.service_operation import ServiceOperationPath
+from office365.sharepoint.base_entity_collection import BaseEntityCollection
 from office365.sharepoint.lists.list import List
 
 
-class ListCollection(ClientObjectCollection):
+class ListCollection(BaseEntityCollection):
     """Lists collection"""
 
     def __init__(self, context, resource_path=None):
@@ -17,7 +17,7 @@ class ListCollection(ClientObjectCollection):
         :type list_title: str
         """
         return List(self.context,
-                    ResourcePathServiceOperation("GetByTitle", [list_title], self.resource_path))
+                    ServiceOperationPath("GetByTitle", [list_title], self.resource_path))
 
     def get_by_id(self, list_id):
         """Retrieve List client object by id
@@ -25,7 +25,14 @@ class ListCollection(ClientObjectCollection):
         :type list_id: str
         """
         return List(self.context,
-                    ResourcePathServiceOperation("GetById", [list_id], self.resource_path))
+                    ServiceOperationPath("GetById", [list_id], self.resource_path))
+
+    def ensure_events_list(self):
+        events_list = List(self.context)
+        self.add_child(events_list)
+        qry = ServiceOperationQuery(self, "EnsureEventsList", None, None, None, events_list)
+        self.context.add_query(qry)
+        return events_list
 
     def ensure_site_assets_library(self):
         """Gets a list that is the default asset location for images or other files, which the users
@@ -47,7 +54,7 @@ class ListCollection(ClientObjectCollection):
     def add(self, list_creation_information):
         """Creates a List resource
 
-        :type list_creation_information: ListCreationInformation
+        :type list_creation_information: office365.sharepoint.lists.list_creation_information.ListCreationInformation
         """
         target_list = List(self.context)
         self.add_child(target_list)

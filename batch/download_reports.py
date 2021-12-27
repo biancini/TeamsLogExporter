@@ -6,7 +6,8 @@ from glob import glob
 
 from download_json import download_json, zip_jsonfiles
 from generate_excel import generate_excel
-from divide_excel import divide_excel
+#from divide_excel import divide_excel
+from upload_excel import upload_excel
 
 
 '''
@@ -73,7 +74,8 @@ if __name__ == '__main__':
             goon = False
 
     if goon:
-        moved = divide_excel(configuration)
+        #moved = divide_excel(configuration)
+        moved = upload_excel(configuration)
 
         if moved <= 0:
             print("No files moved, preserving JSON file to check what happened...")
@@ -82,6 +84,11 @@ if __name__ == '__main__':
     if goon:
         basedir = 'json/'
         files = glob(f'{basedir}**/*.json', recursive=True)
+        for f in files:
+            os.remove(f)
+
+        basedir = 'excel/'
+        files = glob(f'{basedir}**/*.xlsx', recursive=True)
         for f in files:
             os.remove(f)
 

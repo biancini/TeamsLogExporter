@@ -42,7 +42,7 @@ def divide_excel(configuration):
 
     folders = []
     files = glob(f'{lookdir}/**/*.xlsx', recursive=True)
-    for d in allsundays([2020, 2021]):
+    for d in allsundays([2020, 2021, 2022]):
         folders.append(d)
 
     groups = []

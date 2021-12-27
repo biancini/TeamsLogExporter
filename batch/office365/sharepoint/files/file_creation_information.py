@@ -1,14 +1,24 @@
-from office365.runtime.clientValue import ClientValue
+from office365.runtime.client_value import ClientValue
 
 
 class FileCreationInformation(ClientValue):
     """Represents properties that can be set when creating a file by using the FileCollection.Add method."""
 
     def __init__(self, url=None, overwrite=False, content=None):
+        """
+
+        :type url: str
+        """
         super(FileCreationInformation, self).__init__()
         self._url = url
         self._overwrite = overwrite
         self._content = content
+
+    def to_json(self, json_format=None):
+        return {
+            "overwrite": self.overwrite,
+            "url": self.url
+        }
 
     @property
     def content(self):

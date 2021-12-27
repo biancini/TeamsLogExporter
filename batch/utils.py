@@ -43,3 +43,13 @@ def get_access_token(ente):
         sys.exit(1)
 
     return r['access_token']
+
+
+def get_user_credentials():
+    username = os.getenv('USER_NAME', None)
+    password = os.getenv('PASSWORD', None)
+
+    return {
+        'username': username,
+        'password': password
+    }

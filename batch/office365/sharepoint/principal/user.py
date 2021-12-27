@@ -1,28 +1,35 @@
-from office365.runtime.client_query import DeleteEntityQuery
-from office365.runtime.resource_path import ResourcePath
+from office365.runtime.queries.service_operation_query import ServiceOperationQuery
+from office365.runtime.paths.resource_path import ResourcePath
+from office365.sharepoint.alerts.alert_collection import AlertCollection
 from office365.sharepoint.principal.principal import Principal
-from office365.sharepoint.principal.userIdInfo import UserIdInfo
+from office365.sharepoint.principal.user_id_info import UserIdInfo
 
 
 class User(Principal):
     """Represents a user in Microsoft SharePoint Foundation. A user is a type of SP.Principal."""
 
+    def get(self):
+        """
+        :rtype: User
+        """
+        return super(User, self).get()
+
     @property
     def groups(self):
         """Gets a collection of group objects that represents all of the groups for the user."""
-        if self.is_property_available('Groups'):
-            return self.properties['Groups']
-        else:
-            from office365.sharepoint.principal.group_collection import GroupCollection
-            return GroupCollection(self.context, ResourcePath("Groups", self.resource_path))
+        from office365.sharepoint.principal.group_collection import GroupCollection
+        return self.properties.get('Groups',
+                                   GroupCollection(self.context, ResourcePath("Groups", self.resource_path)))
+
+    @property
+    def alerts(self):
+        return self.properties.get('Alerts',
+                                   AlertCollection(self.context, ResourcePath("Alerts", self.resource_path)))
 
     @property
     def is_site_admin(self):
         """Gets or sets a Boolean value that specifies whether the user is a site collection administrator."""
-        if self.is_property_available('isSiteAdmin'):
-            return self.properties['isSiteAdmin']
-        else:
-            return None
+        return self.properties.get('isSiteAdmin', None)
 
     @property
     def user_id(self):
@@ -30,8 +37,7 @@ class User(Principal):
          user's name identifier."""
         return self.properties.get('UserId', UserIdInfo())
 
-    def delete_object(self):
-        """Deletes the user."""
-        qry = DeleteEntityQuery(self)
+    def expire(self):
+        qry = ServiceOperationQuery(self, "Expire")
         self.context.add_query(qry)
-        self.remove_from_parent_collection()
+        return self

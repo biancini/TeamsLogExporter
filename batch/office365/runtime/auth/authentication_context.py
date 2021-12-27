@@ -1,92 +1,86 @@
-from office365.runtime.auth.clientCredential import ClientCredential
-from office365.runtime.auth.userCredential import UserCredential
+from office365.runtime.auth.client_credential import ClientCredential
 from office365.runtime.auth.providers.acs_token_provider import ACSTokenProvider
-from office365.runtime.auth.base_authentication_context import BaseAuthenticationContext
 from office365.runtime.auth.providers.oauth_token_provider import OAuthTokenProvider
 from office365.runtime.auth.providers.saml_token_provider import SamlTokenProvider
-from office365.runtime.http.request_options import RequestOptions
-from office365.runtime.auth.tokenResponse import TokenResponse
+from office365.runtime.auth.token_response import TokenResponse
+from office365.runtime.auth.user_credential import UserCredential
 
 
-class AuthenticationContext(BaseAuthenticationContext):
+class AuthenticationContext(object):
 
-    def __init__(self, url, credentials=None):
+    def __init__(self, url):
         """
         Authentication context for SharePoint Online/OneDrive
 
         :param str url:  authority url
-        :param ClientCredential or UserCredential credentials: credentials
         """
-        super(AuthenticationContext, self).__init__()
         self.url = url
-        self.credentials = credentials
-        self.provider = None
+        self._provider = None
 
-    def set_token(self, token):
+    def with_client_certificate(self, tenant, client_id, thumbprint, cert_path):
+        """Creates authenticated SharePoint context via certificate credentials
+
+        :param str tenant: Tenant name, for example {}@
+        :param str cert_path: Path to A PEM encoded certificate private key.
+        :param str thumbprint: Hex encoded thumbprint of the certificate.
+        :param str client_id: The OAuth client id of the calling application.
         """
-        Sets access token
 
-        :type token: TokenResponse
-        """
-        self.provider = OAuthTokenProvider(self.url)
-        self.provider.token = token
+        def _acquire_token_for_client_certificate():
+            authority_url = 'https://login.microsoftonline.com/{0}'.format(tenant)
+            scopes = ["{url}/.default".format(url=self.url)]
+            credentials = {"thumbprint": thumbprint, "private_key": open(cert_path).read()}
+            import msal
+            app = msal.ConfidentialClientApplication(
+                client_id,
+                authority=authority_url,
+                client_credential=credentials,
+            )
+            result = app.acquire_token_for_client(scopes)
+            return TokenResponse.from_json(result)
 
-    def acquire_token(self):
-        if isinstance(self.credentials, ClientCredential):
-            return self.acquire_token_for_app(self.credentials.clientId, self.credentials.clientSecret)
-        elif isinstance(self.credentials, UserCredential):
-            return self.acquire_token_for_user(self.credentials.userName, self.credentials.password)
+        self.register_provider(_acquire_token_for_client_certificate)
+        return self
+
+    def register_provider(self, credentials_or_token_func, **kwargs):
+        if callable(credentials_or_token_func):
+            self._provider = OAuthTokenProvider(credentials_or_token_func)
+        elif isinstance(credentials_or_token_func, ClientCredential):
+            self._provider = ACSTokenProvider(self.url, credentials_or_token_func.clientId,
+                                              credentials_or_token_func.clientSecret)
+        elif isinstance(credentials_or_token_func, UserCredential):
+            allow_ntlm = kwargs.get('allow_ntlm', False)
+            if allow_ntlm:
+                from office365.runtime.auth.providers.ntlm_provider import NtlmProvider
+                self._provider = NtlmProvider(credentials_or_token_func.userName,
+                                              credentials_or_token_func.password)
+            else:
+                browser_mode = kwargs.get('browser_mode', False)
+                self._provider = SamlTokenProvider(self.url, credentials_or_token_func.userName,
+                                                   credentials_or_token_func.password, browser_mode)
         else:
             raise ValueError("Unknown credential type")
 
-    def acquire_token_for_user(self, username, password):
+    def acquire_token_for_user(self, username, password, browser_mode=False):
         """Acquire token via user credentials
+        Status: deprecated!
 
         :type password: str
         :type username: str
+        :type browser_mode: str
         """
-        self.provider = SamlTokenProvider(self.url, username, password)
-        if not self.provider.acquire_token():
-            raise ValueError('Acquire token failed: {0}'.format(self.provider.error))
-        return True
+        self._provider = SamlTokenProvider(url=self.url, username=username, password=password,
+                                           browser_mode=browser_mode)
+        return self._provider.ensure_authentication_cookie()
 
     def acquire_token_for_app(self, client_id, client_secret):
-        """Acquire token via client credentials (SharePoint App Principal)"""
-        self.provider = ACSTokenProvider(self.url, client_id, client_secret)
-        if not self.provider.acquire_token():
-            raise ValueError('Acquire token failed: {0}'.format(self.provider.error))
-        return True
-
-    def acquire_token_password_grant(self, client_id, username, password, resource, scope):
+        """Acquire token via client credentials (SharePoint App Principal)
+        Status: deprecated!
         """
-        Acquire token via resource owner password credential (ROPC) grant
+        self._provider = ACSTokenProvider(url=self.url, client_id=client_id, client_secret=client_secret)
+        return self._provider.ensure_app_only_access_token()
 
-        :param str resource: A URI that identifies the resource for which the token is valid.
-        :param str username: : The username of the user on behalf this application is authenticating.
-        :param str password: The password of the user named in the username parameter.
-        :param str client_id: str The OAuth client id of the calling application.
-        :param list[str] scope:
-        """
-        self.provider = OAuthTokenProvider(self.url)
-        return self.provider.acquire_token_password_type(resource=resource,
-                                                         client_id=client_id,
-                                                         user_credentials=UserCredential(username, password),
-                                                         scope=scope)
-
-    def authenticate_request(self, request_options):
+    def authenticate_request(self, request):
         """Authenticate request
-
-        :type request_options: RequestOptions"""
-        if isinstance(self.provider, SamlTokenProvider):
-            request_options.set_header('Cookie', self.provider.get_authentication_cookie())
-        elif isinstance(self.provider, ACSTokenProvider) or isinstance(self.provider, OAuthTokenProvider):
-            request_options.set_header('Authorization', self.provider.get_authorization_header())
-        else:
-            raise ValueError('Unknown authentication provider')
-
-    @property
-    def is_authenticated(self):
-        return self.provider and self.provider.is_authenticated()
-
-    def get_last_error(self):
-        return self.provider.get_last_error()
+        :type request: RequestOptions"""
+        self._provider.authenticate_request(request)
