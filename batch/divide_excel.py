@@ -8,7 +8,7 @@ from datetime import datetime, date, timedelta
 from os import path, makedirs, chdir
 from urllib import parse
 
-from utils import get_access_token, allsundays
+from utils import get_access_token, allsundays, nearestsunday
 
 
 def get_graph_data(t, uri):
@@ -99,7 +99,25 @@ def divide_excel(configuration):
     return file_moved
 
 
+def divide_zipfile(configuration):
+    if 'zipfile' in configuration:
+        zipfilename = configuration['zipfile']
+    else:
+        s = nearestsunday()
+        zipfilename = '%s_Report.zip' % s.strftime("%Y-%m-%d")
+
+    zipfolder = path.join(configuration['basepath'], configuration['zipfolder'])
+    zippath = path.join(zipfolder, zipfilename)
+
+    if not path.exists(zippath):
+        shutil.move(zipfilename, zippath)
+        print(f'Moved zipped file to folder {zipfolder}.')
+    else:
+        print('Zipfile already present, not moving.')
+
+
 if __name__ == '__main__':
+
     config = configparser.ConfigParser()
     config.read('configuration.ini', encoding='utf-8')
     ente = 'ENAIP'
@@ -127,4 +145,5 @@ if __name__ == '__main__':
     configuration['local'] = local
 
     divide_excel(configuration)
+    divide_zipfile(configuration)
     print("Script finito.")

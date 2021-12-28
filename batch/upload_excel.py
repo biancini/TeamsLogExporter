@@ -9,7 +9,7 @@ from os import path
 
 from office365.sharepoint.client_context import ClientContext
 
-from utils import get_access_token, get_user_credentials, allsundays
+from utils import get_access_token, get_user_credentials, allsundays, nearestsunday
 
 
 def get_graph_data(t, uri):
@@ -88,12 +88,44 @@ def upload_excel(configuration):
                 name = path.basename(f)
                 target_file = target_folder.upload_file(name, file_content).execute_query()
 
-                #print("File has been uploaded to url: {0}".format(target_file.serverRelativeUrl))
-                file_uploaded = file_uploaded + 1
+                if target_file:
+                    file_uploaded = file_uploaded + 1
 
     print(f'Total excel files {total_files}.')
     print(f'Files excel uploaded {file_uploaded}.')
     return file_uploaded
+
+
+def upload_zipfile(configuration):
+    spbase = configuration['sharepointbase']
+    test_team_site_url = configuration['sharepointsite']
+    sharepointlibrary = configuration['sharepointlibrary']
+    zipfolder = configuration['zipfolder']
+
+    if 'zipfile' in configuration:
+        zipfilename = configuration['zipfile']
+    else:
+        s = nearestsunday()
+        zipfilename = '%s_Report.zip' % s.strftime("%Y-%m-%d")
+
+    cred = get_user_credentials()
+    ctx = ClientContext(test_team_site_url).with_user_credentials(cred['username'], cred['password'])
+
+    zippath = path.join(sharepointlibrary, spbase, zipfolder)
+    target_folder = ctx.web.ensure_folder_path(zippath).execute_query()
+
+    with open(zipfilename, 'rb') as content_file:
+        file_content = content_file.read()
+
+    name = path.basename(zipfilename)
+    target_file = target_folder.upload_file(name, file_content).execute_query()
+
+    if target_file:
+        print('Uploaded zipped file to sharepoint.')
+        return 1
+    else:
+        print('Error in loading zip file to sharpoint.')
+        return 0
 
 
 if __name__ == '__main__':
@@ -120,4 +152,5 @@ if __name__ == '__main__':
     configuration['ente'] = ente
 
     upload_excel(configuration)
+    upload_zipfile(configuration)
     print("Script finito.")

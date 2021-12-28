@@ -73,21 +73,19 @@ def download_json(configuration):
 
 def zip_jsonfiles(configuration):
     out = 0
-    zipfolder = os.path.join(configuration['basepath'], configuration['zipfolder'])
     if 'zipfile' in configuration:
         zipfilename = configuration['zipfile']
     else:
         s = nearestsunday()
         zipfilename = '%s_Report.zip' % s.strftime("%Y-%m-%d")
     
-    zippath = os.path.join(zipfolder, zipfilename)
-    print(f'Zipping all JSON files in zip file {zipfilename} in folder {zipfolder}.')
-    if os.path.isfile(zippath):
-        print(f'File zip {zipfilename} aleardy exists in folder {zipfolder}.')
+    print(f'Zipping all JSON files in zip file {zipfilename}.')
+    if os.path.isfile(zipfilename):
+        print(f'File zip {zipfilename} aleardy exists.')
         print(f'Skipping zip file creation')
         return 0
 
-    zf = zipfile.ZipFile(zippath, 'w', zipfile.ZIP_DEFLATED)
+    zf = zipfile.ZipFile(zipfilename, 'w', zipfile.ZIP_DEFLATED)
     basedir = 'json/'
     files = glob(f'{basedir}**/*.json', recursive=True)
     for f in files:

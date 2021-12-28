@@ -4,10 +4,11 @@ import getopt
 import configparser
 from glob import glob
 
+from utils import nearestsunday
+
 from download_json import download_json, zip_jsonfiles
 from generate_excel import generate_excel
-#from divide_excel import divide_excel
-from upload_excel import upload_excel
+from upload_excel import upload_excel, upload_zipfile
 
 
 '''
@@ -74,7 +75,13 @@ if __name__ == '__main__':
             goon = False
 
     if goon:
-        #moved = divide_excel(configuration)
+        moved = upload_zipfile(configuration)
+
+        if moved <= 0:
+            print("Zipfile not loaded on Sharepoint, preserving JSON file to check what happened...")
+            goon = False
+
+    if goon:
         moved = upload_excel(configuration)
 
         if moved <= 0:
@@ -82,6 +89,9 @@ if __name__ == '__main__':
             goon = False
 
     if goon:
+        zipfilename = '%s_Report.zip' % nearestsunday().strftime("%Y-%m-%d")
+        os.remove(zipfilename)
+
         basedir = 'json/'
         files = glob(f'{basedir}**/*.json', recursive=True)
         for f in files:
