@@ -17,7 +17,7 @@ https://cqd.teams.microsoft.com/spd/#/Dashboard?language=it-IT
 '''
 
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
 def log(func):

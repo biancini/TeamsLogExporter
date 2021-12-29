@@ -6,7 +6,9 @@ import configparser
 from glob import glob
 from datetime import datetime
 from os import path
+from tqdm import tqdm
 from utils import get_access_token, get_user_credentials, allsundays, nearestsunday
+from concurrent.futures import ProcessPoolExecutor
 from office365.sharepoint.client_context import ClientContext
 
 
@@ -23,22 +25,9 @@ def get_graph_data(t, uri):
         uri = response['@odata.nextLink'] if '@odata.nextLink' in response else None
 
 
-def upload_excel(configuration):
+def _get_people(configuration):
     ente = configuration['ente']
-    spbase = configuration['sharepointbase']
-    test_team_site_url = configuration['sharepointsite']
-    sharepointlibrary = configuration['sharepointlibrary']
-
     t = get_access_token(ente)
-    cred = get_user_credentials()
-    ctx = ClientContext(test_team_site_url).with_user_credentials(cred['username'], cred['password'])
-
-    lookdir = '.'
-
-    folders = []
-    files = glob(f'{lookdir}/**/*.xlsx', recursive=True)
-    for d in allsundays([2020, 2021, 2022]):
-        folders.append(d)
 
     groups = []
     uri = 'https://graph.microsoft.com/beta/groups?$orderby=displayName'
@@ -58,33 +47,70 @@ def upload_excel(configuration):
 
             people[centro] = participants
 
+    return people
+
+
+def upload_one_excel(configuration, f, people, folders):
+    spbase = configuration['sharepointbase']
+    sharepointlibrary = configuration['sharepointlibrary']
+    spbase = configuration['sharepointbase']
+    test_team_site_url = configuration['sharepointsite']
+    sharepointlibrary = configuration['sharepointlibrary']
+
+    cred = get_user_credentials()
+    ctx = ClientContext(test_team_site_url).with_user_credentials(cred['username'], cred['password'])
+
+    centro = '00_Generale'
+    for c, o in people.items():
+        for organizer in o:
+            if organizer in path.basename(f):
+                centro = c
+
+    file_date = datetime.strptime(path.basename(f)[:10], '%Y-%m-%d')
+    
+    for d in folders:
+        folder = '%s_Report Teams' % d.strftime("%Y-%m-%d")
+
+        if file_date <= d:
+            newpath = path.join(sharepointlibrary, spbase, centro, 'Report FAD', folder)
+            target_folder = ctx.web.ensure_folder_path(newpath).execute_query()
+            
+            with open(f, 'rb') as content_file:
+                file_content = content_file.read()
+
+            name = path.basename(f)
+            target_file = target_folder.upload_file(name, file_content).execute_query()
+
+            if target_file:
+                return 1
+
+            return 0
+
+
+def upload_excel(configuration):
+    people = _get_people(configuration)
+    
+    lookdir = '.'
+    folders = []
+    files = glob(f'{lookdir}/**/*.xlsx', recursive=True)
+    for d in allsundays([2020, 2021, 2022]):
+        folders.append(d)
+
     total_files = len(files)
     file_uploaded = 0
+    num_threads = 10
+    
+    with ProcessPoolExecutor(max_workers=num_threads) as pool:
+        with tqdm(total=len(files)) as progress:
+            futures = []
+            for f in files:
+                future = pool.submit(upload_one_excel, configuration, f, people, folders)
+                future.add_done_callback(lambda p: progress.update())
+                futures.append(future)
 
-    for f in files:
-        centro = '00_Generale'
-        for c, o in people.items():
-            for organizer in o:
-                if organizer in path.basename(f):
-                    centro = c
-
-        file_date = datetime.strptime(path.basename(f)[:10], '%Y-%m-%d')
-        
-        for d in folders:
-            folder = '%s_Report Teams' % d.strftime("%Y-%m-%d")
-
-            if file_date <= d:
-                newpath = path.join(sharepointlibrary, spbase, centro, 'Report FAD', folder)
-                target_folder = ctx.web.ensure_folder_path(newpath).execute_query()
-                
-                with open(f, 'rb') as content_file:
-                    file_content = content_file.read()
-
-                name = path.basename(f)
-                target_file = target_folder.upload_file(name, file_content).execute_query()
-
-                if target_file:
-                    file_uploaded = file_uploaded + 1
+            for future in futures:
+                result = future.result()
+                file_uploaded += result
 
     return total_files, file_uploaded
 
