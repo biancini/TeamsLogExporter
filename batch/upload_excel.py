@@ -41,7 +41,7 @@ def upload_excel(configuration):
         folders.append(d)
 
     groups = []
-    uri = f'https://graph.microsoft.com/beta/groups?$orderby=displayName'
+    uri = 'https://graph.microsoft.com/beta/groups?$orderby=displayName'
     for g in get_graph_data(t, uri):
         groups.append(g)
     

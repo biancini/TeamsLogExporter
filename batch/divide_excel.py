@@ -22,23 +22,9 @@ def get_graph_data(t, uri):
         uri = response['@odata.nextLink'] if '@odata.nextLink' in response else None
 
 
-def divide_excel(configuration):
+def _get_people(configuration):
     ente = configuration['ente']
-    local = configuration['local'] == 'true'
-    base = configuration['basepath']
     t = get_access_token(ente)
-
-    reportfad = True
-    lookdir = '.'
-
-    if local:
-        chdir(base)
-        lookdir = configuration['xllookdir']
-
-    folders = []
-    files = glob(f'{lookdir}/**/*.xlsx', recursive=True)
-    for d in allsundays([2020, 2021, 2022]):
-        folders.append(d)
 
     groups = []
     uri = 'https://graph.microsoft.com/beta/groups?$orderby=displayName'
@@ -58,11 +44,30 @@ def divide_excel(configuration):
 
             people[centro] = participants
 
+    return people
+
+
+def divide_excel(configuration):
+    local = configuration['local'] == 'true'
+    base = configuration['basepath']
+
+    lookdir = '.'
+    if local:
+        chdir(base)
+        lookdir = configuration['xllookdir']
+
+    folders = []
+    for d in allsundays([2020, 2021, 2022]):
+        folders.append(d)
+
+    people = _get_people(configuration)
+
+    files = glob(f'{lookdir}/**/*.xlsx', recursive=True)
     total_files = len(files)
     file_moved = 0
 
     for f in files:
-        centro = '00_Generale' if reportfad else 'Altro'
+        centro = '00_Generale'
         for c, o in people.items():
             for organizer in o:
                 if organizer in path.basename(f):
@@ -74,10 +79,7 @@ def divide_excel(configuration):
             folder = '%s_Report Teams' % d.strftime("%Y-%m-%d")
 
             if file_date <= d:
-                if reportfad:
-                    newpath = path.join(base, centro, 'Report FAD', folder)
-                else:
-                    newpath = path.join(base, centro, folder)
+                newpath = path.join(base, centro, 'Report FAD', folder)
 
                 if not path.exists(newpath):
                     makedirs(newpath)

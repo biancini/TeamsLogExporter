@@ -91,7 +91,7 @@ if __name__ == '__main__':
     config.read('configuration.ini')
     ente = 'ENAIP'
     filename = None
-    zip = False
+    dozip = False
     zipfilename = '%s_Report.zip' % nearestsunday().strftime("%Y-%m-%d")
 
     try:
@@ -109,9 +109,9 @@ if __name__ == '__main__':
         elif o in ('-f', '--file'):
             filename = a
         elif o in ('-Z', '--zip'):
-            zip = True
+            dozip = True
         elif o in ('-z', '--zipfile'):
-            zip = True
+            dozip = True
             zipfilename = a
         else:
             assert False
@@ -128,7 +128,7 @@ if __name__ == '__main__':
     numfiles = download_json(configuration)
     print(f'Finished downloading of json files, {numfiles} files downloaded.')
 
-    if zip:
+    if dozip:
         if numfiles <= 0:
             print('No files to be zipped.')
         else:
