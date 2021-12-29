@@ -7,7 +7,6 @@ import configparser
 import requests
 from tqdm import tqdm
 from dateutil import tz
-from urllib import parse
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 from openpyxl import Workbook
@@ -15,7 +14,6 @@ from openpyxl.styles import Font
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.chart import BarChart, Reference
 from openpyxl.utils import get_column_letter
-
 from utils import get_access_token
 
 usernames = {}
@@ -243,8 +241,6 @@ def generate_one_excel(t, filename):
 
         participants.sort(key=lambda stud: 'zzz_{}'.format(stud['name']) if 'Sconosciuto' in stud['name'] else stud['name'] )
 
-        ###########
-
         workbook = Workbook()
         sheet_registro(filename, participants, workbook)
         sheet_partecipazione(filename, start_time, participants, workbook)
@@ -257,8 +253,6 @@ def generate_one_excel(t, filename):
 def generate_excel(configuration):
     ente = configuration['ente']
     filename = None
-
-    print(f'Working for institution {ente}.')
 
     t = get_access_token(ente)
     json_files = glob.glob("json/*.json")
@@ -277,7 +271,6 @@ def generate_excel(configuration):
                 result = future.result()
                 out += result
         
-    print(f'Script finito, creati {out} files.')
     return out
     
 
@@ -303,4 +296,7 @@ if __name__ == '__main__':
 
     configuration = config[ente]
     configuration['ente'] = ente
-    generate_excel(configuration)
+
+    print(f'Working for institution {ente}.')
+    numexcels = generate_excel(configuration)
+    print(f'Script finito, creati {numexcels} files.')

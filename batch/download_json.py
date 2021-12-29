@@ -27,21 +27,19 @@ def download_call_data(t, call_id):
     r = requests.get(uri, headers=head)
     response = r.json()
 
-    if 'error' in response:
-        print (f'{response}')
-        return 0
-    else:
+    if 'error' not in response:
         with open('json/{0}.json'.format(call_id), 'w') as outfile:
             outfile.write(json.dumps(response, indent=4))
             outfile.close()
 
         return 1
 
+    return 0
+
 
 def download_json(configuration):
     ente = configuration['ente']
     filename = configuration['filename']
-    print(f'Downloading all jsons for meeting listed in file {filename}.')
     t = get_access_token(ente)
 
     num_threads = 10
@@ -68,22 +66,15 @@ def download_json(configuration):
                 result = future.result()
                 out += result
         
-    print(f'Finished downloading of json files, {out} files downloaded.')
     return out
+
 
 def zip_jsonfiles(configuration):
     out = 0
-    if 'zipfile' in configuration:
-        zipfilename = configuration['zipfile']
-    else:
-        s = nearestsunday()
-        zipfilename = '%s_Report.zip' % s.strftime("%Y-%m-%d")
+    zipfilename = configuration['zipfile']
     
-    print(f'Zipping all JSON files in zip file {zipfilename}.')
     if os.path.isfile(zipfilename):
-        print(f'File zip {zipfilename} aleardy exists.')
-        print(f'Skipping zip file creation')
-        return 0
+        raise Exception(f'File zip {zipfilename} aleardy exists. Skipping zip file creation')
 
     zf = zipfile.ZipFile(zipfilename, 'w', zipfile.ZIP_DEFLATED)
     basedir = 'json/'
@@ -92,8 +83,6 @@ def zip_jsonfiles(configuration):
         zf.write(f, f.replace(basedir, ''))
         out += 1
     zf.close()
-
-    print(f'Added {out} files to zip.')
     return out
 
 
@@ -103,7 +92,7 @@ if __name__ == '__main__':
     ente = 'ENAIP'
     filename = None
     zip = False
-    zipfilename = None
+    zipfilename = '%s_Report.zip' % nearestsunday().strftime("%Y-%m-%d")
 
     try:
         opts, _ = getopt.getopt(sys.argv[1:], "he:f:Zz:", ["help", "ente=", "file=", "zip", "zipfile="])
@@ -135,13 +124,17 @@ if __name__ == '__main__':
         configuration['zipfile'] = zipfilename
 
     print(f'Working for institution {ente}.')
+    print(f'Downloading all jsons for meeting listed in file {filename}.')
     numfiles = download_json(configuration)
+    print(f'Finished downloading of json files, {numfiles} files downloaded.')
 
     if zip:
         if numfiles <= 0:
             print('No files to be zipped.')
         else:
+            print(f'Zipping all JSON files in zip file {zipfilename}.')
             zippedfiles = zip_jsonfiles(configuration)
+            print(f'Added {zippedfiles} files to zip.')
         
             if numfiles != zippedfiles:
                 print(f'Should have zipped {numfiles}, but zipped {zippedfiles}. Leaving json folder untouched.')

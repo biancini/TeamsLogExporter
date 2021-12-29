@@ -1,15 +1,13 @@
 import requests
-import shutil
+
 import sys
 import getopt
 import configparser
 from glob import glob
 from datetime import datetime
 from os import path
-
-from office365.sharepoint.client_context import ClientContext
-
 from utils import get_access_token, get_user_credentials, allsundays, nearestsunday
+from office365.sharepoint.client_context import ClientContext
 
 
 def get_graph_data(t, uri):
@@ -19,8 +17,7 @@ def get_graph_data(t, uri):
         response = r.json()
 
         if 'error' in response:
-            print (f'{response}')
-            sys.exit(1)
+            raise Exception(f'{response}')
 
         yield from response['value']
         uri = response['@odata.nextLink'] if '@odata.nextLink' in response else None
@@ -35,8 +32,6 @@ def upload_excel(configuration):
     t = get_access_token(ente)
     cred = get_user_credentials()
     ctx = ClientContext(test_team_site_url).with_user_credentials(cred['username'], cred['password'])
-
-    print(f'Working for institution {ente}.')
 
     lookdir = '.'
 
@@ -91,9 +86,7 @@ def upload_excel(configuration):
                 if target_file:
                     file_uploaded = file_uploaded + 1
 
-    print(f'Total excel files {total_files}.')
-    print(f'Files excel uploaded {file_uploaded}.')
-    return file_uploaded
+    return total_files, file_uploaded
 
 
 def upload_zipfile(configuration):
@@ -101,12 +94,7 @@ def upload_zipfile(configuration):
     test_team_site_url = configuration['sharepointsite']
     sharepointlibrary = configuration['sharepointlibrary']
     zipfolder = configuration['zipfolder']
-
-    if 'zipfile' in configuration:
-        zipfilename = configuration['zipfile']
-    else:
-        s = nearestsunday()
-        zipfilename = '%s_Report.zip' % s.strftime("%Y-%m-%d")
+    zipfilename = configuration['zipfile']
 
     cred = get_user_credentials()
     ctx = ClientContext(test_team_site_url).with_user_credentials(cred['username'], cred['password'])
@@ -119,38 +107,44 @@ def upload_zipfile(configuration):
 
     name = path.basename(zipfilename)
     target_file = target_folder.upload_file(name, file_content).execute_query()
-
-    if target_file:
-        print('Uploaded zipped file to sharepoint.')
-        return 1
-    else:
-        print('Error in loading zip file to sharpoint.')
-        return 0
+    
+    return target_file.serverRelativeUrl if target_file else None
 
 
 if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read('configuration.ini', encoding='utf-8')
     ente = 'ENAIP'
+    zipfilename = '%s_Report.zip' % nearestsunday().strftime("%Y-%m-%d")
 
     try:
-        opts, _ = getopt.getopt(sys.argv[1:],"he:l", ["help", "ente="])
+        opts, _ = getopt.getopt(sys.argv[1:],"he:lz:", ["help", "ente=", "zipfile="])
     except getopt.GetoptError:
-        print('divide_excel.py [-e <ente>] [-l]')
+        print('upload_excel.py [-e <ente>] [-z <zipfile>]')
         sys.exit(2)
     
     for o, a in opts:
         if o in ('-h', '--help'):
-            print('divide_excel.py [-e <ente>] [-l]')
+            print('divide_excel.py [-e <ente>] [-z <zipfile>]')
             sys.exit()
         elif o in ('-e', '--ente'):
             ente = a.upper()
+        elif o in ('-l', '--local'):
+            local = 'true'
+        elif o in ('-z', '--zipfile'):
+            zipfilename = a
         else:
             assert False
 
     configuration = config[ente]
     configuration['ente'] = ente
+    configuration['zipfile'] = zipfilename
 
-    upload_excel(configuration)
+    print(f'Working for institution {ente}.')
+
+    total_files, file_uploaded = upload_excel(configuration)
+    print(f'Total excel files {total_files}.')
+    print(f'Files excel uploaded {file_uploaded}.')
+
     upload_zipfile(configuration)
     print("Script finito.")

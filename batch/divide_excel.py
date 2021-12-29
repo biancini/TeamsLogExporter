@@ -4,10 +4,8 @@ import sys
 import getopt
 import configparser
 from glob import glob
-from datetime import datetime, date, timedelta
+from datetime import datetime
 from os import path, makedirs, chdir
-from urllib import parse
-
 from utils import get_access_token, allsundays, nearestsunday
 
 
@@ -18,8 +16,7 @@ def get_graph_data(t, uri):
         response = r.json()
 
         if 'error' in response:
-            print (f'{response}')
-            sys.exit(1)
+            raise Exception(f'{response}')
 
         yield from response['value']
         uri = response['@odata.nextLink'] if '@odata.nextLink' in response else None
@@ -30,8 +27,6 @@ def divide_excel(configuration):
     local = configuration['local'] == 'true'
     base = configuration['basepath']
     t = get_access_token(ente)
-
-    print(f'Working for institution {ente}. Working on %s source.' % ('local' if local else 'remote'))
 
     reportfad = True
     lookdir = '.'
@@ -46,7 +41,7 @@ def divide_excel(configuration):
         folders.append(d)
 
     groups = []
-    uri = f'https://graph.microsoft.com/beta/groups?$orderby=displayName'
+    uri = 'https://graph.microsoft.com/beta/groups?$orderby=displayName'
     for g in get_graph_data(t, uri):
         groups.append(g)
     
@@ -94,56 +89,63 @@ def divide_excel(configuration):
 
                 break
 
-    print(f'Total excel files {total_files}.')
-    print(f'Files excel moved {file_moved}.')
-    return file_moved
+    return total_files, file_moved
 
 
 def divide_zipfile(configuration):
-    if 'zipfile' in configuration:
-        zipfilename = configuration['zipfile']
-    else:
-        s = nearestsunday()
-        zipfilename = '%s_Report.zip' % s.strftime("%Y-%m-%d")
+    zipfilename = configuration['zipfile']
 
     zipfolder = path.join(configuration['basepath'], configuration['zipfolder'])
     zippath = path.join(zipfolder, zipfilename)
 
-    if not path.exists(zippath):
-        shutil.move(zipfilename, zippath)
-        print(f'Moved zipped file to folder {zipfolder}.')
-    else:
-        print('Zipfile already present, not moving.')
+    if path.exists(zippath):
+        return None
+
+    shutil.move(zipfilename, zippath)
+    return zipfolder
 
 
 if __name__ == '__main__':
-
     config = configparser.ConfigParser()
     config.read('configuration.ini', encoding='utf-8')
     ente = 'ENAIP'
     local = 'false'
+    zipfilename = '%s_Report.zip' % nearestsunday().strftime("%Y-%m-%d")
 
     try:
-        opts, _ = getopt.getopt(sys.argv[1:],"he:l", ["help", "ente=", "local"])
+        opts, _ = getopt.getopt(sys.argv[1:],"he:lz:", ["help", "ente=", "local", "zipfile="])
     except getopt.GetoptError:
-        print('divide_excel.py [-e <ente>] [-l]')
+        print('divide_excel.py [-e <ente>] [-l] [-z <zipfile>]')
         sys.exit(2)
     
     for o, a in opts:
         if o in ('-h', '--help'):
-            print('divide_excel.py [-e <ente>] [-l]')
+            print('divide_excel.py [-e <ente>] [-l] [-z <zipfile>]')
             sys.exit()
         elif o in ('-e', '--ente'):
             ente = a.upper()
         elif o in ('-l', '--local'):
             local = 'true'
+        elif o in ('-z', '--zipfile'):
+            zipfilename = a
         else:
             assert False
 
     configuration = config[ente]
     configuration['ente'] = ente
     configuration['local'] = local
+    configuration['zipfile'] = zipfilename
 
-    divide_excel(configuration)
-    divide_zipfile(configuration)
+    print(f'Working for institution {ente}. Working on %s source.' % ('local' if local else 'remote'))
+
+    total_files, file_moved = divide_excel(configuration)
+    print(f'Total excel files {total_files}.')
+    print(f'Files excel moved {file_moved}.')
+
+    moved = divide_zipfile(configuration)
+    if moved is None:
+        print('Zipfile already present, not moving.')
+    else:
+        print(f'Moved zipped file to folder {moved}.')
+        
     print("Script finito.")
