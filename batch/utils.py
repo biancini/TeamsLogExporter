@@ -53,3 +53,15 @@ def get_user_credentials():
         'username': username,
         'password': password
     }
+
+
+def get_client_credentials(ente):
+    tenant_id = os.getenv(f'TENANTID_{ente}', None)
+    client_id = os.getenv(f'APPID_{ente}', None)
+    client_secret =  os.getenv(f'APPSECRET_{ente}', None)
+
+    return {
+        'tenant_id': tenant_id,
+        'client_id': client_id,
+        'client_secret': client_secret
+    }
