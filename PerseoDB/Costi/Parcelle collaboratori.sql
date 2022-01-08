@@ -1,52 +1,40 @@
-SELECT (t_DocentiParcelle.IDparcella) AS Parcella,
-    (CASE WHEN MONTH(DataParcella)>=9 THEN (CAST(YEAR(DataParcella) AS VARCHAR) + '/' + CAST(YEAR(DataParcella) + 1 AS VARCHAR)) ELSE (CAST(YEAR(DataParcella) - 1 AS VARCHAR) + '/' + CAST(YEAR(DataParcella) AS VARCHAR)) END) AS AnnoAmm,
-    (CASE WHEN IDazienda IS NOT NULL THEN DescrAzienda ELSE (Cognome + ' ' + Nome) END) AS Collaboratore,
-    DescrProgetto,
-    CodiceProgetto,
-    CodiceCIG,
-    CodiceCUP,
-    DescrEdizione,
-    CodiceEdizione,
-    SiglaSede,
-    (CASE WHEN IDcomponente IS NOT NULL THEN ('Sì') ELSE NULL END) AS CommissioneEsame,
-    DataRiunionePreliminare,
-    DescrCostiAggiuntivi,
-    DescrParcella,
-    TipoCausaleParcella,
-    DescrParFiscale,
-    CodiceTributo,
-    DescrAmmNomina,
-    DescrDatoreLavoro,
-    DataParcella,       
-    DataPagamento,
-    ImportoParcella,
-    sngRiva,
-    sngCassaPrev,
-    sngIVA,
-    (CostiAnticipo+CostiVitto+CostiViaggio) AS Costi,
-    sngINPS,
-    sngINPS23,
-    sngTotale,
-    sngINPS13,
-    sngRiteAcc,
-    sngNettoInc,
-    UNICODE(NumeroFattura) as NumeroFattura,
-    DataFattura
+SELECT ordini.IDparcella AS Parcella,
+    (CASE WHEN MONTH(ordini.DataParcella)>=9 THEN (CAST(YEAR(ordini.DataParcella) AS VARCHAR) + '/' + CAST(YEAR(ordini.DataParcella) + 1 AS VARCHAR)) ELSE (CAST(YEAR(ordini.DataParcella) - 1 AS VARCHAR) + '/' + CAST(YEAR(ordini.DataParcella) AS VARCHAR)) END) AS AnnoAmm,
+    (CASE WHEN aziende.IDazienda IS NOT NULL THEN aziende.DescrAzienda ELSE (docenti.Cognome + ' ' + docenti.Nome) END) AS Collaboratore,
+    progetti.DescrProgetto,
+    progetti.CodiceProgetto,
+    servizi.IDedizione,
+    servizi.DescrEdizione,
+    servizi.CodiceEdizione,
+    sedi.SiglaSede,
+    (CASE WHEN componenti.IDcomponente IS NOT NULL THEN ('Sì') ELSE NULL END) AS CommissioneEsame,
+    ordini.DescrCostiAggiuntivi,
+    ordini.DescrParcella,
+    causali.TipoCausaleParcella,
+    componenti.DescrAmmNomina,
+    docenti.DescrDatoreLavoro,
+    ordini.DataParcella,       
+    ordini.DataPagamento,
+    ordini.ImportoParcella,
+    ordini.sngRiva,
+    ordini.sngCassaPrev,
+    ordini.sngIVA,
+    (ordini.CostiAnticipo+ordini.CostiVitto+ordini.CostiViaggio) AS Costi,
+    ordini.sngTotale,
+    UNICODE(ordini.NumeroFattura) as NumeroFattura,
+    ordini.DataFattura
 
-FROM t_Progetti
-RIGHT OUTER JOIN t_DocentiParcelle
-INNER JOIN t_TipoCausaleParcella ON t_DocentiParcelle.FK_Causale = t_TipoCausaleParcella.IDtcausaparce
-LEFT OUTER JOIN t_CommissioniEsameComponenti ON t_DocentiParcelle.FK_Commissione = t_CommissioniEsameComponenti.IDcomponente
-LEFT OUTER JOIN t_CommissioniEsame ON t_CommissioniEsameComponenti.FK_Commissione = t_CommissioniEsame.IDcommissione
-LEFT OUTER JOIN t_Docenti ON t_DocentiParcelle.FK_Docente = t_Docenti.IDdocente
-LEFT OUTER JOIN t_DecodificatoreParametroFiscale ON t_DocentiParcelle.FK_PF = t_DecodificatoreParametroFiscale.IDparfisc
-LEFT OUTER JOIN t_Sedi ON t_DocentiParcelle.FK_Sede = t_Sedi.IDsede ON t_Progetti.IDprogetto = t_DocentiParcelle.FK_Progetto
-LEFT OUTER JOIN t_Azioni ON t_DocentiParcelle.FK_Azione = t_Azioni.IDazione
-LEFT OUTER JOIN t_PianoServizi ON t_DocentiParcelle.FK_Edizione = t_PianoServizi.IDedizione
-LEFT OUTER JOIN t_Aziende ON t_DocentiParcelle.FK_Azienda = t_Aziende.IDazienda
+FROM t_Progetti AS progetti
+RIGHT OUTER JOIN t_DocentiParcelle AS ordini
+INNER JOIN t_TipoCausaleParcella AS causali ON ordini.FK_Causale = causali.IDtcausaparce
+LEFT OUTER JOIN t_CommissioniEsameComponenti AS componenti ON ordini.FK_Commissione = componenti.IDcomponente
+LEFT OUTER JOIN t_Docenti AS docenti ON ordini.FK_Docente = docenti.IDdocente
+LEFT OUTER JOIN t_Sedi AS sedi ON ordini.FK_Sede = sedi.IDsede ON progetti.IDprogetto = ordini.FK_Progetto
+LEFT OUTER JOIN t_Azioni AS azioni ON ordini.FK_Azione = azioni.IDazione
+LEFT OUTER JOIN t_PianoServizi AS servizi ON ordini.FK_Edizione = servizi.IDedizione
+LEFT OUTER JOIN t_Aziende AS aziende ON ordini.FK_Azienda = aziende.IDazienda
 
-WHERE DataPagamento IS NOT NULL
+WHERE ordini.DataPagamento IS NOT NULL
+AND (CASE WHEN MONTH(ordini.DataParcella)>=9 THEN (CAST(YEAR(ordini.DataParcella) AS VARCHAR) + '/' + CAST(YEAR(ordini.DataParcella) + 1 AS VARCHAR)) ELSE (CAST(YEAR(ordini.DataParcella) - 1 AS VARCHAR) + '/' + CAST(YEAR(ordini.DataParcella) AS VARCHAR)) END) IN ('2019/2020', '2020/2021', '2021/2022')
 
-ORDER BY (CASE WHEN FK_Azienda IS NOT NULL THEN DescrAzienda ELSE (Cognome + ' ' + Nome) END), DataPagamento 
-
---OFFSET 2629 ROWS FETCH NEXT 1 ROWS ONLY
+ORDER BY ordini.DataPagamento 

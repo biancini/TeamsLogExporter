@@ -1,53 +1,43 @@
-SELECT t_ProgettiPagamentiCompensiOneri.IDcompensi,
-    (CASE WHEN MONTH(DataPagatoFine)>=9 THEN (CAST(YEAR(DataPagatoFine) AS VARCHAR) + '/' + CAST(YEAR(DataPagatoFine) + 1 AS VARCHAR)) ELSE (CAST(YEAR(DataPagatoFine) - 1 AS VARCHAR) + '/' + CAST(YEAR(DataPagatoFine) AS VARCHAR)) END) AS AnnoAmm,
-    IDincarico,
-    t_Docenti.IDdocente,
-    FK_Azienda,
-    IDedizione,
-    SiglaSede,
-    t_ProgettiPagamentiCompensiOneri.FK_ParFiscaleAttuale,
-    (CASE WHEN FK_Azienda IS NULL THEN (Cognome + ' ' + Nome) ELSE DescrAzienda END) AS Prestatore,
-    (CASE WHEN FK_Azienda IS NULL THEN (CAPresidenza + ' ' + ComResidenza + ' (' + ProvResidenza + ') ' + IndirResidenza) ELSE NULL END) AS Residenza,
-    (CASE WHEN FK_Azienda IS NULL THEN t_Docenti.CodFiscale ELSE (CASE WHEN t_Aziende.PIVA IS NOT NULL THEN t_Aziende.PIVA ELSE t_Aziende.CodFiscale END) END) AS CF_PIVA,
-    CodiceParFiscale,
-    t_ProgettiPagamentiCompensiOneri.DescrParFiscale,
-    t_ProgettiPagamentiCompensiOneri.FK_AliquotaPrevSepa,
-    CodiceTributo,
-    DescrProgetto,
-    CodiceProgetto,
-    TipoProgetto,
-    IDmwp,
-    DescrEdizione,
-    CodiceEdizione,
-    TipoAttivita,
-    TotOreFatte,
-    QuotaOraIncarico,
-    sngCostoInc,
-    sngRiva,
-    sngCassaPrev,
-    sngCostiAnticipo,
-    sngCostiViaggio,
-    sngCostiVitto,
-    sngCostiAggiuntivi,
-    sngIVA,
-    sngINPS,
-    sngINPS23,
-    sngTotale,
-    sngINPS13,
-    sngRiteAcc,
-    sngNettoInc,
-    DataPagatoInizio,
-    DataPagatoFine,
-    t_ProgettiPagamentiCompensiOneri.DataPagamento
+SELECT compensi.IDcompensi,
+    (CASE WHEN MONTH(compensi.DataPagatoFine)>=9 THEN (CAST(YEAR(compensi.DataPagatoFine) AS VARCHAR) + '/' + CAST(YEAR(compensi.DataPagatoFine) + 1 AS VARCHAR)) ELSE (CAST(YEAR(compensi.DataPagatoFine) - 1 AS VARCHAR) + '/' + CAST(YEAR(compensi.DataPagatoFine) AS VARCHAR)) END) AS AnnoAmm,
+    compensi.IDincarico,
+    docenti.IDdocente,
+    compensi.FK_Azienda,
+    compensi.IDedizione,
+    sedi.SiglaSede,
+    (CASE WHEN compensi.FK_Azienda IS NULL THEN (docenti.Cognome + ' ' + docenti.Nome) ELSE aziende.DescrAzienda END) AS Prestatore,
+    (CASE WHEN compensi.FK_Azienda IS NULL THEN docenti.CodFiscale ELSE (CASE WHEN aziende.PIVA IS NOT NULL THEN aziende.PIVA ELSE aziende.CodFiscale END) END) AS CF_PIVA,
+    progetti.DescrProgetto,
+    progetti.CodiceProgetto,
+    tp.TipoProgetto,
+    compensi.DescrEdizione,
+    compensi.CodiceEdizione,
+    compensi.TipoAttivita,
+    compensi.TotOreFatte,
+    compensi.QuotaOraIncarico,
+    compensi.sngCostoInc,
+    compensi.sngCassaPrev,
+    compensi.sngCostiAnticipo,
+    compensi.sngCostiViaggio,
+    compensi.sngCostiVitto,
+    compensi.sngCostiAggiuntivi,
+    compensi.sngIVA,
+    compensi.sngNettoInc,
+    compensi.sngTotale,
+    compensi.DataPagatoInizio,
+    compensi.DataPagatoFine,
+    compensi.DataPagamento
     
-FROM t_ProgettiPagamenti
-INNER JOIN t_ProgettiPagamentiCompensiOneri ON t_ProgettiPagamenti.IDprogpagamento = t_ProgettiPagamentiCompensiOneri.FK_ProgettoPagamento
-INNER JOIN t_Progetti ON t_ProgettiPagamenti.FK_Progetto = t_Progetti.IDprogetto
-INNER JOIN t_TipoProgetto ON t_Progetti.FK_TipoProgetto = t_TipoProgetto.IDtprogetto
-INNER JOIN t_DecodificatoreParametroFiscale ON t_ProgettiPagamentiCompensiOneri.FK_ParFiscaleAttuale = t_DecodificatoreParametroFiscale.IDparfisc
-LEFT OUTER JOIN t_Docenti ON t_ProgettiPagamentiCompensiOneri.IDdocente = t_Docenti.IDdocente
-LEFT OUTER JOIN t_Aziende ON t_ProgettiPagamentiCompensiOneri.FK_Azienda = t_Aziende.IDazienda
-LEFT OUTER JOIN t_Sedi ON FK_SedeEdizione = t_Sedi.IDsede
+    
+FROM t_ProgettiPagamenti AS pagamenti
+INNER JOIN t_ProgettiPagamentiCompensiOneri AS compensi ON pagamenti.IDprogpagamento = compensi.FK_ProgettoPagamento
+INNER JOIN t_Progetti AS progetti ON pagamenti.FK_Progetto = progetti.IDprogetto
+INNER JOIN t_TipoProgetto AS tp ON progetti.FK_TipoProgetto = tp.IDtprogetto
+LEFT OUTER JOIN t_Docenti AS docenti ON compensi.IDdocente = docenti.IDdocente
+LEFT OUTER JOIN t_Aziende AS aziende ON compensi.FK_Azienda = aziende.IDazienda
+LEFT OUTER JOIN t_Sedi AS sedi ON FK_SedeEdizione = sedi.IDsede
 
-WHERE Reso = 0
-AND DataPagatoFine >= '01/01/2016'
+WHERE compensi.Reso = 0
+AND (CASE WHEN MONTH(compensi.DataPagatoFine)>=9 THEN (CAST(YEAR(compensi.DataPagatoFine) AS VARCHAR) + '/' + CAST(YEAR(compensi.DataPagatoFine) + 1 AS VARCHAR)) ELSE (CAST(YEAR(compensi.DataPagatoFine) - 1 AS VARCHAR) + '/' + CAST(YEAR(compensi.DataPagatoFine) AS VARCHAR)) END) IN ('2019/2020', '2020/2021', '2021/2022')
+
+ORDER BY compensi.DataPagamento
