@@ -1,6 +1,7 @@
 import os
 import sys
 import requests
+import pyodbc
 from urllib import parse
 from datetime import datetime, timedelta
 
@@ -65,3 +66,15 @@ def get_client_credentials(ente):
         'client_id': client_id,
         'client_secret': client_secret
     }
+
+
+def connect_perseo_db():
+    server = os.getenv('PERSEO_IP', None)
+    database = os.getenv('PERSEO_DB', None)
+    username = os.getenv('PERSEO_USR', None)
+    password = os.getenv('PERSEO_PWD', None)
+
+    conn_string = 'DRIVER={FreeTDS};SERVER='+server+';PORT=1433;DATABASE='+database+';UID='+username+';PWD='+password+';Trusted_Connection=no'
+    conn = pyodbc.connect(conn_string)
+    
+    return conn
