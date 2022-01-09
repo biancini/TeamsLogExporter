@@ -133,14 +133,9 @@ def download_materiali(engine):
     fd.close()
 
     dati = pd.read_sql(sqlFile, engine)
-    #dati = dati.set_index(['IDedizione'])
-
-    #apply_delta(dati)
-    #dati['attivita'] = dati.apply(lambda row: map_attivita(row), axis=1)
-    #dati['area'] = dati.apply(lambda row: map_area(row), axis=1)
-    #dati.reset_index(inplace=True)
     
-    return dati
+    formats = { 'U': 'currency', 'V': 'currency' }
+    return dati, formats
     
     
 def download_parcelle(engine):
@@ -150,14 +145,9 @@ def download_parcelle(engine):
     fd.close()
 
     dati = pd.read_sql(sqlFile, engine)
-    #dati = dati.set_index(['IDedizione'])
-
-    #apply_delta(dati)
-    #dati['attivita'] = dati.apply(lambda row: map_attivita(row), axis=1)
-    #dati['area'] = dati.apply(lambda row: map_area(row), axis=1)
-    #dati.reset_index(inplace=True)
     
-    return dati
+    formats = { 'R': 'currency', 'S': 'currency', 'T': 'currency', 'U': 'currency', 'V': 'currency', 'W': 'currency' }
+    return dati, formats
 
 
 def download_fatture(engine):
@@ -173,8 +163,9 @@ def download_fatture(engine):
     #dati['attivita'] = dati.apply(lambda row: map_attivita(row), axis=1)
     #dati['area'] = dati.apply(lambda row: map_area(row), axis=1)
     #dati.reset_index(inplace=True)
-    
-    return dati
+
+    formats = { 'Q': 'number', 'R': 'number', 'S': 'currency', 'T': 'currency', 'U': 'currency', 'V': 'currency', 'W': 'currency', 'X': 'currency', 'Y': 'currency', 'Z': 'currency', 'AA': 'currency' }
+    return dati, formats
 
 
 def download_lista_attivita(engine):
@@ -193,8 +184,9 @@ def download_lista_attivita(engine):
     dati['attivita'] = dati.apply(lambda row: map_attivita(row), axis=1)
     dati['area'] = dati.apply(lambda row: map_area(row), axis=1)
     dati.reset_index(inplace=True)
-    
-    return dati
+
+    formats = { 'O': 'number', 'P': 'number', 'Q': 'number', 'S': 'currency' }
+    return dati, formats
 
 
 
@@ -207,13 +199,23 @@ def download_findata(configuration):
         'materiali': download_materiali(engine)
     }
     
-    writer = pd.ExcelWriter(configuration['filename'], engine='xlsxwriter')
-    for sheet, df in dati.items():
+    writer = pd.ExcelWriter(configuration['filename'], engine='xlsxwriter', datetime_format='DD/MM/YYYY')
+    for sheet, (df, f) in dati.items():
         df.to_excel(writer, sheet_name=sheet, startrow=1, header=False, index=False)
         worksheet = writer.sheets[sheet]
         (max_row, max_col) = df.shape
         column_settings = [{'header': column} for column in df.columns]
         worksheet.add_table(0, 0, max_row, max_col - 1, {'columns': column_settings})
+
+        workbook  = writer.book
+        formats = {
+            'number': workbook.add_format({'num_format': '#,##0'}),
+            'currency': workbook.add_format({'num_format': '€ #,##0.00'})
+        }
+
+        for c, f in f.items():
+            worksheet.set_column(f'{c}:{c}', None, formats[f])
+
     writer.save()
 
 
