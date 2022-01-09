@@ -157,14 +157,14 @@ def download_fatture(engine):
     fd.close()
 
     dati = pd.read_sql(sqlFile, engine)
-    #dati = dati.set_index(['IDedizione'])
+    dati = dati.set_index(['IDedizione'])
 
-    #apply_delta(dati)
-    #dati['attivita'] = dati.apply(lambda row: map_attivita(row), axis=1)
-    #dati['area'] = dati.apply(lambda row: map_area(row), axis=1)
-    #dati.reset_index(inplace=True)
+    apply_delta(dati)
+    dati['attivita'] = dati.apply(lambda row: map_attivita(row), axis=1)
+    dati['area'] = dati.apply(lambda row: map_area(row), axis=1)
+    dati.reset_index(inplace=True)
 
-    formats = { 'Q': 'number', 'R': 'number', 'S': 'currency', 'T': 'currency', 'U': 'currency', 'V': 'currency', 'W': 'currency', 'X': 'currency', 'Y': 'currency', 'Z': 'currency', 'AA': 'currency' }
+    formats = { 'R': 'number', 'S': 'number', 'T': 'currency', 'U': 'currency', 'V': 'currency', 'W': 'currency', 'X': 'currency', 'Y': 'currency', 'Z': 'currency', 'AA': 'currency', 'AB': 'currency' }
     return dati, formats
 
 
@@ -185,7 +185,7 @@ def download_lista_attivita(engine):
     dati['area'] = dati.apply(lambda row: map_area(row), axis=1)
     dati.reset_index(inplace=True)
 
-    formats = { 'O': 'number', 'P': 'number', 'Q': 'number', 'S': 'currency' }
+    formats = { 'Q': 'number', 'R': 'number', 'S': 'number', 'U': 'currency' }
     return dati, formats
 
 

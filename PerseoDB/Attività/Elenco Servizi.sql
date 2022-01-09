@@ -1,4 +1,5 @@
 SELECT serv.IDedizione,
+  (CASE WHEN MONTH(serv.DataAvvio)>=9 THEN (CAST(YEAR(serv.DataAvvio) AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) + 1 AS VARCHAR)) ELSE (CAST(YEAR(serv.DataAvvio) - 1 AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) AS VARCHAR)) END) AS AnnoAmm,
   b.AnnoBando,
   tb.TipoBando,
   form.TipoFormativoInterno,
@@ -6,6 +7,7 @@ SELECT serv.IDedizione,
   serv.DescrEdizione,
   serv.CodiceEdizione,
   sett.TipoSettoreInt,
+  pr.IDprogetto,
   pr.CodiceProgetto,
   pr.DescrProgetto,
   tp.TipoProgetto,
@@ -28,6 +30,6 @@ FROM t_PianoServizi AS serv
   LEFT JOIN t_TipoBando AS tb ON tb.IDtbando = b.FK_TipoBando
   LEFT JOIN t_TipoSettoreInterno AS sett ON serv.FK_SettoreEdizione = sett.IDtsettin
 
-WHERE b.AnnoBando IN ('2019/2020', '2020/2021', '2021/2022')
+WHERE (CASE WHEN MONTH(serv.DataAvvio)>=9 THEN (CAST(YEAR(serv.DataAvvio) AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) + 1 AS VARCHAR)) ELSE (CAST(YEAR(serv.DataAvvio) - 1 AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) AS VARCHAR)) END) IN ('2019/2020', '2020/2021', '2021/2022')
 
 ORDER BY IDazione
