@@ -1,19 +1,60 @@
 import sys
 import getopt
 import configparser
-import requests
 import re
 
 import pandas as pd
-import geopandas as gpd
-import matplotlib.pyplot as plt
-
-from os import path, makedirs, chdir
-from shapely.geometry import Point
 
 from utils import connect_perseo_db
 
 pd.options.mode.chained_assignment = None
+
+
+def map_voci_spesa(row):
+    voci = {
+        'DOCENZA': 'Docenza',
+        'SOSTEGNO': 'Sostegno',
+        'SOSTEGNO FUORI AULA': 'Sostegno',
+        'ESAME': 'Esami',
+        'ATTIVITÀ DI RECUPERO': 'Docenza',
+        'ATTIVITÀ PREVISTA DAL PROGETTO': 'Docenza',
+        'ELABORAZIONE MATERIALE DIDATTICO': 'Elaborazione materiale didattico',
+        'PROMOZIONE INTERVENTO': 'Promozione',
+        'SOSTEGNO FINANZIATO': 'Sostegno',
+        'SOSTEGNO FINANZIATO FUORI AULA': 'Sostegno',
+        'LARSA': 'Sostegno',
+        'VERIFICA/VALUTAZIONE DEGLI APPRENDIMENTI': 'Esami',
+        'TUTOR': 'Tutoraggio',
+        'CODOCENZA': 'Docenza',
+        'COACHING': 'Tutoraggio',
+        'SERVIZI PERSONALIZZATI': 'Amministrazione e segreteria',
+        'MONITORAGGIO IN ITINERE ED EX POST': 'Esami',
+        'PROGETTAZIONE E PROGRAMMAZIONE DIDATTICA': 'Progettazione e coordinamento',
+        'FORMAZIONE IN ASSETTO LAVORATIVO EXTRA MONTE ORE': 'Docenza',
+        'COORDINAMENTO': 'Progettazione e coordinamento',
+        'TUTOR D\'AULA': 'Tutoraggio',
+        'AMMINISTRAZIONE': 'Amministrazione e segreteria',
+        'SEGRETERIA': 'Amministrazione e segreteria',
+        'CODOCENZA ESAME': 'Esami',
+        'ELABORAZIONE REPORTS E STUDI': 'Amministrazione e segreteria',
+        'SELEZIONE': 'Amministrazione e segreteria',
+        'RICERCA': 'Amministrazione e segreteria',
+        'ORIENTAMENTO': 'Amministrazione e segreteria',
+        'DIFFUSIONE DEI RISULTATI': 'Amministrazione e segreteria',
+        'ANALISI DEI BISOGNI': 'Amministrazione e segreteria',
+        'DIREZIONE': 'Amministrazione e segreteria',
+        'SERVIZI AL LAVORO': 'Amministrazione e segreteria',
+        'RELAZIONE FINALE': 'Amministrazione e segreteria',
+        'ORIENTAMENTO FIXO YEI': 'Amministrazione e segreteria',
+        'MEDIATORE CULTURALE': 'Tutoraggio',
+        'AUSILIARIO': 'Tutoraggio',
+        'SCOUTING': 'Amministrazione e segreteria'
+    }
+
+    if row['TipoAttivita'] in voci:
+        return voci[row['TipoAttivita']]
+        
+    return 'Undefined'
 
 
 def apply_delta(dati):
@@ -163,6 +204,8 @@ def download_fatture(engine):
     dati['attivita'] = dati.apply(lambda row: map_attivita(row), axis=1)
     dati['area'] = dati.apply(lambda row: map_area(row), axis=1)
     dati.reset_index(inplace=True)
+
+    dati['Voce Spesa'] = dati.apply(lambda row: map_voci_spesa(row), axis=1)
 
     formats = { 'R': 'number', 'S': 'number', 'T': 'currency', 'U': 'currency', 'V': 'currency', 'W': 'currency', 'X': 'currency', 'Y': 'currency', 'Z': 'currency', 'AA': 'currency', 'AB': 'currency' }
     return dati, formats
