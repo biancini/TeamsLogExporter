@@ -127,16 +127,23 @@ if __name__ == '__main__':
     ente = 'ENAIP'
     filename = 'calls.csv'
     zipfilename = '%s_Report.zip' % nearestsunday().strftime("%Y-%m-%d")
+    
+    phases = ['json', 'zip', 'uploadzip', 'excel', 'uploadall']
+    phase = 'json'
+
+    signature = 'download_reports.py [-e <ente>] [-f <file>] [-z <zipfile>] [-p <phase>]'
 
     try:
-        opts, _ = getopt.getopt(sys.argv[1:], "he:f:z:", ["help", "ente=", "file=", "zipfile="])
+        opts, _ = getopt.getopt(sys.argv[1:], "he:f:z:p:", ["help", "ente=", "file=", "zipfile=", "phase="])
     except getopt.GetoptError:
-        logger.info('download_json.py [-e <ente>] [-f <file>] [-z <zipfile>]')
+        logger.info(signature)
         sys.exit(2)
     
     for o, a in opts:
         if o in ('-h', '--help'):
-            logger.info('download_reports.py [-e <ente>] [-f <file>] [-z <zipfile>]')
+            logger.info(signature)
+            logger.info('  phase: value in: %s', phases)
+
             sys.exit()
         elif o in ('-e', '--ente'):
             ente = a.upper()
@@ -144,6 +151,11 @@ if __name__ == '__main__':
             filename = a
         elif o in ('-z', '--zipfile'):
             zipfilename = a
+        elif o in ('-p', '--phase'):
+            phase = a
+            if phase not in phases:
+                logger.error("Wrong phase parameter passed. The phase parameter must be included in 'json', 'zip', 'uploadzip', 'excel', 'uploadall'.")
+                sys.exit(2)
         else:
             assert False
 
@@ -155,13 +167,15 @@ if __name__ == '__main__':
 
     logger.info('Working for institution %s.', ente)
 
-    for a in [
-            DownloadJsonTask(configuration),
-            ZipJsonTask(configuration),
-            UploadAndRemoveZipFileTask(configuration),
-            GenerateExcelFilesAndRemoveJsonTask(configuration),
-            UploadAndRemoveExcelFilesTask(configuration),
-        ]:
+    actions = [
+        DownloadJsonTask(configuration),
+        ZipJsonTask(configuration),
+        UploadAndRemoveZipFileTask(configuration),
+        GenerateExcelFilesAndRemoveJsonTask(configuration),
+        UploadAndRemoveExcelFilesTask(configuration),
+    ]
+
+    for a in actions[phases.index(phase):]:
         a.run()
 
     logger.info('Script finito.')

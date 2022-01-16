@@ -1,4 +1,5 @@
 SELECT AnnoBando,
+  (CASE WHEN MONTH(t_PianoServizi.DataAvvio)>=9 THEN (CAST(YEAR(t_PianoServizi.DataAvvio) AS VARCHAR) + '/' + CAST(YEAR(t_PianoServizi.DataAvvio) + 1 AS VARCHAR)) ELSE (CAST(YEAR(t_PianoServizi.DataAvvio) - 1 AS VARCHAR) + '/' + CAST(YEAR(t_PianoServizi.DataAvvio) AS VARCHAR)) END) AS AnnoAmm,
   SiglaSede,
   --CodiceEdizione,
   DescrEdizione,

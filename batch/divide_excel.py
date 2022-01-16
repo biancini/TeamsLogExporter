@@ -143,11 +143,5 @@ if __name__ == '__main__':
     total_files, file_moved = divide_excel(configuration)
     print(f'Total excel files {total_files}.')
     print(f'Files excel moved {file_moved}.')
-
-    moved = divide_zipfile(configuration)
-    if moved is None:
-        print('Zipfile already present, not moving.')
-    else:
-        print(f'Moved zipped file to folder {moved}.')
         
     print("Script finito.")

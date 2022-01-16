@@ -176,6 +176,7 @@ def download_materiali(engine):
     dati = pd.read_sql(sqlFile, engine)
     
     formats = { 'U': 'currency', 'V': 'currency' }
+    print("Scaricati i dati su ordini di materiali e servizi (%d righe)." % len(dati))
     return dati, formats
     
     
@@ -188,6 +189,7 @@ def download_parcelle(engine):
     dati = pd.read_sql(sqlFile, engine)
     
     formats = { 'R': 'currency', 'S': 'currency', 'T': 'currency', 'U': 'currency', 'V': 'currency', 'W': 'currency' }
+    print("Scaricati i dati sulle parcelle (%d righe)." % len(dati))
     return dati, formats
 
 
@@ -208,11 +210,12 @@ def download_fatture(engine):
     dati['Voce Spesa'] = dati.apply(lambda row: map_voci_spesa(row), axis=1)
 
     formats = { 'R': 'number', 'S': 'number', 'T': 'currency', 'U': 'currency', 'V': 'currency', 'W': 'currency', 'X': 'currency', 'Y': 'currency', 'Z': 'currency', 'AA': 'currency', 'AB': 'currency' }
+    print("Scaricati i dati sulle fatture (%d righe)." % len(dati))
     return dati, formats
 
 
-def download_lista_attivita(engine):
-    sql_file = '../PerseoDB/Attività/Elenco Servizi.sql'
+def download_doti(engine):
+    sql_file = '../PerseoDB/Ricavi/Doti.sql'
     fd = open(sql_file, 'r')
     sqlFile = fd.read()
     fd.close()
@@ -229,14 +232,14 @@ def download_lista_attivita(engine):
     dati.reset_index(inplace=True)
 
     formats = { 'Q': 'number', 'R': 'number', 'S': 'number', 'U': 'currency' }
+    print("Scaricati i dati sulle doti (%d righe)." % len(dati))
     return dati, formats
-
 
 
 def download_findata(configuration):
     engine = connect_perseo_db()
     dati = {
-        'attivita': download_lista_attivita(engine),
+        'doti': download_doti(engine),
         'fatture': download_fatture(engine),
         'parcelle': download_parcelle(engine),
         'materiali': download_materiali(engine)
