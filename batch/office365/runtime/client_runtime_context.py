@@ -39,7 +39,7 @@ class ClientRuntimeContext(object):
             except exceptions as e:
                 self.add_query(self.current_query, True)
                 if callable(failure_callback):
-                    failure_callback(retry, e)
+                    timeout_secs = failure_callback(retry, e)
                 sleep(timeout_secs)
 
     @abc.abstractmethod

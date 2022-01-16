@@ -38,7 +38,10 @@ class ClientObject(object):
         self._properties_metadata = {}
 
     def execute_query(self):
-        self.context.execute_query()
+        if 'execute_query_with_incremental_retry' in dir(self.context):
+            self.context.execute_query_with_incremental_retry(max_retry=1000)
+        else:
+            self.context.execute_query()
         return self
 
     def execute_query_retry(self, max_retry=5,

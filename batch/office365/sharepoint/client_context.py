@@ -187,6 +187,8 @@ class ClientContext(ClientRuntimeContext):
                 retry_after = ex.response.headers.get("Retry-After", None)
                 if retry_after is not None:
                     settings["timeout"] = int(retry_after)
+            
+            return settings["timeout"]
 
         self.execute_query_retry(timeout_secs=settings.get("timeout"),
                                  max_retry=max_retry,
