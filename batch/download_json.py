@@ -5,6 +5,7 @@ import sys
 import getopt
 import zipfile
 import configparser
+import logging
 import os.path
 from glob import glob
 from tqdm import tqdm
@@ -17,10 +18,14 @@ Scaricare i dati dal report creato appostivamente qui:
 https://cqd.teams.microsoft.com/spd/#/Dashboard?language=it-IT
 '''
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
+
 
 def download_call_data(t, call_id):
-    if os.path.isfile(f'json/{call_id}.json'):
-        return 1
+    filename = 'json/{0}.json'.format(call_id)
+    if os.path.isfile(filename):
+        return [{'file': filename, 'downloaded': False}]
         
     uri = f'https://graph.microsoft.com/beta/communications/callRecords/{call_id}?$expand=sessions($expand=segments)'
     head = { 'Authorization': f'Bearer {t}' }
@@ -28,13 +33,13 @@ def download_call_data(t, call_id):
     response = r.json()
 
     if 'error' not in response:
-        with open('json/{0}.json'.format(call_id), 'w') as outfile:
+        with open(filename, 'w') as outfile:
             outfile.write(json.dumps(response, indent=4))
             outfile.close()
 
-        return 1
+        return [{'file': filename, 'downloaded': True}]
 
-    return 0
+    return None
 
 
 def download_json(configuration):
@@ -59,12 +64,17 @@ def download_json(configuration):
             for call_id in call_ids:
                 if "Conference" in call_id: continue
                 future = pool.submit(download_call_data, t, call_id)
-                future.add_done_callback(lambda p: progress.update())
                 futures.append(future)
 
             for future in futures:
+                progress.update()
                 result = future.result()
-                out += result
+                out += len(result) if result is not None else 0
+                for r in result:
+                    if r['downloaded']:
+                        logging.debug("(%d/%d) Downloaded json file: %s", out, len(call_ids), r['file'])
+                    else:
+                        logging.debug("(%d/%d) Json file already present: %s", out, len(call_ids), r['file'])
         
     return out
 

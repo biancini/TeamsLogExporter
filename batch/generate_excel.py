@@ -4,6 +4,7 @@ import os.path
 import sys
 import getopt
 import configparser
+import logging
 import requests
 from tqdm import tqdm
 from dateutil import tz
@@ -19,6 +20,9 @@ from utils import get_access_token
 usernames = {}
 from_zone = tz.gettz('UTC')
 to_zone = tz.gettz('Europe/Rome')
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
 
 
 def get_usernamefromid(t, userid, displayName=False):
@@ -235,19 +239,18 @@ def generate_one_excel(t, filename):
                 'end': data['max_end'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
                 'periods': merge_intervals(data['periods'])})
 
+        json_file.close()
         if len(participants) <= 1:
-            json_file.close()
-            return 0
+            return [{'file': dest_filename, 'generated': False, 'message': 'Only one participant'}]
 
-        participants.sort(key=lambda stud: 'zzz_{}'.format(stud['name']) if 'Sconosciuto' in stud['name'] else stud['name'] )
+    participants.sort(key=lambda stud: 'zzz_{}'.format(stud['name']) if 'Sconosciuto' in stud['name'] else stud['name'] )
 
-        workbook = Workbook()
-        sheet_registro(filename, participants, workbook)
-        sheet_partecipazione(filename, start_time, participants, workbook)
-        workbook.save(filename=dest_filename)
+    workbook = Workbook()
+    sheet_registro(filename, participants, workbook)
+    sheet_partecipazione(filename, start_time, participants, workbook)
+    workbook.save(filename=dest_filename)
 
-    json_file.close()
-    return 1
+    return [{'file': dest_filename, 'generated': True}]
 
 
 def generate_excel(configuration):
@@ -264,12 +267,17 @@ def generate_excel(configuration):
             futures = []
             for filename in json_files:
                 future = pool.submit(generate_one_excel, t, filename)
-                future.add_done_callback(lambda p: progress.update())
                 futures.append(future)
 
             for future in futures:
+                progress.update()
                 result = future.result()
-                out += result
+                out += len([r for r in result if r['generated']]) if result is not None else 0
+                for r in result:
+                    if r['generated']:
+                        logging.debug("(%d/%d) Generated excel file: %s", out, len(json_files), r['file'])
+                    else:
+                        logging.debug("(%d/%d) Not generated excel file: %s, with message %s", out, len(json_files), r['file'], r['message'])
         
     return out
     
