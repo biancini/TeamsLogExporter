@@ -8,6 +8,7 @@ from glob import glob
 from utils import nearestsunday
 from download_json import download_json, zip_jsonfiles
 from generate_excel import generate_excel
+from divide_excel import divide_excel
 from upload_excel import upload_excel, upload_zipfile
 
 
@@ -121,6 +122,19 @@ class UploadAndRemoveExcelFilesTask(TaskRunner):
         return file_uploaded
 
 
+
+class DivideAndRemoveExcelFilesTask(TaskRunner):
+    @log
+    def run(self):
+        total_files, file_uploaded = divide_excel(self.configuration)
+        logging.info('Divided to SP local folder %d files.', file_uploaded)
+
+        if file_uploaded <= 0:
+            raise Exception(f'Should have divided {total_files} files, but uploaded {file_uploaded}.')
+        
+        return file_uploaded
+
+
 if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read('configuration.ini')
@@ -172,7 +186,8 @@ if __name__ == '__main__':
         ZipJsonTask(configuration),
         UploadAndRemoveZipFileTask(configuration),
         GenerateExcelFilesAndRemoveJsonTask(configuration),
-        UploadAndRemoveExcelFilesTask(configuration),
+        #UploadAndRemoveExcelFilesTask(configuration),
+        DivideAndRemoveExcelFilesTask(configuration),
     ]
 
     for a in actions[phases.index(phase):]:
