@@ -3,13 +3,17 @@ import requests
 import sys
 import getopt
 import configparser
+import logging
 from glob import glob
 from datetime import datetime
-from os import path
-from tqdm import tqdm
+from os import path, remove
 from utils import get_access_token, get_user_credentials, allsundays, nearestsunday
 from concurrent.futures import ProcessPoolExecutor
 from office365.sharepoint.client_context import ClientContext
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
 
 
 def get_graph_data(t, uri):
@@ -82,9 +86,10 @@ def upload_one_excel(configuration, f, people, folders):
             target_file = target_folder.upload_file(name, file_content).execute_query()
 
             if target_file:
-                return 1
-
-            return 0
+                #remove(f)
+                return target_file.serverRelativeUrl
+                
+            return None
 
 
 def upload_excel(configuration):
@@ -101,16 +106,17 @@ def upload_excel(configuration):
     num_threads = 10
     
     with ProcessPoolExecutor(max_workers=num_threads) as pool:
-        with tqdm(total=len(files)) as progress:
-            futures = []
-            for f in files:
-                future = pool.submit(upload_one_excel, configuration, f, people, folders)
-                future.add_done_callback(lambda p: progress.update())
-                futures.append(future)
+        futures = []
+        for f in files:
+            future = pool.submit(upload_one_excel, configuration, f, people, folders)
+            futures.append(future)
 
-            for future in futures:
-                result = future.result()
-                file_uploaded += result
+        for future in futures:
+            result = future.result()
+            if result is not None:
+                file_uploaded += 1
+                logging.info("(%d/%d) Uploaded file: %s", file_uploaded, total_files, result)
+                
 
     return total_files, file_uploaded
 

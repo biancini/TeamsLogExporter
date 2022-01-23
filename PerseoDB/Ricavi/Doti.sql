@@ -18,7 +18,8 @@ SELECT serv.IDedizione,
   (SELECT OreAttivita FROM t_AttivitaEdizioni WHERE FK_Edizione = serv.IDedizione AND FK_TipoAttivita = 1) AS OreAula,
   (SELECT OreAttivita FROM t_AttivitaEdizioni WHERE FK_Edizione = serv.IDedizione AND FK_TipoAttivita = 2) AS OreStage,
   (SELECT COUNT(IDiscrizione) FROM t_Iscrizioni WHERE FK_Edizione = serv.IDedizione) AS NIscr,
-  (SELECT ROUND(SUM(ImportoTotaleDote), 2) FROM t_StudentiDoti AS doti LEFT JOIN t_Iscrizioni AS iscr ON iscr.FK_DoteStudente = doti.IDdotestud WHERE FK_Edizione = serv.IDedizione) AS ImportoDoti
+  (SELECT ROUND(SUM(ImportoTotaleDote), 2) FROM t_StudentiDoti AS doti LEFT JOIN t_Iscrizioni AS iscr ON iscr.FK_DoteStudente = doti.IDdotestud WHERE FK_Edizione = serv.IDedizione) AS ImportoDoti,
+  (SELECT COUNT(ImportoTotaleDote) FROM t_StudentiDoti AS doti LEFT JOIN t_Iscrizioni AS iscr ON iscr.FK_DoteStudente = doti.IDdotestud WHERE FK_Edizione = serv.IDedizione AND ImportoTotaleDote > 0) AS NumeroDoti
   
 FROM t_PianoServizi AS serv
   LEFT JOIN t_Sedi AS sedi ON sedi.IDsede = serv.FK_SedeEdizione
