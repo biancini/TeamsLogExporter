@@ -1,3 +1,4 @@
+from importlib_metadata import re
 import requests
 
 import sys
@@ -86,8 +87,7 @@ def upload_one_excel(configuration, f, people, folders):
             target_file = target_folder.upload_file(name, file_content).execute_query()
 
             if target_file:
-                #remove(f)
-                return target_file.serverRelativeUrl
+                return [{'origin': f, 'destination': target_file.serverRelativeUrl}]
                 
             return None
 
@@ -114,8 +114,10 @@ def upload_excel(configuration):
         for future in futures:
             result = future.result()
             if result is not None:
-                file_uploaded += 1
-                logging.info("(%d/%d) Uploaded file: %s", file_uploaded, total_files, result)
+                file_uploaded += len(result)
+                for r in result:
+                    remove(r['origin'])
+                    logging.info("(%d/%d) Uploaded file: %s", file_uploaded, total_files, r['destination'])
                 
 
     return total_files, file_uploaded
