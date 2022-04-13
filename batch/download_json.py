@@ -70,11 +70,12 @@ def download_json(configuration):
                 progress.update()
                 result = future.result()
                 out += len(result) if result is not None else 0
-                for r in result:
-                    if r['downloaded']:
-                        logging.debug("(%d/%d) Downloaded json file: %s", out, len(call_ids), r['file'])
-                    else:
-                        logging.debug("(%d/%d) Json file already present: %s", out, len(call_ids), r['file'])
+                if result is not None:
+                    for r in result:
+                        if r['downloaded']:
+                            logging.debug("(%d/%d) Downloaded json file: %s", out, len(call_ids), r['file'])
+                        else:
+                            logging.debug("(%d/%d) Json file already present: %s", out, len(call_ids), r['file'])
         
     return out
 

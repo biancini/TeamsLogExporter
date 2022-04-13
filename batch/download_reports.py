@@ -186,8 +186,8 @@ if __name__ == '__main__':
         ZipJsonTask(configuration),
         UploadAndRemoveZipFileTask(configuration),
         GenerateExcelFilesAndRemoveJsonTask(configuration),
-        UploadAndRemoveExcelFilesTask(configuration),
-        #DivideAndRemoveExcelFilesTask(configuration),
+        #UploadAndRemoveExcelFilesTask(configuration),
+        DivideAndRemoveExcelFilesTask(configuration),
     ]
 
     for a in actions[phases.index(phase):]:
