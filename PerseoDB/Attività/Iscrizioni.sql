@@ -29,7 +29,7 @@ LEFT OUTER JOIN t_TipoAnnualita ON t_PianoServizi.FK_Anno = t_TipoAnnualita.IDta
 LEFT OUTER JOIN t_TipoMotivoRitiro ON t_Iscrizioni.FK_MotivoRitiro = t_TipoMotivoRitiro.IDtritiro
 LEFT OUTER JOIN t_TipoStatoLav ON t_Utenti.FK_StatoLav = t_TipoStatoLav.IDtslav ON t_StudentiDoti.IDdotestud = t_Iscrizioni.FK_DoteStudente 
 
-WHERE AnnoBando = '2021/2022'
+WHERE AnnoBando IN ('2019/2020', '2020/2021', '2021/2022')
   AND SedeTest=0
 
 ORDER BY SiglaSede, DescrProgetto, Cognome, Nome

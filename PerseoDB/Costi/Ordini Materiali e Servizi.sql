@@ -27,6 +27,6 @@ INNER JOIN t_Sedi AS sedi ON ordini.FK_Sede = sedi.IDsede
 INNER JOIN t_TipoSpesa AS ts ON ordini.FK_TipoOrdineSpesa = ts.IDtipospesa
 INNER JOIN t_TipoOrdine AS tipordine ON ts.FK_TipoOrdine = tipordine.IDtordine
 
-WHERE (CASE WHEN MONTH(ordini.DataRichiesta)>=9 THEN (CAST(YEAR(ordini.DataRichiesta) AS VARCHAR) + '/' + CAST(YEAR(ordini.DataRichiesta) + 1 AS VARCHAR)) ELSE (CAST(YEAR(ordini.DataRichiesta) - 1 AS VARCHAR) + '/' + CAST(YEAR(ordini.DataRichiesta) AS VARCHAR)) END) IN ('2019/2020', '2020/2021', '2021/2022')
+WHERE (CASE WHEN MONTH(ordini.DataRichiesta)>=9 THEN (CAST(YEAR(ordini.DataRichiesta) AS VARCHAR) + '/' + CAST(YEAR(ordini.DataRichiesta) + 1 AS VARCHAR)) ELSE (CAST(YEAR(ordini.DataRichiesta) - 1 AS VARCHAR) + '/' + CAST(YEAR(ordini.DataRichiesta) AS VARCHAR)) END) IN ('2018/2019', '2019/2020', '2020/2021', '2021/2022')
 
 ORDER BY ordini.DataOrdineEvaso

@@ -18,7 +18,9 @@ SELECT serv.IDedizione,
   (SELECT OreAttivita FROM t_AttivitaEdizioni WHERE FK_Edizione = serv.IDedizione AND FK_TipoAttivita = 1) AS OreAula,
   (SELECT OreAttivita FROM t_AttivitaEdizioni WHERE FK_Edizione = serv.IDedizione AND FK_TipoAttivita = 2) AS OreStage,
   (SELECT COUNT(IDiscrizione) FROM t_Iscrizioni WHERE FK_Edizione = serv.IDedizione) AS NIscr
-  
+  --(SELECT COUNT(ImportoTotaleDote) FROM t_StudentiDoti AS doti LEFT JOIN t_Iscrizioni AS iscr ON iscr.FK_DoteStudente = doti.IDdotestud WHERE FK_Edizione = serv.IDedizione AND ImportoTotaleDote > 0) AS NumeroDoti,
+  --(SELECT ROUND(SUM(ImportoTotaleDote), 2) FROM t_StudentiDoti AS doti LEFT JOIN t_Iscrizioni AS iscr ON iscr.FK_DoteStudente = doti.IDdotestud WHERE FK_Edizione = serv.IDedizione) AS ImportoDoti
+
 FROM t_PianoServizi AS serv
   LEFT JOIN t_Sedi AS sedi ON sedi.IDsede = serv.FK_SedeEdizione
   LEFT JOIN t_Azioni AS az ON az.IDazione = serv.FK_Azione
@@ -29,6 +31,7 @@ FROM t_PianoServizi AS serv
   LEFT JOIN t_TipoBando AS tb ON tb.IDtbando = b.FK_TipoBando
   LEFT JOIN t_TipoSettoreInterno AS sett ON serv.FK_SettoreEdizione = sett.IDtsettin
 
-WHERE (CASE WHEN MONTH(serv.DataAvvio)>=9 THEN (CAST(YEAR(serv.DataAvvio) AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) + 1 AS VARCHAR)) ELSE (CAST(YEAR(serv.DataAvvio) - 1 AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) AS VARCHAR)) END) IN ('2019/2020', '2020/2021', '2021/2022')
+WHERE (CASE WHEN MONTH(serv.DataAvvio)>=9 THEN (CAST(YEAR(serv.DataAvvio) AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) + 1 AS VARCHAR)) ELSE (CAST(YEAR(serv.DataAvvio) - 1 AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) AS VARCHAR)) END) IN ('2018/2019', '2019/2020', '2020/2021', '2021/2022')
+AND AnnoBando IN ('2018/2019', '2019/2020', '2020/2021', '2021/2022')
 
 ORDER BY IDazione

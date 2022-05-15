@@ -30,7 +30,6 @@ SELECT compensi.IDcompensi,
     compensi.DataPagatoFine,
     compensi.DataPagamento
     
-    
 FROM t_ProgettiPagamenti AS pagamenti
 INNER JOIN t_ProgettiPagamentiCompensiOneri AS compensi ON pagamenti.IDprogpagamento = compensi.FK_ProgettoPagamento
 INNER JOIN t_PianoServizi AS serv ON serv.IDedizione = compensi.IDedizione
@@ -42,6 +41,6 @@ LEFT OUTER JOIN t_Aziende AS aziende ON compensi.FK_Azienda = aziende.IDazienda
 LEFT OUTER JOIN t_Sedi AS sedi ON compensi.FK_SedeEdizione = sedi.IDsede
 
 WHERE compensi.Reso = 0
-AND (CASE WHEN MONTH(serv.DataAvvio)>=9 THEN (CAST(YEAR(serv.DataAvvio) AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) + 1 AS VARCHAR)) ELSE (CAST(YEAR(serv.DataAvvio) - 1 AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) AS VARCHAR)) END) IN ('2019/2020', '2020/2021', '2021/2022')
+AND (CASE WHEN MONTH(serv.DataAvvio)>=9 THEN (CAST(YEAR(serv.DataAvvio) AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) + 1 AS VARCHAR)) ELSE (CAST(YEAR(serv.DataAvvio) - 1 AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) AS VARCHAR)) END) IN ('2018/2019', '2019/2020', '2020/2021', '2021/2022')
 
 ORDER BY compensi.DataPagamento
