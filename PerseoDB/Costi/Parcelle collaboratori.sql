@@ -3,9 +3,9 @@ SELECT ordini.IDparcella AS Parcella,
     (CASE WHEN aziende.IDazienda IS NOT NULL THEN aziende.DescrAzienda ELSE (docenti.Cognome + ' ' + docenti.Nome) END) AS Collaboratore,
     progetti.DescrProgetto,
     progetti.CodiceProgetto,
-    servizi.IDedizione,
-    servizi.DescrEdizione,
-    servizi.CodiceEdizione,
+    ---servizi.IDedizione,
+    ---servizi.DescrEdizione,
+    ---servizi.CodiceEdizione,
     sedi.SiglaSede,
     (CASE WHEN componenti.IDcomponente IS NOT NULL THEN ('Sì') ELSE NULL END) AS CommissioneEsame,
     ordini.DescrCostiAggiuntivi,
@@ -31,7 +31,7 @@ LEFT OUTER JOIN t_CommissioniEsameComponenti AS componenti ON ordini.FK_Commissi
 LEFT OUTER JOIN t_Docenti AS docenti ON ordini.FK_Docente = docenti.IDdocente
 LEFT OUTER JOIN t_Sedi AS sedi ON ordini.FK_Sede = sedi.IDsede ON progetti.IDprogetto = ordini.FK_Progetto
 LEFT OUTER JOIN t_Azioni AS azioni ON ordini.FK_Azione = azioni.IDazione
-LEFT OUTER JOIN t_PianoServizi AS servizi ON ordini.FK_Edizione = servizi.IDedizione
+---LEFT OUTER JOIN t_PianoServizi AS servizi ON ordini.FK_Edizione = servizi.IDedizione
 LEFT OUTER JOIN t_Aziende AS aziende ON ordini.FK_Azienda = aziende.IDazienda
 
 WHERE ordini.DataPagamento IS NOT NULL
