@@ -19,7 +19,7 @@ SELECT ordini.IDordine AS PKord,
     (SELECT DescrAzienda FROM t_Aziende WHERE IDazienda=ordini.FK_Fornitore) AS DescrAzienda,
     (SELECT COUNT(IDrigaord) FROM t_RichiesteOrdiniRighe WHERE FK_RichiestaOrdine=ordini.IDordine) AS NumVoci,
     (SELECT SUM(CostoUnitario*QuantRiga) FROM t_RichiesteOrdiniRighe WHERE FK_RichiestaOrdine=ordini.IDordine) AS TotaleImponibile,
-    (SELECT SUM(TotaleIMponibile) FROM t_RichiesteOrdiniFatture WHERE FK_ordine=ordini.IDordine) AS TotaleImponibileFatture,
+    (SELECT SUM(TotaleImponibile) FROM t_RichiesteOrdiniFatture WHERE FK_ordine=ordini.IDordine) AS TotaleImponibileFatture,
     ordini.DataOrdineEvaso
     
 FROM t_RichiesteOrdini AS ordini
