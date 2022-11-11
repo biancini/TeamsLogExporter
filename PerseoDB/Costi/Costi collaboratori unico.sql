@@ -22,7 +22,7 @@ LEFT OUTER JOIN t_Aziende AS aziende ON compensi.FK_Azienda = aziende.IDazienda
 LEFT OUTER JOIN t_Sedi AS sedi ON compensi.FK_SedeEdizione = sedi.IDsede
 
 WHERE compensi.Reso = 0
-AND (CASE WHEN MONTH(serv.DataAvvio)>=9 THEN (CAST(YEAR(serv.DataAvvio) AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) + 1 AS VARCHAR)) ELSE (CAST(YEAR(serv.DataAvvio) - 1 AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) AS VARCHAR)) END) IN ('2020/2021', '2021/2022')
+AND (CASE WHEN MONTH(serv.DataAvvio)>=9 THEN (CAST(YEAR(serv.DataAvvio) AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) + 1 AS VARCHAR)) ELSE (CAST(YEAR(serv.DataAvvio) - 1 AS VARCHAR) + '/' + CAST(YEAR(serv.DataAvvio) AS VARCHAR)) END) IN ('2018/2019', '2019/2020', '2020/2021', '2021/2022')
 
 UNION
 
@@ -52,5 +52,5 @@ LEFT OUTER JOIN t_Azioni AS azioni ON ordini.FK_Azione = azioni.IDazione
 LEFT OUTER JOIN t_Aziende AS aziende ON ordini.FK_Azienda = aziende.IDazienda
 
 WHERE ordini.DataPagamento IS NOT NULL
-AND (CASE WHEN MONTH(ordini.DataParcella)>=9 THEN (CAST(YEAR(ordini.DataParcella) AS VARCHAR) + '/' + CAST(YEAR(ordini.DataParcella) + 1 AS VARCHAR)) ELSE (CAST(YEAR(ordini.DataParcella) - 1 AS VARCHAR) + '/' + CAST(YEAR(ordini.DataParcella) AS VARCHAR)) END) IN ('2020/2021', '2021/2022')
+AND (CASE WHEN MONTH(ordini.DataParcella)>=9 THEN (CAST(YEAR(ordini.DataParcella) AS VARCHAR) + '/' + CAST(YEAR(ordini.DataParcella) + 1 AS VARCHAR)) ELSE (CAST(YEAR(ordini.DataParcella) - 1 AS VARCHAR) + '/' + CAST(YEAR(ordini.DataParcella) AS VARCHAR)) END) IN ('2018/2019', '2019/2020', '2020/2021', '2021/2022')
 
