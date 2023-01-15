@@ -33,7 +33,6 @@ INNER JOIN t_AttivitaEdizioni ON t_IncarichiEdizioni.FK_Attivita = t_AttivitaEdi
 INNER JOIN t_TipoAttivitaEdizione ON t_AttivitaEdizioni.FK_TipoAttivita = t_TipoAttivitaEdizione.IDtattivita
 LEFT OUTER JOIN t_TipoFormativoInterno ON t_PianoServizi.FK_TipoFormativoInterno = t_TipoFormativoInterno.IDtformaint
 LEFT OUTER JOIN t_ArgomentiModuli ON t_IncarichiEdizioni.FK_Argomento = t_ArgomentiModuli.IDargomento
-LEFT OUTER JOIN t_IscrittiEdizione ON t_IncarichiEdizioni.IDincarico = t_IscrittiEdizione.IDincarico
 
 WHERE AnnoBando IN ( '2018/2019', '2019/2020', '2021/2022' )
 AND FK_Tipo > 1

@@ -57,7 +57,7 @@ def divide_excel(configuration):
         lookdir = configuration['xllookdir']
 
     folders = []
-    for d in allsundays([2020, 2021, 2022]):
+    for d in allsundays([2020, 2021, 2022, 2023]):
         folders.append(d)
 
     people = _get_people(configuration)
